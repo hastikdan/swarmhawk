@@ -40,7 +40,7 @@ def cmd_scan(args):
     print(f"  Mode: Passive OSINT only")
     print(f"  {'─'*50}")
 
-    scanner = Scanner(output_dir=DATA_DIR, max_workers=8)
+    scanner = Scanner(output_dir=DATA_DIR, max_workers=50)
     data = scanner.run_all(countries=COUNTRIES)
 
     if args.dashboard or True:   # always generate dashboard
