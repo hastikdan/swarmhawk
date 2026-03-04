@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SwarmHawk — Cyber Intelligence Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<style>
+  :root {
+    --black: #0E0D12;
+    --lime: #CBFF00;
+    --navy: #0D1B3E;
+    --white: #ffffff;
+    --grey: #6B7280;
+    --lgrey: #F2F5F9;
+    --border: #1E2A1A;
+    --accent: #3A6200;
+    --red: #C0392B;
+    --amber: #D4850A;
+    --green: #1A7A4A;
+    --card-bg: #111318;
+    --scan-bg: #0A0C0F;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--black);
+    color: var(--white);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── Grid background ── */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image:
+      linear-gradient(rgba(203,255,0,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(203,255,0,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none; z-index: 0;
+  }
+
+  /* ── Navbar ── */
+  nav {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(14,13,18,0.95);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(203,255,0,0.1);
+    padding: 0 24px;
+    display: flex; align-items: center;
+    height: 60px; gap: 16px;
+  }
+  .logo {
+    display: flex; align-items: center; gap: 10px;
+    font-family: 'Space Mono', monospace;
+    font-size: 16px; font-weight: 700;
+    color: var(--lime); letter-spacing: 1px;
+    text-decoration: none;
+  }
+  .logo-dot {
+    width: 8px; height: 8px;
+    background: var(--lime);
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%,100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(1.3); }
+  }
+  .nav-right { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+  .user-info {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 13px; color: var(--grey);
+  }
+  .user-avatar {
+    width: 28px; height: 28px; border-radius: 50%;
+    border: 1px solid rgba(203,255,0,0.3);
+  }
+  .btn-logout {
+    background: transparent;
+    border: 1px solid rgba(203,255,0,0.2);
+    color: var(--grey); font-size: 12px;
+    padding: 5px 12px; border-radius: 4px;
+    cursor: pointer; transition: all .2s;
+    font-family: 'Space Mono', monospace;
+  }
+  .btn-logout:hover { border-color: var(--lime); color: var(--lime); }
+
+  /* ── Hero ── */
+  #hero {
+    position: relative; z-index: 1;
+    padding: 80px 24px 60px;
+    text-align: center;
+    max-width: 800px; margin: 0 auto;
+  }
+  .hero-tag {
+    display: inline-block;
+    background: rgba(203,255,0,0.08);
+    border: 1px solid rgba(203,255,0,0.2);
+    color: var(--lime);
+    font-family: 'Space Mono', monospace;
+    font-size: 11px; letter-spacing: 2px;
+    padding: 6px 14px; border-radius: 20px;
+    margin-bottom: 24px; text-transform: uppercase;
+  }
+  h1 {
+    font-family: 'Space Mono', monospace;
+    font-size: clamp(32px, 5vw, 52px);
+    font-weight: 700; line-height: 1.1;
+    color: var(--white); margin-bottom: 20px;
+  }
+  h1 span { color: var(--lime); }
+  .hero-sub {
+    font-size: 16px; color: var(--grey);
+    line-height: 1.6; margin-bottom: 40px;
+    max-width: 560px; margin-left: auto; margin-right: auto;
+  }
+
+  /* ── Google Sign-In ── */
+  #login-section { text-align: center; }
+  #google-signin-btn { display: inline-block; }
+  .signin-note {
+    font-size: 11px; color: var(--grey);
+    margin-top: 12px;
+    font-family: 'Space Mono', monospace;
+  }
+
+  /* ── App (post-login) ── */
+  #app { display: none; position: relative; z-index: 1; }
+
+  /* ── Add domain section ── */
+  .add-domain-bar {
+    max-width: 900px; margin: 0 auto 32px;
+    padding: 0 24px;
+    display: flex; gap: 12px;
+  }
+  .domain-input {
+    flex: 1;
+    background: var(--card-bg);
+    border: 1px solid rgba(203,255,0,0.2);
+    color: var(--white);
+    font-family: 'Space Mono', monospace;
+    font-size: 14px; padding: 12px 16px;
+    border-radius: 6px; outline: none;
+    transition: border-color .2s;
+  }
+  .domain-input:focus { border-color: var(--lime); }
+  .domain-input::placeholder { color: #444; }
+  .country-select {
+    background: var(--card-bg);
+    border: 1px solid rgba(203,255,0,0.2);
+    color: var(--white); font-size: 14px;
+    padding: 12px 14px; border-radius: 6px;
+    outline: none; cursor: pointer; min-width: 90px;
+  }
+  .btn-add {
+    background: var(--lime); color: var(--black);
+    font-family: 'Space Mono', monospace;
+    font-size: 13px; font-weight: 700;
+    padding: 12px 22px; border: none;
+    border-radius: 6px; cursor: pointer;
+    transition: all .2s; white-space: nowrap;
+  }
+  .btn-add:hover { background: #d4ff1a; transform: translateY(-1px); }
+  .btn-add:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+  /* ── Domains grid ── */
+  .domains-grid {
+    max-width: 900px; margin: 0 auto;
+    padding: 0 24px; display: grid; gap: 16px;
+  }
+
+  /* ── Domain card ── */
+  .domain-card {
+    background: var(--card-bg);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 10px; overflow: hidden;
+    transition: border-color .2s, transform .2s;
+  }
+  .domain-card:hover {
+    border-color: rgba(203,255,0,0.2);
+    transform: translateY(-1px);
+  }
+  .card-header {
+    display: flex; align-items: center;
+    padding: 16px 20px; gap: 14px;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+  .risk-badge {
+    width: 52px; height: 52px; border-radius: 8px;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .risk-badge .score {
+    font-family: 'Space Mono', monospace;
+    font-size: 20px; font-weight: 700; line-height: 1;
+  }
+  .risk-badge .label {
+    font-size: 8px; text-transform: uppercase;
+    letter-spacing: 0.5px; opacity: 0.8;
+  }
+  .risk-high   { background: rgba(192,57,43,0.15); border: 1px solid rgba(192,57,43,0.3); color: #C0392B; }
+  .risk-medium { background: rgba(212,133,10,0.15); border: 1px solid rgba(212,133,10,0.3); color: #D4850A; }
+  .risk-low    { background: rgba(26,122,74,0.15); border: 1px solid rgba(26,122,74,0.3); color: #1A7A4A; }
+  .risk-scan   { background: rgba(203,255,0,0.08); border: 1px solid rgba(203,255,0,0.2); color: var(--lime); }
+  .card-meta { flex: 1; min-width: 0; }
+  .card-domain {
+    font-family: 'Space Mono', monospace;
+    font-size: 15px; font-weight: 700;
+    color: var(--white); margin-bottom: 4px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .card-sub {
+    font-size: 12px; color: var(--grey);
+    display: flex; align-items: center; gap: 8px;
+    flex-wrap: wrap;
+  }
+  .card-sub .sep { color: #333; }
+  .status-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    display: inline-block; margin-right: 4px;
+  }
+  .dot-scanning { background: var(--lime); animation: pulse 1s infinite; }
+  .dot-active   { background: var(--green); }
+  .card-actions {
+    display: flex; flex-direction: column; gap: 6px; align-items: flex-end;
+  }
+  .badge-paid {
+    background: rgba(203,255,0,0.1);
+    border: 1px solid rgba(203,255,0,0.3);
+    color: var(--lime);
+    font-family: 'Space Mono', monospace;
+    font-size: 9px; font-weight: 700; letter-spacing: 1px;
+    padding: 3px 8px; border-radius: 3px; text-transform: uppercase;
+  }
+  .badge-free {
+    background: rgba(107,114,128,0.1);
+    border: 1px solid rgba(107,114,128,0.2);
+    color: var(--grey);
+    font-family: 'Space Mono', monospace;
+    font-size: 9px; letter-spacing: 1px;
+    padding: 3px 8px; border-radius: 3px;
+  }
+  .btn-report {
+    background: transparent;
+    border: 1px solid rgba(203,255,0,0.3);
+    color: var(--lime);
+    font-family: 'Space Mono', monospace;
+    font-size: 11px; padding: 6px 14px;
+    border-radius: 4px; cursor: pointer;
+    transition: all .2s; white-space: nowrap;
+  }
+  .btn-report:hover { background: rgba(203,255,0,0.08); }
+  .btn-upgrade {
+    background: var(--lime); color: var(--black);
+    font-family: 'Space Mono', monospace;
+    font-size: 11px; font-weight: 700;
+    padding: 6px 14px; border: none;
+    border-radius: 4px; cursor: pointer;
+    transition: all .2s; white-space: nowrap;
+  }
+  .btn-upgrade:hover { background: #d4ff1a; }
+
+  /* ── Stats bar ── */
+  .stats-row {
+    display: flex; gap: 0;
+    padding: 10px 20px;
+    border-top: 1px solid rgba(255,255,255,0.04);
+    font-size: 11px; color: var(--grey);
+    font-family: 'Space Mono', monospace;
+  }
+  .stat-item {
+    flex: 1; display: flex; flex-direction: column;
+    align-items: center; gap: 2px;
+  }
+  .stat-item + .stat-item {
+    border-left: 1px solid rgba(255,255,255,0.04);
+  }
+  .stat-val { font-size: 16px; font-weight: 700; color: var(--white); }
+  .stat-val.crit { color: var(--red); }
+  .stat-val.warn { color: var(--amber); }
+  .stat-val.ok   { color: var(--green); }
+
+  /* ── Report modal ── */
+  .modal-overlay {
+    position: fixed; inset: 0; z-index: 1000;
+    background: rgba(0,0,0,0.85);
+    backdrop-filter: blur(6px);
+    display: flex; align-items: flex-start;
+    justify-content: center;
+    padding: 40px 16px; overflow-y: auto;
+  }
+  .modal {
+    background: var(--card-bg);
+    border: 1px solid rgba(203,255,0,0.15);
+    border-radius: 12px; width: 100%;
+    max-width: 720px; overflow: hidden;
+    animation: slideUp .25s ease;
+  }
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .modal-header {
+    background: var(--black);
+    padding: 20px 24px;
+    display: flex; align-items: center; gap: 14px;
+    border-bottom: 1px solid rgba(203,255,0,0.1);
+  }
+  .modal-domain {
+    font-family: 'Space Mono', monospace;
+    font-size: 18px; font-weight: 700; color: var(--lime);
+    flex: 1;
+  }
+  .modal-close {
+    background: transparent; border: none;
+    color: var(--grey); font-size: 20px;
+    cursor: pointer; padding: 4px 8px;
+    transition: color .2s;
+  }
+  .modal-close:hover { color: var(--white); }
+  .modal-body { padding: 24px; }
+  .checks-table { width: 100%; border-collapse: collapse; }
+  .checks-table th {
+    text-align: left; padding: 8px 12px;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px; color: var(--lime);
+    letter-spacing: 1px; text-transform: uppercase;
+    background: rgba(203,255,0,0.05);
+    border-bottom: 1px solid rgba(203,255,0,0.1);
+  }
+  .checks-table td {
+    padding: 10px 12px;
+    font-size: 12px;
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+    vertical-align: top;
+  }
+  .checks-table tr:last-child td { border-bottom: none; }
+  .checks-table tr:nth-child(even) td { background: rgba(255,255,255,0.015); }
+  .status-pill {
+    display: inline-block;
+    font-family: 'Space Mono', monospace;
+    font-size: 9px; font-weight: 700;
+    letter-spacing: 0.5px; text-transform: uppercase;
+    padding: 3px 8px; border-radius: 3px;
+    white-space: nowrap;
+  }
+  .pill-critical { background: rgba(192,57,43,0.15); color: #e74c3c; border: 1px solid rgba(192,57,43,0.3); }
+  .pill-warning  { background: rgba(212,133,10,0.15); color: #f39c12; border: 1px solid rgba(212,133,10,0.3); }
+  .pill-ok       { background: rgba(26,122,74,0.15);  color: #27ae60; border: 1px solid rgba(26,122,74,0.3); }
+  .pill-error    { background: rgba(107,114,128,0.1); color: #6b7280; border: 1px solid rgba(107,114,128,0.2); }
+  .check-name { color: var(--white); font-weight: 500; margin-bottom: 2px; }
+  .check-detail { color: var(--grey); font-size: 11px; line-height: 1.4; }
+  .locked-banner {
+    background: rgba(203,255,0,0.05);
+    border: 1px solid rgba(203,255,0,0.15);
+    border-radius: 8px; padding: 20px 24px;
+    margin-top: 16px; text-align: center;
+  }
+  .locked-banner h3 {
+    font-family: 'Space Mono', monospace;
+    color: var(--lime); font-size: 14px; margin-bottom: 8px;
+  }
+  .locked-banner p { color: var(--grey); font-size: 13px; margin-bottom: 16px; }
+  .btn-unlock {
+    background: var(--lime); color: var(--black);
+    font-family: 'Space Mono', monospace;
+    font-size: 13px; font-weight: 700;
+    padding: 12px 28px; border: none;
+    border-radius: 6px; cursor: pointer;
+    transition: all .2s;
+  }
+  .btn-unlock:hover { background: #d4ff1a; transform: translateY(-1px); }
+  .ai-section {
+    background: rgba(203,255,0,0.03);
+    border: 1px solid rgba(203,255,0,0.1);
+    border-radius: 8px; padding: 16px 20px;
+    margin-top: 16px;
+  }
+  .ai-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px; color: var(--lime);
+    letter-spacing: 1px; text-transform: uppercase;
+    margin-bottom: 12px; display: flex; align-items: center; gap: 8px;
+  }
+  .ai-label::after {
+    content: ''; flex: 1;
+    height: 1px; background: rgba(203,255,0,0.1);
+  }
+  .ai-body {
+    font-size: 12px; color: #ccc; line-height: 1.7;
+    white-space: pre-wrap; font-family: 'DM Sans', sans-serif;
+  }
+
+  /* ── Toast ── */
+  .toast {
+    position: fixed; bottom: 24px; right: 24px; z-index: 9999;
+    background: var(--card-bg);
+    border: 1px solid rgba(203,255,0,0.2);
+    color: var(--white); font-size: 13px;
+    padding: 12px 20px; border-radius: 8px;
+    animation: fadeIn .3s ease;
+    max-width: 320px;
+  }
+  @keyframes fadeIn { from { opacity:0; transform: translateY(10px); } to { opacity:1; transform:none; } }
+
+  /* ── Empty state ── */
+  .empty-state {
+    text-align: center; padding: 60px 24px;
+    color: var(--grey);
+  }
+  .empty-state .icon {
+    font-size: 40px; margin-bottom: 16px; opacity: 0.4;
+  }
+  .empty-state h3 {
+    font-family: 'Space Mono', monospace;
+    font-size: 16px; color: var(--white);
+    margin-bottom: 8px;
+  }
+  .empty-state p { font-size: 13px; max-width: 360px; margin: 0 auto; }
+
+  /* ── Loading spinner ── */
+  .spinner {
+    display: inline-block; width: 16px; height: 16px;
+    border: 2px solid rgba(203,255,0,0.2);
+    border-top-color: var(--lime);
+    border-radius: 50%;
+    animation: spin .7s linear infinite;
+    vertical-align: middle;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── Sections header ── */
+  .section-header {
+    max-width: 900px; margin: 0 auto 16px;
+    padding: 0 24px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .section-title {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px; color: var(--lime);
+    letter-spacing: 2px; text-transform: uppercase;
+  }
+  .section-count {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px; color: var(--grey);
+  }
+
+  /* ── Success banner ── */
+  .success-banner {
+    max-width: 900px; margin: 0 auto 20px;
+    padding: 0 24px;
+  }
+  .success-inner {
+    background: rgba(26,122,74,0.1);
+    border: 1px solid rgba(26,122,74,0.3);
+    border-radius: 8px; padding: 14px 18px;
+    display: flex; align-items: center; gap: 12px;
+    font-size: 13px; color: #27ae60;
+  }
+</style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav>
+  <a class="logo" href="#">
+    <div class="logo-dot"></div>
+    SWARMHAWK
+  </a>
+  <div class="nav-right" id="nav-right">
+    <div id="nav-signin">
+      <div id="g_id_onload"
+        data-client_id="396286675021-tqhadhbp3jqc1jrqo5krk3j5njdss0cg.apps.googleusercontent.com"
+        data-callback="handleGoogleLogin"
+        data-auto_prompt="false">
+      </div>
+      <div class="g_id_signin"
+        data-type="standard"
+        data-size="medium"
+        data-theme="filled_black"
+        data-text="sign_in_with"
+        data-shape="rectangular"
+        data-logo_alignment="left">
+      </div>
+    </div>
+    <div id="nav-user" style="display:none" class="user-info">
+      <img id="nav-avatar" class="user-avatar" src="" alt="">
+      <span id="nav-name"></span>
+      <button class="btn-logout" onclick="logout()">LOGOUT</button>
+    </div>
+  </div>
+</nav>
+
+<!-- Hero -->
+<div id="hero">
+  <div class="hero-tag">⚡ European Cyber Intelligence</div>
+  <h1>Protect your domain.<br><span>Know before attackers do.</span></h1>
+  <p class="hero-sub">
+    17 automated security checks, AI threat analysis, and monthly reports —
+    for every domain in 25 European countries. €50/year.
+  </p>
+  <div id="login-section">
+    <div id="g_id_onload_hero"
+      data-client_id="396286675021-tqhadhbp3jqc1jrqo5krk3j5njdss0cg.apps.googleusercontent.com"
+      data-callback="handleGoogleLogin"
+      data-auto_prompt="false">
+    </div>
+    <div class="g_id_signin"
+      data-type="standard"
+      data-size="large"
+      data-theme="filled_black"
+      data-text="continue_with"
+      data-shape="rectangular"
+      data-logo_alignment="left">
+    </div>
+    <div class="signin-note">Free scan on first domain · No credit card required</div>
+  </div>
+</div>
+
+<!-- App (post-login) -->
+<div id="app">
+
+  <!-- Payment success banner -->
+  <div id="success-banner" class="success-banner" style="display:none">
+    <div class="success-inner">
+      ✅ Payment successful! Your full report is being generated and will be emailed to you shortly.
+    </div>
+  </div>
+
+  <!-- Add domain -->
+  <div class="add-domain-bar">
+    <input class="domain-input" id="domain-input"
+      type="text" placeholder="yourdomain.com"
+      onkeydown="if(event.key==='Enter')addDomain()">
+    <select class="country-select" id="country-select">
+      <option value="CZ">🇨🇿 CZ</option>
+      <option value="PL">🇵🇱 PL</option>
+      <option value="HU">🇭🇺 HU</option>
+      <option value="SK">🇸🇰 SK</option>
+      <option value="RO">🇷🇴 RO</option>
+      <option value="DE">🇩🇪 DE</option>
+      <option value="AT">🇦🇹 AT</option>
+      <option value="CH">🇨🇭 CH</option>
+      <option value="GB">🇬🇧 GB</option>
+      <option value="FR">🇫🇷 FR</option>
+      <option value="ES">🇪🇸 ES</option>
+      <option value="IT">🇮🇹 IT</option>
+      <option value="NL">🇳🇱 NL</option>
+      <option value="SE">🇸🇪 SE</option>
+      <option value="DK">🇩🇰 DK</option>
+      <option value="NO">🇳🇴 NO</option>
+      <option value="FI">🇫🇮 FI</option>
+      <option value="EE">🇪🇪 EE</option>
+      <option value="LV">🇱🇻 LV</option>
+      <option value="LT">🇱🇹 LT</option>
+      <option value="HR">🇭🇷 HR</option>
+      <option value="SI">🇸🇮 SI</option>
+      <option value="RS">🇷🇸 RS</option>
+      <option value="BA">🇧🇦 BA</option>
+      <option value="MK">🇲🇰 MK</option>
+      <option value="EU">🌍 EU</option>
+    </select>
+    <button class="btn-add" id="add-btn" onclick="addDomain()">
+      + SCAN DOMAIN
+    </button>
+  </div>
+
+  <!-- Section header -->
+  <div class="section-header">
+    <span class="section-title">Monitored Domains</span>
+    <span class="section-count" id="domain-count"></span>
+  </div>
+
+  <!-- Domain cards -->
+  <div class="domains-grid" id="domains-grid">
+    <div class="empty-state">
+      <div class="icon">🛡️</div>
+      <h3>No domains yet</h3>
+      <p>Add your first domain above to start your free security scan.</p>
+    </div>
+  </div>
+
+</div>
+
+<!-- Report modal -->
+<div class="modal-overlay" id="modal" style="display:none" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-domain" id="modal-domain">—</div>
+      <span id="modal-paid-badge"></span>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body" id="modal-body">
+      <div style="text-align:center;padding:40px">
+        <div class="spinner"></div>
+        <div style="margin-top:12px;color:var(--grey);font-size:13px">Loading report…</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── Config ───────────────────────────────────────────────────────────────────
+const API = 'https://swarmhawk-backend.onrender.com';
+
+// ── State ────────────────────────────────────────────────────────────────────
+let sessionToken = localStorage.getItem('sw_token') || '';
+let currentUser  = JSON.parse(localStorage.getItem('sw_user') || 'null');
+let domains      = [];
+let pollTimer    = null;
+
+// ── Init ─────────────────────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  // Check for payment success in URL
+  const params = new URLSearchParams(location.search);
+  if (params.get('payment') === 'success') {
+    document.getElementById('success-banner').style.display = 'block';
+    history.replaceState({}, '', location.pathname);
+  }
+  if (sessionToken && currentUser) showApp();
+});
+
+// ── Auth ─────────────────────────────────────────────────────────────────────
+async function handleGoogleLogin(response) {
+  try {
+    const res = await fetch(`${API}/auth/google`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ credential: response.credential }),
+    });
+    if (!res.ok) throw new Error(await res.text());
+    const data = await res.json();
+    sessionToken = data.session_token;
+    currentUser  = data.user;
+    localStorage.setItem('sw_token', sessionToken);
+    localStorage.setItem('sw_user', JSON.stringify(currentUser));
+    showApp();
+  } catch(e) {
+    toast('Login failed: ' + e.message, true);
+  }
+}
+
+function showApp() {
+  document.getElementById('hero').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  document.getElementById('nav-signin').style.display = 'none';
+  document.getElementById('nav-user').style.display = 'flex';
+  document.getElementById('nav-name').textContent = currentUser?.name || currentUser?.email || '';
+  if (currentUser?.avatar) document.getElementById('nav-avatar').src = currentUser.avatar;
+  loadDomains();
+  // Poll every 15s for scanning domains
+  pollTimer = setInterval(loadDomains, 15000);
+}
+
+function logout() {
+  clearInterval(pollTimer);
+  localStorage.removeItem('sw_token');
+  localStorage.removeItem('sw_user');
+  sessionToken = ''; currentUser = null;
+  location.reload();
+}
+
+// ── API helpers ───────────────────────────────────────────────────────────────
+async function api(path, options = {}) {
+  const res = await fetch(`${API}${path}`, {
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${sessionToken}`,
+      ...(options.headers || {}),
+    },
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ detail: res.statusText }));
+    throw new Error(err.detail || res.statusText);
+  }
+  return res.json();
+}
+
+// ── Load domains ──────────────────────────────────────────────────────────────
+async function loadDomains() {
+  try {
+    const data = await api('/domains');
+    domains = data.domains || [];
+    renderDomains();
+    // Stop polling if no scanning domains
+    const scanning = domains.some(d => d.status === 'scanning');
+    if (!scanning) { clearInterval(pollTimer); pollTimer = null; }
+  } catch(e) {
+    console.error('Failed to load domains:', e);
+  }
+}
+
+// ── Add domain ────────────────────────────────────────────────────────────────
+async function addDomain() {
+  const input   = document.getElementById('domain-input');
+  const country = document.getElementById('country-select').value;
+  const domain  = input.value.trim().toLowerCase();
+  if (!domain) return;
+  const btn = document.getElementById('add-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> SCANNING…';
+  try {
+    await api('/domains', {
+      method: 'POST',
+      body: JSON.stringify({ domain, country }),
+    });
+    input.value = '';
+    toast(`Scanning ${domain}… results in ~60 seconds`);
+    await loadDomains();
+    // Restart polling
+    if (!pollTimer) pollTimer = setInterval(loadDomains, 15000);
+  } catch(e) {
+    toast(e.message, true);
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '+ SCAN DOMAIN';
+  }
+}
+
+// ── Render domains ────────────────────────────────────────────────────────────
+function riskClass(score) {
+  if (score === null || score === undefined) return 'risk-scan';
+  if (score >= 60) return 'risk-high';
+  if (score >= 30) return 'risk-medium';
+  return 'risk-low';
+}
+function riskLabel(score) {
+  if (score === null || score === undefined) return 'SCAN';
+  if (score >= 60) return 'HIGH';
+  if (score >= 30) return 'MED';
+  return 'LOW';
+}
+
+function renderDomains() {
+  const grid = document.getElementById('domains-grid');
+  const count = document.getElementById('domain-count');
+  count.textContent = domains.length ? `${domains.length} domain${domains.length>1?'s':''}` : '';
+
+  if (!domains.length) {
+    grid.innerHTML = `<div class="empty-state">
+      <div class="icon">🛡️</div>
+      <h3>No domains yet</h3>
+      <p>Add your first domain above to start your free security scan.</p>
+    </div>`;
+    return;
+  }
+
+  grid.innerHTML = domains.map(d => {
+    const rc    = riskClass(d.risk_score);
+    const score = d.risk_score !== null ? d.risk_score : '…';
+    const rl    = riskLabel(d.risk_score);
+    const scanning = d.status === 'scanning';
+    const scannedAgo = d.scanned_at ? timeAgo(d.scanned_at) : '';
+    const passed = d.risk_score !== null ? Math.max(0, 11 - (d.critical||0) - (d.warnings||0)) : '—';
+
+    return `<div class="domain-card">
+      <div class="card-header">
+        <div class="risk-badge ${rc}">
+          <span class="score">${scanning ? '<span class="spinner"></span>' : score}</span>
+          <span class="label">${rl}</span>
+        </div>
+        <div class="card-meta">
+          <div class="card-domain">${d.domain}</div>
+          <div class="card-sub">
+            <span>
+              <span class="status-dot ${scanning?'dot-scanning':'dot-active'}"></span>
+              ${scanning ? 'Scanning…' : 'Active'}
+            </span>
+            ${d.country ? `<span class="sep">·</span><span>${d.country}</span>` : ''}
+            ${scannedAgo ? `<span class="sep">·</span><span>Scanned ${scannedAgo}</span>` : ''}
+          </div>
+        </div>
+        <div class="card-actions">
+          <span class="${d.paid ? 'badge-paid' : 'badge-free'}">${d.paid ? '✓ ANNUAL' : 'FREE'}</span>
+          ${!scanning ? `
+            <button class="btn-report" onclick="openReport('${d.id}','${d.domain}',${d.paid})">
+              VIEW REPORT
+            </button>
+            ${!d.paid ? `<button class="btn-upgrade" onclick="checkout('${d.id}','${d.domain}')">
+              SUBSCRIBE €50/yr
+            </button>` : ''}
+          ` : ''}
+        </div>
+      </div>
+      ${d.risk_score !== null ? `
+      <div class="stats-row">
+        <div class="stat-item">
+          <span class="stat-val crit">${d.critical || 0}</span>
+          <span>Critical</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-val warn">${d.warnings || 0}</span>
+          <span>Warnings</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-val ok">${passed}</span>
+          <span>Passed</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-val">${d.risk_score}</span>
+          <span>Risk Score</span>
+        </div>
+      </div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+// ── Open report modal ─────────────────────────────────────────────────────────
+async function openReport(domainId, domainName, paid) {
+  document.getElementById('modal').style.display = 'flex';
+  document.getElementById('modal-domain').textContent = domainName;
+  document.getElementById('modal-paid-badge').innerHTML =
+    paid ? '<span class="badge-paid">ANNUAL</span>' : '<span class="badge-free">FREE</span>';
+  document.getElementById('modal-body').innerHTML = `
+    <div style="text-align:center;padding:40px">
+      <div class="spinner"></div>
+      <div style="margin-top:12px;color:var(--grey);font-size:13px">Loading report…</div>
+    </div>`;
+  try {
+    const data = await api(`/domains/${domainId}/report`);
+    if (data.status === 'scanning') {
+      document.getElementById('modal-body').innerHTML = `
+        <div style="text-align:center;padding:40px;color:var(--grey)">
+          <div class="spinner"></div>
+          <div style="margin-top:12px;font-size:13px">Scan in progress — check back in a minute</div>
+        </div>`;
+      return;
+    }
+    renderReport(data, domainId, domainName);
+  } catch(e) {
+    document.getElementById('modal-body').innerHTML =
+      `<div style="padding:24px;color:var(--red)">Error: ${e.message}</div>`;
+  }
+}
+
+function renderReport(data, domainId, domainName) {
+  const checks = data.checks || [];
+  const ai = checks.find(c => c.check === 'ai_summary');
+  const others = checks.filter(c => c.check !== 'ai_summary');
+
+  const pillClass = s => `pill-${s === 'ok' ? 'ok' : s === 'warning' ? 'warning' : s === 'critical' ? 'critical' : 'error'}`;
+  const pillLabel = s => s.toUpperCase();
+
+  let html = `
+    <div style="display:flex;gap:16px;margin-bottom:20px;flex-wrap:wrap">
+      ${[
+        ['Risk Score', data.risk_score, data.risk_score >= 60 ? 'crit' : data.risk_score >= 30 ? 'warn' : 'ok'],
+        ['Critical',   data.critical,   'crit'],
+        ['Warnings',   data.warnings,   'warn'],
+        ['Scanned',    data.scanned_at ? timeAgo(data.scanned_at) : '—', ''],
+      ].map(([label, val, cls]) => `
+        <div style="flex:1;min-width:80px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:12px;text-align:center">
+          <div class="stat-val ${cls}" style="font-family:'Space Mono',monospace;font-size:22px;font-weight:700">${val}</div>
+          <div style="font-size:10px;color:var(--grey);margin-top:4px;text-transform:uppercase;letter-spacing:1px">${label}</div>
+        </div>`).join('')}
+    </div>`;
+
+  if (others.length) {
+    html += `<table class="checks-table">
+      <thead><tr>
+        <th style="width:90px">Status</th>
+        <th style="width:140px">Check</th>
+        <th>Finding</th>
+      </tr></thead><tbody>`;
+    others.forEach(c => {
+      html += `<tr>
+        <td><span class="status-pill ${pillClass(c.status)}">${pillLabel(c.status)}</span></td>
+        <td><div class="check-name">${c.check.replace(/_/g,' ')}</div></td>
+        <td>
+          <div class="check-name">${c.title || ''}</div>
+          ${c.detail ? `<div class="check-detail">${c.detail.substring(0,120)}${c.detail.length>120?'…':''}</div>` : ''}
+        </td>
+      </tr>`;
+    });
+    html += '</tbody></table>';
+  }
+
+  if (data.locked_count > 0) {
+    html += `<div class="locked-banner">
+      <h3>🔒 ${data.locked_count} more checks locked</h3>
+      <p>Subscribe for €50/year to unlock all 17 checks, AI threat analysis, monthly reports, and remediation recommendations.</p>
+      <button class="btn-unlock" onclick="closeModal();checkout('${domainId}','${domainName}')">
+        Unlock Full Report — €50/year
+      </button>
+    </div>`;
+  }
+
+  if (ai && ai.detail) {
+    html += `<div class="ai-section">
+      <div class="ai-label">AI Threat Analysis</div>
+      <div class="ai-body">${ai.detail}</div>
+    </div>`;
+  }
+
+  document.getElementById('modal-body').innerHTML = html;
+}
+
+function closeModal() {
+  document.getElementById('modal').style.display = 'none';
+}
+
+// ── Checkout ──────────────────────────────────────────────────────────────────
+async function checkout(domainId, domainName) {
+  toast(`Preparing checkout for ${domainName}…`);
+  try {
+    const data = await api('/checkout', {
+      method: 'POST',
+      body: JSON.stringify({ domain_id: domainId, domain: domainName }),
+    });
+    window.location.href = data.checkout_url;
+  } catch(e) {
+    toast('Checkout error: ' + e.message, true);
+  }
+}
+
+// ── Utilities ─────────────────────────────────────────────────────────────────
+function timeAgo(isoStr) {
+  const diff = (Date.now() - new Date(isoStr)) / 1000;
+  if (diff < 60)   return 'just now';
+  if (diff < 3600) return `${Math.floor(diff/60)}m ago`;
+  if (diff < 86400)return `${Math.floor(diff/3600)}h ago`;
+  return `${Math.floor(diff/86400)}d ago`;
+}
+
+function toast(msg, error = false) {
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.style.borderColor = error ? 'rgba(192,57,43,0.4)' : 'rgba(203,255,0,0.2)';
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 4000);
+}
+
+// Keyboard shortcut: Escape closes modal
+document.addEventListener('keydown', e => { if(e.key === 'Escape') closeModal(); });
+</script>
+</body>
+</html>
