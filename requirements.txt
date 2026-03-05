@@ -1,0 +1,4 @@
+fastmcp>=3.1.0
+requests
+anthropic
+python-dotenv
