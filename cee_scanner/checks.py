@@ -397,6 +397,7 @@ def check_response_time(domain: str) -> CheckResult:
 # ── THREAT INTELLIGENCE CHECKS ───────────────────────────────────────────────
 
 def check_urlhaus(domain: str) -> CheckResult:
+    import os
     """
     URLhaus (abuse.ch) — real-time malware URL database.
     Checks if domain is currently hosting or distributing malware.
@@ -407,7 +408,10 @@ def check_urlhaus(domain: str) -> CheckResult:
         r = requests.post(
             "https://urlhaus-api.abuse.ch/v1/host/",
             data={"host": domain},
-            headers=HEADERS,
+            headers={
+                "Content-Type": "application/x-www-form-urlencoded",
+                "Auth-Key": os.getenv("URLHAUS_API_KEY", ""),
+            },
             timeout=TIMEOUT,
         )
         if r.status_code == 200:
@@ -620,45 +624,55 @@ def check_spamhaus(domain: str) -> CheckResult:
 
 # ── Run all checks for a domain ───────────────────────────────────────────────
 
-ALL_CHECKS = [
-    check_ssl,
+ALL_CHECKS = [    check_ssl,
     check_headers,
     check_dns,
     check_http_redirect,
     check_breach,
     check_typosquat,
     check_response_time,
-    # ── Real-time threat intelligence ──
-    check_urlhaus,           # free, no key
-    check_spamhaus,          # free, no key (DNS-based)
-    check_google_safebrowsing,  # free key: console.cloud.google.com
-    check_virustotal,           # free key: virustotal.com
+    check_urlhaus,
+    check_google_safebrowsing,
+    check_virustotal,
+    check_spamhaus,
 ]
 
+import logging
+logger = logging.getLogger(__name__)
 
-def scan_domain(domain: str) -> dict:
-    """Run all passive checks against a single domain."""
+def run_checks(domain: str) -> dict:
+    from datetime import datetime, timezone
     results = []
     for check_fn in ALL_CHECKS:
         try:
-            r = check_fn(domain)
-            results.append(r.to_dict())
+            result = check_fn(domain)
+            if isinstance(result, CheckResult):
+                results.append(result.to_dict())
+            else:
+                results.append(result)
         except Exception as e:
             logger.error(f"Check {check_fn.__name__} failed for {domain}: {e}")
             results.append(CheckResult(check_fn.__name__, domain).error(
                 "Check crashed", str(e)[:80]
             ).to_dict())
 
-    # Calculate risk score (0=best, 100=worst)
-    penalty = sum(r["score_impact"] for r in results)
+    # AI summary
+    try:
+        from cee_scanner.check_ai_summary_portkey import check_ai_summary
+        import anthropic, os
+        client = anthropic.Anthropic()
+        ai_result = check_ai_summary(domain, results)
+        results.append(ai_result)
+    except Exception as e:
+        pass
+
+    penalty = sum(r.get("score_impact", 0) for r in results)
     risk_score = min(100, penalty)
-
-    critical_count = sum(1 for r in results if r["status"] == "critical")
-    warning_count = sum(1 for r in results if r["status"] == "warning")
-
+    critical_count = sum(1 for r in results if r.get("status") == "critical")
+    warning_count  = sum(1 for r in results if r.get("status") == "warning")
     return {
         "domain": domain,
-        "scanned_at": datetime.now(timezone.utc).isoformat(),
+        "scanned_at": __import__("datetime").datetime.now(__import__("datetime").timezone.utc).isoformat(),
         "risk_score": risk_score,
         "critical": critical_count,
         "warnings": warning_count,
