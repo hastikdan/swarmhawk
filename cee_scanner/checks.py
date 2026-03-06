@@ -678,3 +678,49 @@ def run_checks(domain: str) -> dict:
         "warnings": warning_count,
         "checks": results,
     }
+
+
+def check_shodan(domain: str, api_key: str = "") -> CheckResult:
+    """Shodan — open ports, CVEs, exposed services. Set SHODAN_API_KEY env var."""
+    import os, socket
+    result = CheckResult("shodan", domain)
+    key = api_key or os.getenv("SHODAN_API_KEY", "")
+    if not key:
+        return result.ok("Shodan: no API key (set SHODAN_API_KEY — shodan.io $49/mo)")
+    try:
+        try: ip = socket.gethostbyname(domain)
+        except: return result.error("Shodan: could not resolve domain")
+        r = requests.get(f"https://api.shodan.io/shodan/host/{ip}", params={"key": key}, timeout=TIMEOUT)
+        if r.status_code == 404: return result.ok("Shodan: IP not yet crawled")
+        if r.status_code == 401: return result.error("Shodan: invalid API key")
+        if r.status_code == 402: return result.error("Shodan: requires paid membership ($49/mo at shodan.io)")
+        if r.status_code != 200: return result.error(f"Shodan API: HTTP {r.status_code}")
+        data = r.json()
+        ports = data.get("ports", [])
+        vulns = data.get("vulns", {})
+        org = data.get("org", "unknown")
+        country = data.get("country_name", "unknown")
+        dangerous = {21:"FTP",23:"Telnet",3389:"RDP",5900:"VNC",27017:"MongoDB",6379:"Redis",9200:"Elasticsearch",3306:"MySQL",2375:"Docker API",8080:"HTTP-alt"}
+        exposed = {p: dangerous[p] for p in ports if p in dangerous}
+        cves = list(vulns.keys())
+        critical_cves = [c for c in cves if vulns[c].get("cvss", 0) >= 9.0]
+        high_cves = [c for c in cves if 7.0 <= vulns[c].get("cvss", 0) < 9.0]
+        parts = []
+        if ports: parts.append(f"Ports: {', '.join(str(p) for p in sorted(ports)[:12])}")
+        if org: parts.append(f"Host: {org} ({country})")
+        if exposed: parts.append("Exposed: " + ", ".join(f"{p}/{n}" for p,n in list(exposed.items())[:4]))
+        if critical_cves: parts.append(f"CRITICAL CVEs: {', '.join(critical_cves[:4])}")
+        if high_cves: parts.append(f"High CVEs: {', '.join(high_cves[:4])}")
+        detail = " | ".join(parts)
+        if critical_cves or "Docker API" in str(exposed.values()):
+            return result.critical(f"Shodan: {len(critical_cves)} critical CVE(s), {len(exposed)} dangerous port(s)", detail, impact=30)
+        elif high_cves or len(exposed) >= 2:
+            return result.warn(f"Shodan: {len(high_cves)} high CVE(s), {len(ports)} ports open", detail, impact=15)
+        elif exposed:
+            return result.warn(f"Shodan: {len(exposed)} sensitive port(s) exposed", detail, impact=10)
+        elif vulns:
+            return result.warn(f"Shodan: {len(cves)} CVE(s) found", detail, impact=5)
+        else:
+            return result.ok(f"Shodan: {len(ports)} port(s) open, no critical CVEs", detail)
+    except Exception as e:
+        return result.error("Shodan check failed", str(e)[:80])
