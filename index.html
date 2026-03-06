@@ -183,7 +183,7 @@ h1 span{color:var(--lime)}
   .report-summary{grid-template-columns:repeat(2,1fr)}
   .add-bar{flex-wrap:wrap}
   .mcp-grid{grid-template-columns:1fr}
-  .nav-links{display:none}
+  .nav-links{gap:0}
 }
 </style>
 </head>
@@ -191,9 +191,9 @@ h1 span{color:var(--lime)}
 
 <nav>
   <a class="logo" href="#"><div class="logo-dot"></div>SWARMHAWK</a>
-  <div class="nav-links" id="nav-links" style="display:none">
-    <button class="nav-link active" onclick="showPage('scanner')">Scanner</button>
-    <button class="nav-link" onclick="showPage('mcp')">MCP API</button>
+  <div class="nav-links" id="nav-links">
+    <button class="nav-link active" onclick="showNavPage('scanner', this)">Scanner</button>
+    <button class="nav-link" onclick="showNavPage('mcp', this)">MCP API</button>
   </div>
   <div class="nav-right" id="nav-right">
     <div id="nav-signin">
@@ -406,12 +406,27 @@ async function checkMCPStatus() {
   }
 }
 
-function showPage(page) {
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+function showNavPage(page, btn) {
   document.querySelectorAll('.nav-link').forEach(l=>l.classList.remove('active'));
-  document.getElementById('page-'+page).classList.add('active');
-  event.target.classList.add('active');
+  if (btn) btn.classList.add('active');
+  if (page === 'mcp') {
+    document.getElementById('hero').style.display='none';
+    document.getElementById('app').style.display='block';
+    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+    document.getElementById('page-mcp').classList.add('active');
+  } else {
+    if (sessionToken && currentUser) {
+      document.getElementById('hero').style.display='none';
+      document.getElementById('app').style.display='block';
+      document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+      document.getElementById('page-scanner').classList.add('active');
+    } else {
+      document.getElementById('app').style.display='none';
+      document.getElementById('hero').style.display='block';
+    }
+  }
 }
+function showPage(page) { showNavPage(page, null); }
 
 async function handleGoogleLogin(response) {
   try {
@@ -429,7 +444,6 @@ function showApp() {
   document.getElementById('app').style.display='block';
   document.getElementById('nav-signin').style.display='none';
   document.getElementById('nav-user').style.display='flex';
-  document.getElementById('nav-links').style.display='flex';
   document.getElementById('nav-name').textContent=currentUser?.name||currentUser?.email||'';
   if (currentUser?.avatar) document.getElementById('nav-avatar').src=currentUser.avatar;
   loadDomains();
