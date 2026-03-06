@@ -1584,7 +1584,7 @@ function renderReportPage(data, domain, isSample) {
         <div id="db-add-bar" style="display:none;margin-bottom:20px">
           <div style="display:flex;gap:10px">
             <input class="domain-input" id="db-domain-input" type="text" placeholder="yourdomain.com" style="max-width:320px" onkeydown="if(event.key==='Enter')dbAddDomain()">
-            <button class="btn-scan-all" onclick="dbAddDomain()">Scan Domain</button>
+            <button class="btn-scan-all" id="db-add-btn" onclick="dbAddDomain()">Scan Domain</button>
             <button class="btn-sm" onclick="document.getElementById('db-add-bar').style.display='none'">Cancel</button>
           </div>
         </div>
@@ -1875,25 +1875,27 @@ function dbAddDomainPrompt() {
 
 async function dbAddDomain() {
   var input = document.getElementById('db-domain-input');
-  var btn = input.nextElementSibling;
-  var domain = input.value.trim().toLowerCase();
-  if (!domain) return;
+  var btn = document.getElementById('db-add-btn');
+  var domain = input.value.trim().toLowerCase().replace(/^https?:\/\//,'').replace(/\/.*/,'');
+  if (!domain) { toast('Enter a domain name', true); return; }
   btn.disabled = true; btn.textContent = 'Scanning…';
   try {
     await api('/domains', {method:'POST', body:JSON.stringify({domain:domain, country:'EU'})});
     input.value = '';
     document.getElementById('db-add-bar').style.display = 'none';
-    toast('Scanning '+domain+'… takes ~60s');
+    toast('✓ '+domain+' added — scanning now (~60s)');
     await dbLoadAll();
-    // Poll until scan completes
     var polls = 0;
     var poll = setInterval(async function() {
       polls++;
       await dbLoadAll();
       var d = dbDomains.find(function(x){ return x.domain===domain && x.status!=='scanning'; });
-      if (d || polls > 24) { clearInterval(poll); } // stop after ~2min
+      if (d || polls > 24) { clearInterval(poll); if(d) toast('✓ '+domain+' scan complete'); }
     }, 5000);
-  } catch(e) { toast(e.message, true); }
+  } catch(e) {
+    toast('Add domain failed: ' + e.message, true);
+    console.error('dbAddDomain error:', e);
+  }
   finally { btn.disabled = false; btn.textContent = 'Scan Domain'; }
 }
 
@@ -2084,29 +2086,65 @@ async function dbLoadIntel(force) {
   var today = new Date().toLocaleDateString('en-GB', {day:'numeric',month:'long',year:'numeric'});
 
   try {
-    // Route through backend — backend has ANTHROPIC_API_KEY set
-    var response = await fetch(API + '/intel', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + sessionToken},
-      body: JSON.stringify({domains: domainSummary, date: today})
-    });
-
-    // If backend /intel not available yet, call Anthropic directly via backend proxy
-    var data, text;
-    if (response.status === 404) {
-      // Fallback: try /api/claude proxy
-      var r2 = await fetch(API + '/claude', {
+    // Try backend /intel first (has ANTHROPIC_API_KEY), fall back to direct call
+    var text = '';
+    var backendOk = false;
+    try {
+      var br = await fetch(API + '/intel', {
         method: 'POST',
-        headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + sessionToken},
+        headers: {'Content-Type':'application/json','Authorization':'Bearer '+sessionToken},
+        body: JSON.stringify({domains: domainSummary, date: today})
+      });
+      if (br.ok) {
+        var bd = await br.json();
+        text = bd.text || bd.briefing || '';
+        backendOk = true;
+      }
+    } catch(be) { console.warn('Backend intel unavailable:', be.message); }
+
+    // Direct Anthropic call fallback
+    if (!backendOk) {
+      var AKEY = window._sw_akey || '';
+      if (!AKEY) {
+        document.getElementById('intel-content').innerHTML =
+          '<div style="padding:24px;text-align:center">' +
+          '<p style="color:var(--grey);margin-bottom:16px">Enter your Anthropic API key to enable AI briefings:</p>' +
+          '<div style="display:flex;gap:8px;justify-content:center;max-width:440px;margin:0 auto">' +
+          '<input id="akey-input" type="password" class="domain-input" placeholder="sk-ant-..." style="flex:1">' +
+          '<button class="btn-scan-all" onclick="window._sw_akey=document.getElementById(&quot;akey-input&quot;).value;dbLoadIntel(true)">Connect</button>' +
+          '</div><p style="font-size:11px;color:var(--grey);margin-top:10px">Key stays in browser memory only — never sent to our servers</p>' +
+          '</div>';
+        btn.disabled = false; btn.textContent = '↻ Refresh Briefing';
+        return;
+      }
+      var ar = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': AKEY,
+          'anthropic-version': '2023-06-01',
+          'anthropic-dangerous-direct-browser-access': 'true'
+        },
         body: JSON.stringify({
-          prompt: 'Date: ' + today + '. User monitors these domains: ' + domainSummary + '.\n\nGenerate a threat intelligence briefing as JSON with this structure:\n{"headline":"one sentence summary","briefing":"3-4 paragraphs of current EU cyber threat landscape, relevant to their domains and sectors","categories":[{"title":"Active Threat Campaigns","body":"2-3 sentences"},{"title":"CEE Regional Threats","body":"2-3 sentences"},{"title":"Infrastructure Vulnerabilities","body":"2-3 sentences"},{"title":"Phishing & Social Engineering","body":"2-3 sentences"},{"title":"Regulatory & Compliance","body":"2-3 sentences"},{"title":"Recommendations","body":"3 specific action items for this week"}]}'
+          model: 'claude-haiku-4-5-20251001',
+          max_tokens: 1000,
+          system: 'You are a cybersecurity analyst. Output valid JSON only, no markdown.',
+          messages: [{role:'user', content:
+            'Date: '+today+'. Domains: '+domainSummary+'. ' +
+            'Generate threat intelligence briefing as JSON: ' +
+            '{"headline":"one sentence","briefing":"3 paragraphs","categories":[' +
+            '{"title":"Active Threats","body":"2 sentences"},' +
+            '{"title":"CEE Regional","body":"2 sentences"},' +
+            '{"title":"Vulnerabilities","body":"2 sentences"},' +
+            '{"title":"Phishing","body":"2 sentences"},' +
+            '{"title":"Compliance","body":"2 sentences"},' +
+            '{"title":"Recommendations","body":"3 actions"}]}'
+          }]
         })
       });
-      data = await r2.json();
-      text = (data.content && data.content[0] && data.content[0].text) || data.text || data.result || '';
-    } else {
-      data = await response.json();
-      text = (data.content && data.content[0] && data.content[0].text) || data.text || data.briefing || '';
+      var ad = await ar.json();
+      if (ad.error) throw new Error(ad.error.message);
+      text = ad.content && ad.content[0] && ad.content[0].text || '';
     }
     var clean = text.replace(/```json|```/g, '').trim();
     var intel = JSON.parse(clean);
