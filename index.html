@@ -358,6 +358,141 @@ h1 span{color:var(--lime)}
 @media(max-width:500px){
   .use-cases-grid{grid-template-columns:1fr}
 }
+/* ═══════════════════════════════════════════════════
+   DASHBOARD STYLES
+   ═══════════════════════════════════════════════════ */
+
+/* Nav */
+.db-nav{display:flex;align-items:center;gap:16px;height:56px;padding:0 20px;background:rgba(14,13,18,.98);border-bottom:1px solid rgba(203,255,0,.1);flex-shrink:0;position:relative;z-index:10}
+.db-tabs{display:flex;gap:2px;margin-left:8px}
+.db-tab{background:transparent;border:none;color:var(--grey);font-size:13px;padding:7px 14px;border-radius:5px;cursor:pointer;transition:all .15s;font-family:'DM Sans',sans-serif;white-space:nowrap}
+.db-tab:hover{color:var(--white);background:rgba(255,255,255,.05)}
+.db-tab.active{color:var(--lime);background:rgba(203,255,0,.08)}
+.db-nav-right{margin-left:auto;display:flex;align-items:center;gap:10px}
+
+/* Body */
+.db-body{flex:1;overflow-y:auto;overflow-x:hidden}
+.db-page{display:none}
+.db-page.active{display:block}
+.db-inner{max-width:1200px;margin:0 auto;padding:28px 24px 60px}
+.db-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px}
+.db-title{font-family:'Space Mono',monospace;font-size:22px;color:var(--white);font-weight:700}
+.db-title span{color:var(--lime)}
+
+/* Stat row */
+.db-stat-row{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:24px}
+.db-stat-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px;display:flex;align-items:center;gap:14px}
+.db-stat-icon{width:40px;height:40px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.db-stat-val{font-family:'Space Mono',monospace;font-size:24px;font-weight:700;color:var(--white);line-height:1}
+.db-stat-lbl{font-size:11px;color:var(--grey);margin-top:3px;text-transform:uppercase;letter-spacing:.5px}
+
+/* Two col */
+.db-two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+
+/* Cards */
+.db-card{background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.db-card-head{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid rgba(255,255,255,.04)}
+.db-card-title{font-family:'Space Mono',monospace;font-size:11px;color:var(--lime);text-transform:uppercase;letter-spacing:1px}
+.db-card-link{background:transparent;border:none;color:var(--grey);font-size:12px;cursor:pointer;transition:color .2s}
+.db-card-link:hover{color:var(--lime)}
+.db-empty{padding:24px;text-align:center;color:var(--grey);font-size:13px}
+.db-section-label{font-family:'Space Mono',monospace;font-size:10px;color:var(--grey);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px}
+
+/* Overview domain list */
+.overview-domains-list{padding:8px 0}
+.ovd-row{display:flex;align-items:center;gap:12px;padding:10px 18px;border-bottom:1px solid rgba(255,255,255,.03);cursor:pointer;transition:background .15s}
+.ovd-row:hover{background:rgba(203,255,0,.03)}
+.ovd-row:last-child{border-bottom:none}
+.ovd-domain{flex:1;font-family:'Space Mono',monospace;font-size:12px;color:var(--white)}
+.ovd-score{font-family:'Space Mono',monospace;font-size:14px;font-weight:700}
+
+/* Overview alerts */
+.overview-alerts{padding:8px 0}
+.alert-row{display:flex;align-items:flex-start;gap:10px;padding:10px 18px;border-bottom:1px solid rgba(255,255,255,.03)}
+.alert-row:last-child{border-bottom:none}
+.alert-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:4px}
+.alert-dot.critical{background:#C0392B}
+.alert-dot.warning{background:#D4850A}
+.alert-text{flex:1;font-size:12px;color:var(--grey);line-height:1.5}
+.alert-text strong{color:var(--white)}
+.alert-time{font-size:10px;color:#444;font-family:'Space Mono',monospace;flex-shrink:0}
+
+/* Domains table */
+.db-domains-table{background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.db-table{width:100%;border-collapse:collapse}
+.db-table th{text-align:left;padding:11px 16px;font-family:'Space Mono',monospace;font-size:10px;color:var(--lime);letter-spacing:1px;text-transform:uppercase;background:rgba(203,255,0,.04);border-bottom:1px solid rgba(203,255,0,.08)}
+.db-table td{padding:12px 16px;font-size:13px;border-bottom:1px solid rgba(255,255,255,.03);color:var(--grey);vertical-align:middle}
+.db-table tr:last-child td{border-bottom:none}
+.db-table tr:hover td{background:rgba(203,255,0,.02)}
+.db-table td.domain-cell{font-family:'Space Mono',monospace;font-size:12px;color:var(--white)}
+.db-btn-sm{background:transparent;border:1px solid rgba(203,255,0,.15);color:var(--lime);font-family:'Space Mono',monospace;font-size:10px;padding:4px 10px;border-radius:3px;cursor:pointer;transition:all .2s;white-space:nowrap}
+.db-btn-sm:hover{background:rgba(203,255,0,.08)}
+.db-search{background:var(--card);border:1px solid rgba(203,255,0,.15);color:var(--white);font-family:'Space Mono',monospace;font-size:12px;padding:8px 14px;border-radius:5px;outline:none;width:220px}
+
+/* Reports */
+.reports-domain-list{background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.rdomain-row{padding:12px 16px;border-bottom:1px solid rgba(255,255,255,.03);cursor:pointer;font-family:'Space Mono',monospace;font-size:12px;color:var(--grey);transition:all .15s}
+.rdomain-row:hover,.rdomain-row.active{background:rgba(203,255,0,.06);color:var(--lime)}
+.rdomain-row:last-child{border-bottom:none}
+.reports-history{background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.rh-row{display:flex;align-items:center;gap:14px;padding:12px 16px;border-bottom:1px solid rgba(255,255,255,.03);cursor:pointer;transition:background .15s}
+.rh-row:hover{background:rgba(203,255,0,.03)}
+.rh-row:last-child{border-bottom:none}
+.rh-date{font-family:'Space Mono',monospace;font-size:11px;color:var(--grey);min-width:100px}
+.rh-score{font-family:'Space Mono',monospace;font-size:16px;font-weight:700;min-width:36px}
+.rh-info{flex:1;font-size:12px;color:var(--grey)}
+.rh-delta{font-family:'Space Mono',monospace;font-size:11px}
+.rh-delta.up{color:#C0392B}
+.rh-delta.down{color:#1A7A4A}
+
+/* Threats */
+.db-filter-row{display:flex;gap:6px}
+.db-filter{background:transparent;border:1px solid rgba(255,255,255,.08);color:var(--grey);font-family:'Space Mono',monospace;font-size:11px;padding:6px 14px;border-radius:4px;cursor:pointer;transition:all .2s}
+.db-filter.active{background:rgba(203,255,0,.08);border-color:rgba(203,255,0,.3);color:var(--lime)}
+.threats-priority{padding:16px 18px;display:flex;flex-direction:column;gap:10px}
+.threat-fix-row{display:flex;align-items:flex-start;gap:12px;padding:12px 14px;background:rgba(203,255,0,.03);border:1px solid rgba(203,255,0,.08);border-radius:7px}
+.fix-num{font-family:'Space Mono',monospace;font-size:13px;color:var(--lime);font-weight:700;min-width:24px}
+.fix-content{flex:1}
+.fix-title{font-size:13px;color:var(--white);margin-bottom:3px}
+.fix-desc{font-size:12px;color:var(--grey);line-height:1.5}
+.fix-domain{font-family:'Space Mono',monospace;font-size:10px;color:var(--grey);margin-top:4px}
+.fix-pill{flex-shrink:0}
+.threats-all{overflow:hidden}
+.threat-row{display:flex;align-items:flex-start;gap:12px;padding:11px 18px;border-bottom:1px solid rgba(255,255,255,.03)}
+.threat-row:last-child{border-bottom:none}
+.threat-domain{font-family:'Space Mono',monospace;font-size:11px;color:var(--grey);min-width:130px;padding-top:1px}
+.threat-text{flex:1;font-size:12px;color:var(--grey)}
+.threat-text strong{color:var(--white);display:block;margin-bottom:2px}
+
+/* Intelligence */
+.intel-content{padding:20px 20px;line-height:1.8;font-size:14px;color:var(--grey)}
+.intel-content h3{font-family:'Space Mono',monospace;font-size:13px;color:var(--lime);text-transform:uppercase;letter-spacing:1px;margin:20px 0 10px}
+.intel-content h3:first-child{margin-top:0}
+.intel-content p{margin-bottom:12px;color:#bbb}
+.intel-content strong{color:var(--white)}
+.intel-content ul{padding-left:18px;margin-bottom:12px}
+.intel-content li{margin-bottom:6px;color:#aaa}
+.intel-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.intel-cat-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:18px}
+.intel-cat-title{font-family:'Space Mono',monospace;font-size:11px;color:var(--lime);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px}
+.intel-cat-body{font-size:12px;color:var(--grey);line-height:1.6}
+
+/* Buttons */
+.btn-scan-all{background:var(--lime);color:var(--black);font-family:'Space Mono',monospace;font-size:11px;font-weight:700;padding:9px 18px;border:none;border-radius:5px;cursor:pointer;transition:background .2s;white-space:nowrap}
+.btn-scan-all:hover{background:#d4ff1a}
+
+/* Responsive */
+@media(max-width:900px){
+  .db-stat-row{grid-template-columns:repeat(3,1fr)}
+  .db-two-col{grid-template-columns:1fr}
+  .intel-grid{grid-template-columns:1fr 1fr}
+  .db-tabs .db-tab{font-size:11px;padding:6px 10px}
+}
+@media(max-width:600px){
+  .db-stat-row{grid-template-columns:1fr 1fr}
+  .intel-grid{grid-template-columns:1fr}
+}
+
 </style>
 </head>
 <body>
@@ -382,6 +517,7 @@ h1 span{color:var(--lime)}
     <div id="nav-user" style="display:none" class="user-info">
       <img id="nav-avatar" class="user-avatar" src="" alt="">
       <span id="nav-name"></span>
+      <button class="btn-sm" onclick="openDashboard()">Dashboard</button>
       <button class="btn-sm" onclick="logout()">LOGOUT</button>
     </div>
   </div>
@@ -791,6 +927,7 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 
 function activateScanner() {
+  // Show scanner box on landing page
   document.getElementById('scanner-login-box').style.display='none';
   document.getElementById('scanner-active-box').style.display='block';
   document.getElementById('nav-signin').style.display='none';
@@ -798,7 +935,9 @@ function activateScanner() {
   document.getElementById('nav-name').textContent=currentUser?.name||currentUser?.email||'';
   if (currentUser?.avatar) document.getElementById('nav-avatar').src=currentUser.avatar;
   loadDomains();
-  pollTimer=setInterval(loadDomains,15000);
+  if (!pollTimer) pollTimer=setInterval(loadDomains,15000);
+  // Open full dashboard
+  openDashboard();
 }
 
 async function checkMCPStatus() {
@@ -1279,6 +1418,623 @@ function renderReportPage(data, domain, isSample) {
 }
 </script>
 
+<!-- ═══════════════════════════════════════════════════════════
+     SWARMHAWK DASHBOARD — Post-login full-screen app
+     ═══════════════════════════════════════════════════════════ -->
+<div id="dashboard" style="display:none;position:fixed;inset:0;z-index:200;background:var(--black);overflow:hidden;flex-direction:column">
+
+  <!-- Dashboard Nav -->
+  <div class="db-nav">
+    <a class="logo" href="#" onclick="closeDashboard()"><div class="logo-dot"></div>SWARMHAWK</a>
+    <div class="db-tabs">
+      <button class="db-tab active" onclick="dbShowTab('overview',this)">📊 Overview</button>
+      <button class="db-tab" onclick="dbShowTab('domains',this)">🌐 Domains</button>
+      <button class="db-tab" onclick="dbShowTab('reports',this)">📋 Reports</button>
+      <button class="db-tab" onclick="dbShowTab('threats',this)">⚠️ Threats</button>
+      <button class="db-tab" onclick="dbShowTab('intel',this)">🧠 Intelligence</button>
+    </div>
+    <div class="db-nav-right">
+      <span id="db-user-name" style="font-size:13px;color:var(--grey)"></span>
+      <img id="db-avatar" class="user-avatar" src="" alt="" style="display:none">
+      <button class="btn-sm" onclick="closeDashboard()">← Back to site</button>
+      <button class="btn-sm" onclick="dbLogout()">Logout</button>
+    </div>
+  </div>
+
+  <!-- Dashboard Body -->
+  <div class="db-body">
+
+    <!-- ── TAB: OVERVIEW ─────────────────────────────────────── -->
+    <div class="db-page active" id="db-overview">
+      <div class="db-inner">
+        <div class="db-header">
+          <div>
+            <h2 class="db-title">Good <span id="db-greeting-time">morning</span>, <span id="db-greeting-name">—</span></h2>
+            <p style="color:var(--grey);font-size:13px;margin-top:4px">Here's your security overview</p>
+          </div>
+          <button class="btn-scan-all" onclick="dbScanAll()">↻ Scan All Domains</button>
+        </div>
+
+        <!-- Stat cards -->
+        <div class="db-stat-row" id="db-stat-row">
+          <div class="db-stat-card">
+            <div class="db-stat-icon" style="background:rgba(192,57,43,.1);color:#C0392B">🚨</div>
+            <div><div class="db-stat-val" id="stat-critical">—</div><div class="db-stat-lbl">Critical Findings</div></div>
+          </div>
+          <div class="db-stat-card">
+            <div class="db-stat-icon" style="background:rgba(212,133,10,.1);color:#D4850A">⚠️</div>
+            <div><div class="db-stat-val" id="stat-warnings">—</div><div class="db-stat-lbl">Warnings</div></div>
+          </div>
+          <div class="db-stat-card">
+            <div class="db-stat-icon" style="background:rgba(26,122,74,.1);color:#1A7A4A">✓</div>
+            <div><div class="db-stat-val" id="stat-clean">—</div><div class="db-stat-lbl">Clean Domains</div></div>
+          </div>
+          <div class="db-stat-card">
+            <div class="db-stat-icon" style="background:rgba(203,255,0,.1);color:var(--lime)">🌐</div>
+            <div><div class="db-stat-val" id="stat-domains">—</div><div class="db-stat-lbl">Domains Monitored</div></div>
+          </div>
+          <div class="db-stat-card">
+            <div class="db-stat-icon" style="background:rgba(107,114,128,.1);color:var(--grey)">📊</div>
+            <div><div class="db-stat-val" id="stat-avg-score">—</div><div class="db-stat-lbl">Avg Risk Score</div></div>
+          </div>
+        </div>
+
+        <div class="db-two-col">
+          <!-- Domain list summary -->
+          <div class="db-card">
+            <div class="db-card-head">
+              <span class="db-card-title">Domains Needing Attention</span>
+              <button class="db-card-link" onclick="dbShowTab('domains',null)">View all →</button>
+            </div>
+            <div id="overview-domains-list" class="overview-domains-list">
+              <div class="db-empty">Loading domains…</div>
+            </div>
+          </div>
+
+          <!-- Recent alerts -->
+          <div class="db-card">
+            <div class="db-card-head">
+              <span class="db-card-title">Recent Alerts</span>
+              <button class="db-card-link" onclick="dbShowTab('threats',null)">View all →</button>
+            </div>
+            <div id="overview-alerts" class="overview-alerts">
+              <div class="db-empty">Loading alerts…</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── TAB: DOMAINS ──────────────────────────────────────── -->
+    <div class="db-page" id="db-domains">
+      <div class="db-inner">
+        <div class="db-header">
+          <div>
+            <h2 class="db-title">My Domains</h2>
+            <p style="color:var(--grey);font-size:13px;margin-top:4px">All monitored domains and their current security status</p>
+          </div>
+          <div style="display:flex;gap:10px;align-items:center">
+            <input class="db-search" id="domain-search" type="text" placeholder="Filter domains…" oninput="dbFilterDomains(this.value)">
+            <button class="btn-scan-all" onclick="dbAddDomainPrompt()">+ Add Domain</button>
+          </div>
+        </div>
+        <div id="db-add-bar" style="display:none;margin-bottom:20px">
+          <div style="display:flex;gap:10px">
+            <input class="domain-input" id="db-domain-input" type="text" placeholder="yourdomain.com" style="max-width:320px" onkeydown="if(event.key==='Enter')dbAddDomain()">
+            <button class="btn-scan-all" onclick="dbAddDomain()">Scan Domain</button>
+            <button class="btn-sm" onclick="document.getElementById('db-add-bar').style.display='none'">Cancel</button>
+          </div>
+        </div>
+        <div id="db-domains-table" class="db-domains-table">
+          <div class="db-empty">Loading domains…</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── TAB: REPORTS ──────────────────────────────────────── -->
+    <div class="db-page" id="db-reports">
+      <div class="db-inner">
+        <div class="db-header">
+          <h2 class="db-title">Reports & History</h2>
+        </div>
+        <div class="db-two-col">
+          <div>
+            <div class="db-section-label">Select Domain</div>
+            <div id="reports-domain-list" class="reports-domain-list"></div>
+          </div>
+          <div>
+            <div class="db-section-label">Scan History</div>
+            <div id="reports-history" class="reports-history">
+              <div class="db-empty" style="padding:40px;text-align:center">Select a domain to see its report history</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── TAB: THREATS ──────────────────────────────────────── -->
+    <div class="db-page" id="db-threats">
+      <div class="db-inner">
+        <div class="db-header">
+          <div>
+            <h2 class="db-title">Threat Summary</h2>
+            <p style="color:var(--grey);font-size:13px;margin-top:4px">All active findings across your domains, prioritised by severity</p>
+          </div>
+          <div class="db-filter-row">
+            <button class="db-filter active" onclick="dbFilterThreats('all',this)">All</button>
+            <button class="db-filter" onclick="dbFilterThreats('critical',this)">Critical</button>
+            <button class="db-filter" onclick="dbFilterThreats('warning',this)">Warnings</button>
+          </div>
+        </div>
+
+        <!-- Priority fix list -->
+        <div class="db-card" style="margin-bottom:20px">
+          <div class="db-card-head"><span class="db-card-title">⚡ Priority Actions — Fix These First</span></div>
+          <div id="threats-priority" class="threats-priority">
+            <div class="db-empty">Loading threats…</div>
+          </div>
+        </div>
+
+        <!-- All findings table -->
+        <div class="db-card">
+          <div class="db-card-head"><span class="db-card-title">All Findings</span></div>
+          <div id="threats-all" class="threats-all">
+            <div class="db-empty">Loading…</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── TAB: INTELLIGENCE ─────────────────────────────────── -->
+    <div class="db-page" id="db-intel">
+      <div class="db-inner">
+        <div class="db-header">
+          <div>
+            <h2 class="db-title">Threat Intelligence</h2>
+            <p style="color:var(--grey);font-size:13px;margin-top:4px">AI-generated briefing on current threats relevant to your domains</p>
+          </div>
+          <button class="btn-scan-all" id="intel-refresh-btn" onclick="dbLoadIntel(true)">↻ Refresh Briefing</button>
+        </div>
+
+        <div class="db-two-col" style="align-items:start">
+          <!-- Main briefing -->
+          <div style="grid-column:1/3">
+            <div class="db-card intel-card" id="intel-briefing">
+              <div class="db-card-head">
+                <span class="db-card-title">🤖 Weekly Threat Briefing</span>
+                <span id="intel-timestamp" style="font-size:11px;color:var(--grey)"></span>
+              </div>
+              <div id="intel-content" class="intel-content">
+                <div class="db-empty" style="padding:40px;text-align:center">
+                  <div class="spinner" style="width:24px;height:24px;border-width:2px;margin:0 auto 12px"></div>
+                  Generating intelligence briefing…
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Category cards -->
+        <div class="intel-grid" id="intel-grid" style="margin-top:20px"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+// SWARMHAWK DASHBOARD JS
+// ═══════════════════════════════════════════════════════
+
+var dbDomains = [];
+var dbCurrentReportDomain = null;
+var dbThreatFilter = 'all';
+var dbIntelLoaded = false;
+
+function openDashboard() {
+  document.getElementById('landing').style.display = 'none';
+  var db = document.getElementById('dashboard');
+  db.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+
+  // Set greeting
+  var h = new Date().getHours();
+  document.getElementById('db-greeting-time').textContent = h < 12 ? 'morning' : h < 18 ? 'afternoon' : 'evening';
+  document.getElementById('db-greeting-name').textContent = (currentUser && (currentUser.name || currentUser.email || '').split(' ')[0]) || '';
+
+  // User avatar
+  if (currentUser) {
+    document.getElementById('db-user-name').textContent = currentUser.name || currentUser.email || '';
+    if (currentUser.avatar) {
+      var av = document.getElementById('db-avatar');
+      av.src = currentUser.avatar;
+      av.style.display = 'block';
+    }
+  }
+
+  dbLoadAll();
+}
+
+function closeDashboard() {
+  document.getElementById('dashboard').style.display = 'none';
+  document.getElementById('landing').style.display = 'block';
+  document.body.style.overflow = '';
+}
+
+function dbLogout() {
+  closeDashboard();
+  logout();
+}
+
+function dbShowTab(tab, btn) {
+  document.querySelectorAll('.db-tab').forEach(function(t){ t.classList.remove('active'); });
+  document.querySelectorAll('.db-page').forEach(function(p){ p.classList.remove('active'); });
+  if (btn) btn.classList.add('active');
+  else {
+    document.querySelectorAll('.db-tab').forEach(function(t){
+      if (t.getAttribute('onclick') && t.getAttribute('onclick').indexOf("'"+tab+"'") > -1) t.classList.add('active');
+    });
+  }
+  document.getElementById('db-'+tab).classList.add('active');
+  if (tab === 'intel' && !dbIntelLoaded) dbLoadIntel(false);
+}
+
+async function dbLoadAll() {
+  try {
+    var data = await api('/domains');
+    dbDomains = data.domains || data || [];
+    dbRenderOverview();
+    dbRenderDomainsTable();
+    dbRenderReportsDomainList();
+    dbRenderThreats();
+  } catch(e) {
+    console.error('dbLoadAll:', e);
+  }
+}
+
+// ── OVERVIEW ────────────────────────────────────────────
+
+function dbRenderOverview() {
+  var critical = 0, warnings = 0, clean = 0, totalScore = 0, scanned = 0;
+  dbDomains.forEach(function(d) {
+    var s = d.risk_score || 0;
+    if (s >= 60) critical++;
+    else if (s >= 30) warnings++;
+    else clean++;
+    totalScore += s;
+    scanned++;
+  });
+
+  document.getElementById('stat-critical').textContent = critical;
+  document.getElementById('stat-warnings').textContent = warnings;
+  document.getElementById('stat-clean').textContent = clean;
+  document.getElementById('stat-domains').textContent = dbDomains.length;
+  document.getElementById('stat-avg-score').textContent = scanned ? Math.round(totalScore/scanned) : '—';
+
+  // Domains needing attention — sort by risk desc
+  var sorted = dbDomains.slice().sort(function(a,b){ return (b.risk_score||0)-(a.risk_score||0); });
+  var attn = sorted.filter(function(d){ return (d.risk_score||0) >= 30; }).slice(0, 8);
+  var listEl = document.getElementById('overview-domains-list');
+  if (!attn.length) {
+    listEl.innerHTML = '<div class="db-empty">✓ All domains looking clean</div>';
+  } else {
+    listEl.innerHTML = attn.map(function(d) {
+      var s = d.risk_score || 0;
+      var c = s >= 60 ? '#C0392B' : s >= 30 ? '#D4850A' : '#1A7A4A';
+      return '<div class="ovd-row" onclick="dbOpenDomainReport(\''+d.id+'\',\''+d.domain+'\')">' +
+        '<span class="ovd-domain">'+d.domain+'</span>' +
+        '<span class="ovd-score" style="color:'+c+'">'+s+'</span>' +
+        '<span class="status-pill pill-'+(s>=60?'critical':'warning')+'">'+( s>=60?'HIGH':'MED')+'</span>' +
+        '</div>';
+    }).join('');
+  }
+
+  // Recent alerts — pull from checks across all domains
+  var alerts = [];
+  dbDomains.forEach(function(d) {
+    var checks = d.checks || d.latest_checks || [];
+    checks.forEach(function(c) {
+      if (c.status === 'critical' || c.status === 'warning') {
+        alerts.push({domain: d.domain, check: c, ts: d.scanned_at});
+      }
+    });
+  });
+  alerts.sort(function(a,b){ return new Date(b.ts||0) - new Date(a.ts||0); });
+  var alertEl = document.getElementById('overview-alerts');
+  if (!alerts.length) {
+    alertEl.innerHTML = '<div class="db-empty">No active alerts</div>';
+  } else {
+    alertEl.innerHTML = alerts.slice(0,8).map(function(a) {
+      var ts = a.ts ? new Date(a.ts).toLocaleDateString('en-GB',{day:'numeric',month:'short'}) : '';
+      return '<div class="alert-row">' +
+        '<div class="alert-dot '+a.check.status+'"></div>' +
+        '<div class="alert-text"><strong>'+a.domain+'</strong> '+a.check.title+'</div>' +
+        '<div class="alert-time">'+ts+'</div>' +
+        '</div>';
+    }).join('');
+  }
+}
+
+// ── DOMAINS TABLE ───────────────────────────────────────
+
+function dbRenderDomainsTable(filter) {
+  filter = (filter || '').toLowerCase();
+  var list = filter ? dbDomains.filter(function(d){ return d.domain.indexOf(filter) > -1; }) : dbDomains;
+  var el = document.getElementById('db-domains-table');
+
+  if (!list.length) {
+    el.innerHTML = '<div class="db-empty" style="padding:40px">'+
+      (filter ? 'No domains match "'+filter+'"' : 'No domains yet. Add your first domain above.') +'</div>';
+    return;
+  }
+
+  var rows = list.map(function(d) {
+    var s = d.risk_score || 0;
+    var c = s >= 60 ? '#C0392B' : s >= 30 ? '#D4850A' : '#1A7A4A';
+    var pc = s >= 60 ? 'critical' : s >= 30 ? 'warning' : 'ok';
+    var rl = s >= 60 ? 'HIGH' : s >= 30 ? 'MED' : 'LOW';
+    var ts = d.scanned_at ? new Date(d.scanned_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : 'Never';
+    var status = d.status === 'scanning' ? '<span style="color:var(--lime);font-size:11px;font-family:Space Mono,monospace">⟳ SCANNING</span>' :
+      '<span class="status-pill pill-'+pc+'">'+rl+'</span>';
+    return '<tr>' +
+      '<td class="domain-cell">'+d.domain+'</td>' +
+      '<td><span class="db-stat-val" style="color:'+c+';font-size:18px">'+s+'</span></td>' +
+      '<td>'+status+'</td>' +
+      '<td>'+ts+'</td>' +
+      '<td style="font-size:11px;color:var(--grey)">'+(d.country||'EU')+'</td>' +
+      '<td style="display:flex;gap:6px;flex-wrap:wrap">' +
+        '<button class="db-btn-sm" onclick="dbOpenDomainReport(\''+d.id+'\',\''+d.domain+'\')">View Report</button>' +
+        '<button class="db-btn-sm" onclick="dbRescanDomain(\''+d.id+'\',\''+d.domain+'\')">Re-scan</button>' +
+      '</td>' +
+      '</tr>';
+  }).join('');
+
+  el.innerHTML = '<table class="db-table"><thead><tr>' +
+    '<th>Domain</th><th>Risk Score</th><th>Status</th><th>Last Scan</th><th>Country</th><th>Actions</th>' +
+    '</tr></thead><tbody>'+rows+'</tbody></table>';
+}
+
+function dbFilterDomains(val) {
+  dbRenderDomainsTable(val);
+}
+
+function dbAddDomainPrompt() {
+  var bar = document.getElementById('db-add-bar');
+  bar.style.display = bar.style.display === 'none' ? 'block' : 'none';
+  if (bar.style.display === 'block') document.getElementById('db-domain-input').focus();
+}
+
+async function dbAddDomain() {
+  var input = document.getElementById('db-domain-input');
+  var domain = input.value.trim().toLowerCase();
+  if (!domain) return;
+  try {
+    await api('/domains', {method:'POST', body:JSON.stringify({domain:domain, country:'EU'})});
+    input.value = '';
+    document.getElementById('db-add-bar').style.display = 'none';
+    toast('Scanning '+domain+'...');
+    await dbLoadAll();
+  } catch(e) { toast(e.message, true); }
+}
+
+async function dbRescanDomain(id, domain) {
+  try {
+    await api('/domains/'+id+'/rescan', {method:'POST'});
+    toast('Re-scanning '+domain+'...');
+    setTimeout(dbLoadAll, 3000);
+  } catch(e) { toast(e.message, true); }
+}
+
+async function dbScanAll() {
+  toast('Queuing all domains for re-scan...');
+  for (var i = 0; i < dbDomains.length; i++) {
+    try { await api('/domains/'+dbDomains[i].id+'/rescan', {method:'POST'}); } catch(e) {}
+  }
+  toast('All domains queued. Results in ~2 minutes.');
+  setTimeout(dbLoadAll, 5000);
+}
+
+function dbOpenDomainReport(id, domain) {
+  // Find the domain object
+  var domainObj = dbDomains.find(function(d){ return d.id == id; }) || {id:id, domain:domain};
+  openBlurredReportPage(domainObj);
+}
+
+// ── REPORTS HISTORY ─────────────────────────────────────
+
+function dbRenderReportsDomainList() {
+  var el = document.getElementById('reports-domain-list');
+  if (!dbDomains.length) {
+    el.innerHTML = '<div class="db-empty" style="padding:20px">No domains yet</div>';
+    return;
+  }
+  el.innerHTML = dbDomains.map(function(d) {
+    return '<div class="rdomain-row" onclick="dbLoadReportHistory(\''+d.id+'\',\''+d.domain+'\',this)">'+d.domain+'</div>';
+  }).join('');
+}
+
+async function dbLoadReportHistory(id, domain, el) {
+  document.querySelectorAll('.rdomain-row').forEach(function(r){ r.classList.remove('active'); });
+  el.classList.add('active');
+  dbCurrentReportDomain = {id:id, domain:domain};
+  var hist = document.getElementById('reports-history');
+  hist.innerHTML = '<div class="db-empty" style="padding:24px;text-align:center"><div class="spinner" style="width:20px;height:20px;border-width:2px;margin:0 auto 8px"></div>Loading history…</div>';
+
+  try {
+    var data = await api('/domains/'+id+'/history');
+    var scans = data.scans || data || [];
+    if (!scans.length) {
+      hist.innerHTML = '<div class="db-empty" style="padding:32px">No scan history yet for '+domain+'</div>';
+      return;
+    }
+    var rows = scans.map(function(scan, i) {
+      var prev = scans[i+1];
+      var s = scan.risk_score || 0;
+      var c = s >= 60 ? '#C0392B' : s >= 30 ? '#D4850A' : '#1A7A4A';
+      var ts = scan.scanned_at ? new Date(scan.scanned_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '—';
+      var delta = '';
+      if (prev) {
+        var diff = s - (prev.risk_score||0);
+        if (diff > 0) delta = '<span class="rh-delta up">+'+diff+'</span>';
+        else if (diff < 0) delta = '<span class="rh-delta down">'+diff+'</span>';
+        else delta = '<span class="rh-delta" style="color:var(--grey)">±0</span>';
+      }
+      var crit = scan.critical || 0;
+      var warn = scan.warnings || 0;
+      return '<div class="rh-row" onclick="dbOpenDomainReport(\''+id+'\',\''+domain+'\')">'+
+        '<span class="rh-date">'+ts+'</span>'+
+        '<span class="rh-score" style="color:'+c+'">'+s+'</span>'+
+        delta+
+        '<span class="rh-info">'+crit+' critical · '+warn+' warnings</span>'+
+        '<button class="db-btn-sm">View →</button>'+
+        '</div>';
+    }).join('');
+    hist.innerHTML = rows;
+  } catch(e) {
+    hist.innerHTML = '<div class="db-empty" style="padding:24px;color:var(--red)">Error: '+e.message+'</div>';
+  }
+}
+
+// ── THREATS ─────────────────────────────────────────────
+
+function dbRenderThreats() {
+  var all = [];
+  dbDomains.forEach(function(d) {
+    var checks = d.checks || d.latest_checks || [];
+    checks.forEach(function(c) {
+      if (c.status === 'critical' || c.status === 'warning') {
+        all.push({domain: d.domain, domainId: d.id, check: c});
+      }
+    });
+  });
+  all.sort(function(a,b){
+    var o = {critical:0, warning:1};
+    return (o[a.check.status]||9) - (o[b.check.status]||9);
+  });
+
+  // Priority actions — top 5 critical
+  var priority = all.filter(function(x){ return x.check.status === 'critical'; }).slice(0,5);
+  var prEl = document.getElementById('threats-priority');
+  if (!priority.length) {
+    prEl.innerHTML = '<div class="db-empty">No critical findings — looking good!</div>';
+  } else {
+    prEl.innerHTML = priority.map(function(x, i) {
+      return '<div class="threat-fix-row">'+
+        '<span class="fix-num">'+(i+1)+'</span>'+
+        '<div class="fix-content">'+
+          '<div class="fix-title">'+x.check.title+'</div>'+
+          '<div class="fix-desc">'+(x.check.detail||'').substring(0,120)+(x.check.detail&&x.check.detail.length>120?'…':'')+'</div>'+
+          '<div class="fix-domain">'+x.domain+'</div>'+
+        '</div>'+
+        '<span class="status-pill pill-critical fix-pill">CRITICAL</span>'+
+        '</div>';
+    }).join('');
+  }
+
+  dbRenderThreatsTable(all, dbThreatFilter);
+}
+
+function dbRenderThreatsTable(all, filter) {
+  var filtered = filter === 'all' ? all : all.filter(function(x){ return x.check.status === filter; });
+  var el = document.getElementById('threats-all');
+  if (!filtered.length) {
+    el.innerHTML = '<div class="db-empty" style="padding:32px">No findings for this filter</div>';
+    return;
+  }
+  el.innerHTML = filtered.map(function(x) {
+    var pc = x.check.status === 'critical' ? 'critical' : 'warning';
+    return '<div class="threat-row">'+
+      '<span class="status-pill pill-'+pc+'">'+x.check.status.toUpperCase()+'</span>'+
+      '<span class="threat-domain">'+x.domain+'</span>'+
+      '<div class="threat-text"><strong>'+x.check.title+'</strong>'+(x.check.detail||'').substring(0,100)+(x.check.detail&&x.check.detail.length>100?'…':'')+'</div>'+
+      '</div>';
+  }).join('');
+}
+
+function dbFilterThreats(filter, btn) {
+  dbThreatFilter = filter;
+  document.querySelectorAll('.db-filter').forEach(function(f){ f.classList.remove('active'); });
+  btn.classList.add('active');
+  var all = [];
+  dbDomains.forEach(function(d) {
+    var checks = d.checks || d.latest_checks || [];
+    checks.forEach(function(c) {
+      if (c.status === 'critical' || c.status === 'warning') all.push({domain:d.domain, check:c});
+    });
+  });
+  dbRenderThreatsTable(all, filter);
+}
+
+// ── INTELLIGENCE FEED ────────────────────────────────────
+
+async function dbLoadIntel(force) {
+  dbIntelLoaded = true;
+  var btn = document.getElementById('intel-refresh-btn');
+  btn.disabled = true;
+  btn.textContent = '↻ Generating…';
+  document.getElementById('intel-content').innerHTML =
+    '<div style="padding:40px;text-align:center"><div class="spinner" style="width:24px;height:24px;border-width:2px;margin:0 auto 12px"></div>Generating intelligence briefing…</div>';
+  document.getElementById('intel-grid').innerHTML = '';
+
+  // Build context from user's domains
+  var domainSummary = dbDomains.map(function(d) {
+    return d.domain + ' (risk:' + (d.risk_score||0) + ')';
+  }).join(', ') || 'no domains yet';
+
+  var today = new Date().toLocaleDateString('en-GB', {day:'numeric',month:'long',year:'numeric'});
+
+  try {
+    var response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: 'You are a cybersecurity threat intelligence analyst specialising in European domains. Produce concise, actionable briefings. Output valid JSON only.',
+        messages: [{
+          role: 'user',
+          content: 'Date: ' + today + '. User monitors these domains: ' + domainSummary + '.\n\n' +
+            'Generate a threat intelligence briefing as JSON with this structure:\n' +
+            '{"headline":"one sentence summary","briefing":"3-4 paragraphs of current EU cyber threat landscape, relevant to their domains and sectors","categories":[{"title":"Active Threat Campaigns","body":"2-3 sentences"},{"title":"CEE Regional Threats","body":"2-3 sentences"},{"title":"Infrastructure Vulnerabilities","body":"2-3 sentences"},{"title":"Phishing & Social Engineering","body":"2-3 sentences"},{"title":"Regulatory & Compliance","body":"2-3 sentences"},{"title":"Recommendations","body":"3 specific action items for this week"}]}'
+        }]
+      })
+    });
+
+    var data = await response.json();
+    var text = data.content && data.content[0] && data.content[0].text || '';
+    var clean = text.replace(/```json|```/g, '').trim();
+    var intel = JSON.parse(clean);
+
+    // Render briefing
+    document.getElementById('intel-timestamp').textContent = 'Generated ' + today;
+    var briefingHtml = '';
+    if (intel.headline) briefingHtml += '<p><strong>' + intel.headline + '</strong></p>';
+    if (intel.briefing) {
+      intel.briefing.split('\n\n').forEach(function(para) {
+        if (para.trim()) briefingHtml += '<p>' + para.trim() + '</p>';
+      });
+    }
+    document.getElementById('intel-content').innerHTML = briefingHtml || '<p style="color:var(--grey)">No briefing available.</p>';
+
+    // Render category cards
+    if (intel.categories && intel.categories.length) {
+      document.getElementById('intel-grid').innerHTML = intel.categories.map(function(cat) {
+        return '<div class="intel-cat-card"><div class="intel-cat-title">'+cat.title+'</div><div class="intel-cat-body">'+cat.body+'</div></div>';
+      }).join('');
+    }
+
+  } catch(e) {
+    document.getElementById('intel-content').innerHTML =
+      '<p style="color:var(--grey)">Failed to generate briefing. Check API connectivity.</p>';
+    console.error('Intel error:', e);
+  }
+
+  btn.disabled = false;
+  btn.textContent = '↻ Refresh Briefing';
+}
+
+</script>
 </body>
 </html>
 <script>
