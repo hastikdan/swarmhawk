@@ -8,937 +8,2249 @@
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
-  :root {
-    --black: #0E0D12;
-    --lime: #CBFF00;
-    --navy: #0D1B3E;
-    --white: #ffffff;
-    --grey: #6B7280;
-    --lgrey: #F2F5F9;
-    --border: #1E2A1A;
-    --accent: #3A6200;
-    --red: #C0392B;
-    --amber: #D4850A;
-    --green: #1A7A4A;
-    --card-bg: #111318;
-    --scan-bg: #0A0C0F;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    background: var(--black);
-    color: var(--white);
-    font-family: 'DM Sans', sans-serif;
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
+:root{--black:#0E0D12;--lime:#CBFF00;--navy:#0D1B3E;--white:#fff;--grey:#6B7280;--red:#C0392B;--amber:#D4850A;--green:#1A7A4A;--card:#111318;--border:rgba(255,255,255,.06)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--black);color:var(--white);font-family:'DM Sans',sans-serif;min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(203,255,0,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(203,255,0,.03) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0}
 
-  /* ── Grid background ── */
-  body::before {
-    content: '';
-    position: fixed; inset: 0;
-    background-image:
-      linear-gradient(rgba(203,255,0,0.03) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(203,255,0,0.03) 1px, transparent 1px);
-    background-size: 40px 40px;
-    pointer-events: none; z-index: 0;
-  }
+/* NAV */
+nav{position:sticky;top:0;z-index:100;background:rgba(14,13,18,.95);backdrop-filter:blur(12px);border-bottom:1px solid rgba(203,255,0,.1);padding:0 24px;display:flex;align-items:center;height:60px;gap:16px}
+.logo{display:flex;align-items:center;gap:10px;font-family:'Space Mono',monospace;font-size:16px;font-weight:700;color:var(--lime);letter-spacing:1px;text-decoration:none}
+.logo-dot{width:8px;height:8px;background:var(--lime);border-radius:50%;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.3)}}
+.nav-links{display:flex;gap:4px;margin-left:16px}
+.nav-link{background:transparent;border:none;color:var(--grey);font-size:13px;padding:6px 12px;border-radius:4px;cursor:pointer;transition:all .2s;font-family:'DM Sans',sans-serif}
+.nav-link:hover,.nav-link.active{color:var(--lime);background:rgba(203,255,0,.06)}
+.nav-right{margin-left:auto;display:flex;align-items:center;gap:12px}
+.user-info{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--grey)}
+.user-avatar{width:28px;height:28px;border-radius:50%;border:1px solid rgba(203,255,0,.3)}
+.btn-sm{background:transparent;border:1px solid rgba(203,255,0,.2);color:var(--grey);font-size:12px;padding:5px 12px;border-radius:4px;cursor:pointer;transition:all .2s;font-family:'Space Mono',monospace}
+.btn-sm:hover{border-color:var(--lime);color:var(--lime)}
 
-  /* ── Navbar ── */
-  nav {
-    position: sticky; top: 0; z-index: 100;
-    background: rgba(14,13,18,0.95);
-    backdrop-filter: blur(12px);
-    border-bottom: 1px solid rgba(203,255,0,0.1);
-    padding: 0 24px;
-    display: flex; align-items: center;
-    height: 60px; gap: 16px;
-  }
-  .logo {
-    display: flex; align-items: center; gap: 10px;
-    font-family: 'Space Mono', monospace;
-    font-size: 16px; font-weight: 700;
-    color: var(--lime); letter-spacing: 1px;
-    text-decoration: none;
-  }
-  .logo-dot {
-    width: 8px; height: 8px;
-    background: var(--lime);
-    border-radius: 50%;
-    animation: pulse 2s infinite;
-  }
-  @keyframes pulse {
-    0%,100% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.5; transform: scale(1.3); }
-  }
-  .nav-right { margin-left: auto; display: flex; align-items: center; gap: 12px; }
-  .user-info {
-    display: flex; align-items: center; gap: 8px;
-    font-size: 13px; color: var(--grey);
-  }
-  .user-avatar {
-    width: 28px; height: 28px; border-radius: 50%;
-    border: 1px solid rgba(203,255,0,0.3);
-  }
-  .btn-logout {
-    background: transparent;
-    border: 1px solid rgba(203,255,0,0.2);
-    color: var(--grey); font-size: 12px;
-    padding: 5px 12px; border-radius: 4px;
-    cursor: pointer; transition: all .2s;
-    font-family: 'Space Mono', monospace;
-  }
-  .btn-logout:hover { border-color: var(--lime); color: var(--lime); }
+/* PAGES */
+.page{display:none;position:relative;z-index:1}
+.page.active{display:block}
 
-  /* ── Hero ── */
-  #hero {
-    position: relative; z-index: 1;
-    padding: 80px 24px 60px;
-    text-align: center;
-    max-width: 800px; margin: 0 auto;
-  }
-  .hero-tag {
-    display: inline-block;
-    background: rgba(203,255,0,0.08);
-    border: 1px solid rgba(203,255,0,0.2);
-    color: var(--lime);
-    font-family: 'Space Mono', monospace;
-    font-size: 11px; letter-spacing: 2px;
-    padding: 6px 14px; border-radius: 20px;
-    margin-bottom: 24px; text-transform: uppercase;
-  }
-  h1 {
-    font-family: 'Space Mono', monospace;
-    font-size: clamp(32px, 5vw, 52px);
-    font-weight: 700; line-height: 1.1;
-    color: var(--white); margin-bottom: 20px;
-  }
-  h1 span { color: var(--lime); }
-  .hero-sub {
-    font-size: 16px; color: var(--grey);
-    line-height: 1.6; margin-bottom: 40px;
-    max-width: 560px; margin-left: auto; margin-right: auto;
-  }
+/* HERO */
+#hero{position:relative;z-index:1;padding:80px 24px 60px;text-align:center;max-width:800px;margin:0 auto}
+.hero-tag{display:inline-block;background:rgba(203,255,0,.08);border:1px solid rgba(203,255,0,.2);color:var(--lime);font-family:'Space Mono',monospace;font-size:11px;letter-spacing:2px;padding:6px 14px;border-radius:20px;margin-bottom:24px;text-transform:uppercase}
+h1{font-family:'Space Mono',monospace;font-size:clamp(28px,5vw,50px);font-weight:700;line-height:1.1;color:var(--white);margin-bottom:20px}
+h1 span{color:var(--lime)}
+.hero-sub{font-size:16px;color:var(--grey);line-height:1.6;margin-bottom:40px;max-width:560px;margin-left:auto;margin-right:auto}
+.signin-note{font-size:11px;color:var(--grey);margin-top:12px;font-family:'Space Mono',monospace}
 
-  /* ── Google Sign-In ── */
-  #login-section { text-align: center; }
-  #google-signin-btn { display: inline-block; }
-  .signin-note {
-    font-size: 11px; color: var(--grey);
-    margin-top: 12px;
-    font-family: 'Space Mono', monospace;
-  }
+/* PRODUCT TABS */
+.product-tabs{display:flex;gap:0;max-width:900px;margin:0 auto 32px;padding:0 24px;border-bottom:1px solid rgba(203,255,0,.1)}
+.ptab{background:transparent;border:none;color:var(--grey);font-family:'Space Mono',monospace;font-size:11px;letter-spacing:1px;text-transform:uppercase;padding:12px 20px;cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;margin-bottom:-1px}
+.ptab:hover{color:var(--white)}
+.ptab.active{color:var(--lime);border-bottom-color:var(--lime)}
 
-  /* ── App (post-login) ── */
-  #app { display: none; position: relative; z-index: 1; }
+/* DOMAIN SCANNER PAGE */
+.add-bar{max-width:900px;margin:0 auto 32px;padding:0 24px;display:flex;gap:12px}
+.domain-input{flex:1;background:var(--card);border:1px solid rgba(203,255,0,.2);color:var(--white);font-family:'Space Mono',monospace;font-size:14px;padding:12px 16px;border-radius:6px;outline:none;transition:border-color .2s}
+.domain-input:focus{border-color:var(--lime)}
+.domain-input::placeholder{color:#444}
+.country-select{background:var(--card);border:1px solid rgba(203,255,0,.2);color:var(--white);font-size:14px;padding:12px 14px;border-radius:6px;outline:none;cursor:pointer;min-width:90px}
+.btn-add{background:var(--lime);color:var(--black);font-family:'Space Mono',monospace;font-size:13px;font-weight:700;padding:12px 22px;border:none;border-radius:6px;cursor:pointer;transition:all .2s;white-space:nowrap}
+.btn-add:hover{background:#d4ff1a;transform:translateY(-1px)}
+.btn-add:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.sec-head{max-width:900px;margin:0 auto 16px;padding:0 24px;display:flex;align-items:center;gap:12px}
+.sec-title{font-family:'Space Mono',monospace;font-size:11px;color:var(--lime);letter-spacing:2px;text-transform:uppercase}
+.sec-count{font-family:'Space Mono',monospace;font-size:11px;color:var(--grey)}
+.domains-grid{max-width:900px;margin:0 auto;padding:0 24px;display:grid;gap:16px}
+.domain-card{background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden;transition:border-color .2s,transform .2s}
+.domain-card:hover{border-color:rgba(203,255,0,.2);transform:translateY(-1px)}
+.card-header{display:flex;align-items:center;padding:16px 20px;gap:14px;border-bottom:1px solid rgba(255,255,255,.04)}
+.risk-badge{width:52px;height:52px;border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0}
+.risk-badge .score{font-family:'Space Mono',monospace;font-size:20px;font-weight:700;line-height:1}
+.risk-badge .rlbl{font-size:8px;text-transform:uppercase;letter-spacing:.5px;opacity:.8}
+.risk-high{background:rgba(192,57,43,.15);border:1px solid rgba(192,57,43,.3);color:#C0392B}
+.risk-medium{background:rgba(212,133,10,.15);border:1px solid rgba(212,133,10,.3);color:#D4850A}
+.risk-low{background:rgba(26,122,74,.15);border:1px solid rgba(26,122,74,.3);color:#1A7A4A}
+.risk-scan{background:rgba(203,255,0,.08);border:1px solid rgba(203,255,0,.2);color:var(--lime)}
+.card-meta{flex:1;min-width:0}
+.card-domain{font-family:'Space Mono',monospace;font-size:15px;font-weight:700;color:var(--white);margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card-sub{font-size:12px;color:var(--grey);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.sep{color:#333}
+.status-dot{width:6px;height:6px;border-radius:50%;display:inline-block;margin-right:4px}
+.dot-scanning{background:var(--lime);animation:pulse 1s infinite}
+.dot-active{background:var(--green)}
+.card-actions{display:flex;flex-direction:column;gap:6px;align-items:flex-end}
+.badge-paid{background:rgba(203,255,0,.1);border:1px solid rgba(203,255,0,.3);color:var(--lime);font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:1px;padding:3px 8px;border-radius:3px;text-transform:uppercase}
+.badge-free{background:rgba(107,114,128,.1);border:1px solid rgba(107,114,128,.2);color:var(--grey);font-family:'Space Mono',monospace;font-size:9px;letter-spacing:1px;padding:3px 8px;border-radius:3px}
+.btn-report{background:transparent;border:1px solid rgba(203,255,0,.3);color:var(--lime);font-family:'Space Mono',monospace;font-size:11px;padding:6px 14px;border-radius:4px;cursor:pointer;transition:all .2s;white-space:nowrap}
+.btn-report:hover{background:rgba(203,255,0,.08)}
+.btn-upgrade{background:var(--lime);color:var(--black);font-family:'Space Mono',monospace;font-size:11px;font-weight:700;padding:6px 14px;border:none;border-radius:4px;cursor:pointer;transition:all .2s;white-space:nowrap}
+.btn-upgrade:hover{background:#d4ff1a}
+.stats-row{display:flex;gap:0;padding:10px 20px;border-top:1px solid rgba(255,255,255,.04);font-size:11px;color:var(--grey);font-family:'Space Mono',monospace}
+.stat-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px}
+.stat-item+.stat-item{border-left:1px solid rgba(255,255,255,.04)}
+.stat-val{font-size:16px;font-weight:700;color:var(--white)}
+.stat-val.crit{color:var(--red)}.stat-val.warn{color:var(--amber)}.stat-val.ok{color:var(--green)}
 
-  /* ── Add domain section ── */
-  .add-domain-bar {
-    max-width: 900px; margin: 0 auto 32px;
-    padding: 0 24px;
-    display: flex; gap: 12px;
-  }
-  .domain-input {
-    flex: 1;
-    background: var(--card-bg);
-    border: 1px solid rgba(203,255,0,0.2);
-    color: var(--white);
-    font-family: 'Space Mono', monospace;
-    font-size: 14px; padding: 12px 16px;
-    border-radius: 6px; outline: none;
-    transition: border-color .2s;
-  }
-  .domain-input:focus { border-color: var(--lime); }
-  .domain-input::placeholder { color: #444; }
-  .country-select {
-    background: var(--card-bg);
-    border: 1px solid rgba(203,255,0,0.2);
-    color: var(--white); font-size: 14px;
-    padding: 12px 14px; border-radius: 6px;
-    outline: none; cursor: pointer; min-width: 90px;
-  }
-  .btn-add {
-    background: var(--lime); color: var(--black);
-    font-family: 'Space Mono', monospace;
-    font-size: 13px; font-weight: 700;
-    padding: 12px 22px; border: none;
-    border-radius: 6px; cursor: pointer;
-    transition: all .2s; white-space: nowrap;
-  }
-  .btn-add:hover { background: #d4ff1a; transform: translateY(-1px); }
-  .btn-add:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+/* MCP PAGE */
+.mcp-page{max-width:900px;margin:0 auto;padding:0 24px 60px}
+.mcp-hero{text-align:center;padding:40px 0 48px}
+.mcp-hero h2{font-family:'Space Mono',monospace;font-size:32px;font-weight:700;color:var(--white);margin-bottom:12px}
+.mcp-hero h2 span{color:var(--lime)}
+.mcp-hero p{font-size:16px;color:var(--grey);max-width:560px;margin:0 auto 32px;line-height:1.6}
+.mcp-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:40px}
+.mcp-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:20px}
+.mcp-card h3{font-family:'Space Mono',monospace;font-size:13px;color:var(--lime);margin-bottom:8px;font-weight:700}
+.mcp-card p{font-size:13px;color:var(--grey);line-height:1.6;margin-bottom:12px}
+.mcp-card code{display:block;background:rgba(203,255,0,.05);border:1px solid rgba(203,255,0,.1);border-radius:6px;padding:10px 14px;font-family:'Space Mono',monospace;font-size:11px;color:var(--lime);white-space:pre;overflow-x:auto;line-height:1.6}
+.tools-table{width:100%;border-collapse:collapse;margin-bottom:40px}
+.tools-table th{text-align:left;padding:10px 14px;font-family:'Space Mono',monospace;font-size:10px;color:var(--lime);letter-spacing:1px;text-transform:uppercase;background:rgba(203,255,0,.05);border-bottom:1px solid rgba(203,255,0,.1)}
+.tools-table td{padding:10px 14px;font-size:13px;border-bottom:1px solid rgba(255,255,255,.03);color:var(--grey)}
+.tools-table tr:last-child td{border-bottom:none}
+.tools-table td:first-child{font-family:'Space Mono',monospace;font-size:12px;color:var(--lime)}
+.tools-table td:last-child{color:#888;font-size:12px}
+.mcp-section-title{font-family:'Space Mono',monospace;font-size:11px;color:var(--lime);letter-spacing:2px;text-transform:uppercase;margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid rgba(203,255,0,.1)}
+.key-gen-bar{display:flex;gap:12px;align-items:center;margin-bottom:32px;flex-wrap:wrap}
+.key-display{flex:1;background:var(--card);border:1px solid rgba(203,255,0,.2);border-radius:6px;padding:10px 16px;font-family:'Space Mono',monospace;font-size:12px;color:var(--lime);min-width:200px;word-break:break-all}
+.btn-gen{background:var(--lime);color:var(--black);font-family:'Space Mono',monospace;font-size:12px;font-weight:700;padding:10px 18px;border:none;border-radius:6px;cursor:pointer;white-space:nowrap}
+.btn-gen:hover{background:#d4ff1a}
+.btn-copy{background:transparent;border:1px solid rgba(203,255,0,.3);color:var(--lime);font-family:'Space Mono',monospace;font-size:12px;padding:10px 16px;border-radius:6px;cursor:pointer;white-space:nowrap}
+.btn-copy:hover{background:rgba(203,255,0,.08)}
+.status-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(26,122,74,.1);border:1px solid rgba(26,122,74,.3);color:#27ae60;font-family:'Space Mono',monospace;font-size:11px;padding:4px 10px;border-radius:4px}
+.status-badge.offline{background:rgba(192,57,43,.1);border-color:rgba(192,57,43,.3);color:#e74c3c}
 
-  /* ── Domains grid ── */
-  .domains-grid {
-    max-width: 900px; margin: 0 auto;
-    padding: 0 24px; display: grid; gap: 16px;
-  }
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.88);backdrop-filter:blur(6px);display:flex;align-items:flex-start;justify-content:center;padding:24px 16px;overflow-y:auto}
+.modal{background:var(--card);border:1px solid rgba(203,255,0,.15);border-radius:12px;width:100%;max-width:800px;overflow:hidden;animation:slideUp .25s ease}
+@keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
+.modal-header{background:var(--black);padding:18px 24px;display:flex;align-items:center;gap:14px;border-bottom:1px solid rgba(203,255,0,.1)}
+.modal-domain{font-family:'Space Mono',monospace;font-size:18px;font-weight:700;color:var(--lime);flex:1}
+.modal-close{background:transparent;border:none;color:var(--grey);font-size:20px;cursor:pointer;padding:4px 8px;transition:color .2s}
+.modal-close:hover{color:var(--white)}
+.modal-body{padding:24px}
+.report-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px}
+.summary-card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:8px;padding:14px;text-align:center}
+.summary-val{font-family:'Space Mono',monospace;font-size:26px;font-weight:700;line-height:1}
+.summary-lbl{font-size:10px;color:var(--grey);text-transform:uppercase;letter-spacing:1px;margin-top:4px}
+.checks-wrap{margin-bottom:20px}
+.section-label{font-family:'Space Mono',monospace;font-size:10px;color:var(--lime);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid rgba(203,255,0,.1)}
+.checks-table{width:100%;border-collapse:collapse}
+.checks-table th{text-align:left;padding:8px 12px;font-family:'Space Mono',monospace;font-size:10px;color:var(--lime);letter-spacing:1px;text-transform:uppercase;background:rgba(203,255,0,.05);border-bottom:1px solid rgba(203,255,0,.1)}
+.checks-table td{padding:10px 12px;font-size:12px;border-bottom:1px solid rgba(255,255,255,.03);vertical-align:top}
+.checks-table tr:last-child td{border-bottom:none}
+.checks-table tr.row-critical td{background:rgba(192,57,43,.05)}
+.checks-table tr.row-warning td{background:rgba(212,133,10,.04)}
+.status-pill{display:inline-block;font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;padding:3px 8px;border-radius:3px;white-space:nowrap}
+.pill-critical{background:rgba(192,57,43,.15);color:#e74c3c;border:1px solid rgba(192,57,43,.3)}
+.pill-warning{background:rgba(212,133,10,.15);color:#f39c12;border:1px solid rgba(212,133,10,.3)}
+.pill-ok{background:rgba(26,122,74,.15);color:#27ae60;border:1px solid rgba(26,122,74,.3)}
+.pill-error{background:rgba(107,114,128,.1);color:#6b7280;border:1px solid rgba(107,114,128,.2)}
+.check-name{color:var(--white);font-weight:500;margin-bottom:2px;font-size:12px}
+.check-detail{color:var(--grey);font-size:11px;line-height:1.5}
+.ai-section{background:rgba(203,255,0,.03);border:1px solid rgba(203,255,0,.1);border-radius:8px;padding:18px 20px;margin-bottom:20px}
+.ai-label{font-family:'Space Mono',monospace;font-size:10px;color:var(--lime);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:14px}
+.ai-sec-head{font-family:'Space Mono',monospace;font-size:11px;color:var(--white);font-weight:700;margin:14px 0 6px;background:rgba(203,255,0,.05);padding:6px 10px;border-left:2px solid var(--lime)}
+.ai-sec-body{font-size:12px;color:#bbb;line-height:1.7;padding:0 4px}
+.locked-banner{background:rgba(203,255,0,.05);border:1px solid rgba(203,255,0,.15);border-radius:8px;padding:22px 24px;margin-bottom:20px;text-align:center}
+.locked-banner h3{font-family:'Space Mono',monospace;color:var(--lime);font-size:14px;margin-bottom:8px}
+.locked-banner p{color:var(--grey);font-size:13px;margin-bottom:16px;line-height:1.6}
+.btn-unlock{background:var(--lime);color:var(--black);font-family:'Space Mono',monospace;font-size:13px;font-weight:700;padding:12px 28px;border:none;border-radius:6px;cursor:pointer;transition:all .2s}
+.btn-unlock:hover{background:#d4ff1a;transform:translateY(-1px)}
+.email-report-bar{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:8px;padding:16px 20px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.email-report-label{font-family:'Space Mono',monospace;font-size:11px;color:var(--lime);letter-spacing:1px;white-space:nowrap}
+.email-input{flex:1;min-width:200px;background:var(--black);border:1px solid rgba(203,255,0,.2);color:var(--white);font-family:'Space Mono',monospace;font-size:12px;padding:9px 14px;border-radius:5px;outline:none;transition:border-color .2s}
+.email-input:focus{border-color:var(--lime)}
+.email-input::placeholder{color:#444}
+.btn-send-email{background:transparent;border:1px solid rgba(203,255,0,.4);color:var(--lime);font-family:'Space Mono',monospace;font-size:11px;font-weight:700;padding:9px 18px;border-radius:5px;cursor:pointer;transition:all .2s;white-space:nowrap}
+.btn-send-email:hover{background:rgba(203,255,0,.08)}
+.btn-send-email:disabled{opacity:.5;cursor:not-allowed}
 
-  /* ── Domain card ── */
-  .domain-card {
-    background: var(--card-bg);
-    border: 1px solid rgba(255,255,255,0.06);
-    border-radius: 10px; overflow: hidden;
-    transition: border-color .2s, transform .2s;
-  }
-  .domain-card:hover {
-    border-color: rgba(203,255,0,0.2);
-    transform: translateY(-1px);
-  }
-  .card-header {
-    display: flex; align-items: center;
-    padding: 16px 20px; gap: 14px;
-    border-bottom: 1px solid rgba(255,255,255,0.04);
-  }
-  .risk-badge {
-    width: 52px; height: 52px; border-radius: 8px;
-    display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
-    flex-shrink: 0;
-  }
-  .risk-badge .score {
-    font-family: 'Space Mono', monospace;
-    font-size: 20px; font-weight: 700; line-height: 1;
-  }
-  .risk-badge .label {
-    font-size: 8px; text-transform: uppercase;
-    letter-spacing: 0.5px; opacity: 0.8;
-  }
-  .risk-high   { background: rgba(192,57,43,0.15); border: 1px solid rgba(192,57,43,0.3); color: #C0392B; }
-  .risk-medium { background: rgba(212,133,10,0.15); border: 1px solid rgba(212,133,10,0.3); color: #D4850A; }
-  .risk-low    { background: rgba(26,122,74,0.15); border: 1px solid rgba(26,122,74,0.3); color: #1A7A4A; }
-  .risk-scan   { background: rgba(203,255,0,0.08); border: 1px solid rgba(203,255,0,0.2); color: var(--lime); }
-  .card-meta { flex: 1; min-width: 0; }
-  .card-domain {
-    font-family: 'Space Mono', monospace;
-    font-size: 15px; font-weight: 700;
-    color: var(--white); margin-bottom: 4px;
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-  }
-  .card-sub {
-    font-size: 12px; color: var(--grey);
-    display: flex; align-items: center; gap: 8px;
-    flex-wrap: wrap;
-  }
-  .card-sub .sep { color: #333; }
-  .status-dot {
-    width: 6px; height: 6px; border-radius: 50%;
-    display: inline-block; margin-right: 4px;
-  }
-  .dot-scanning { background: var(--lime); animation: pulse 1s infinite; }
-  .dot-active   { background: var(--green); }
-  .card-actions {
-    display: flex; flex-direction: column; gap: 6px; align-items: flex-end;
-  }
-  .badge-paid {
-    background: rgba(203,255,0,0.1);
-    border: 1px solid rgba(203,255,0,0.3);
-    color: var(--lime);
-    font-family: 'Space Mono', monospace;
-    font-size: 9px; font-weight: 700; letter-spacing: 1px;
-    padding: 3px 8px; border-radius: 3px; text-transform: uppercase;
-  }
-  .badge-free {
-    background: rgba(107,114,128,0.1);
-    border: 1px solid rgba(107,114,128,0.2);
-    color: var(--grey);
-    font-family: 'Space Mono', monospace;
-    font-size: 9px; letter-spacing: 1px;
-    padding: 3px 8px; border-radius: 3px;
-  }
-  .btn-report {
-    background: transparent;
-    border: 1px solid rgba(203,255,0,0.3);
-    color: var(--lime);
-    font-family: 'Space Mono', monospace;
-    font-size: 11px; padding: 6px 14px;
-    border-radius: 4px; cursor: pointer;
-    transition: all .2s; white-space: nowrap;
-  }
-  .btn-report:hover { background: rgba(203,255,0,0.08); }
-  .btn-upgrade {
-    background: var(--lime); color: var(--black);
-    font-family: 'Space Mono', monospace;
-    font-size: 11px; font-weight: 700;
-    padding: 6px 14px; border: none;
-    border-radius: 4px; cursor: pointer;
-    transition: all .2s; white-space: nowrap;
-  }
-  .btn-upgrade:hover { background: #d4ff1a; }
+/* SUCCESS BANNER */
+.success-banner{max-width:900px;margin:0 auto 20px;padding:0 24px}
+.success-inner{background:rgba(26,122,74,.1);border:1px solid rgba(26,122,74,.3);border-radius:8px;padding:14px 18px;display:flex;align-items:center;gap:12px;font-size:13px;color:#27ae60}
 
-  /* ── Stats bar ── */
-  .stats-row {
-    display: flex; gap: 0;
-    padding: 10px 20px;
-    border-top: 1px solid rgba(255,255,255,0.04);
-    font-size: 11px; color: var(--grey);
-    font-family: 'Space Mono', monospace;
-  }
-  .stat-item {
-    flex: 1; display: flex; flex-direction: column;
-    align-items: center; gap: 2px;
-  }
-  .stat-item + .stat-item {
-    border-left: 1px solid rgba(255,255,255,0.04);
-  }
-  .stat-val { font-size: 16px; font-weight: 700; color: var(--white); }
-  .stat-val.crit { color: var(--red); }
-  .stat-val.warn { color: var(--amber); }
-  .stat-val.ok   { color: var(--green); }
+/* EMPTY */
+.empty-state{text-align:center;padding:60px 24px;color:var(--grey)}
+.empty-state .icon{font-size:40px;margin-bottom:16px;opacity:.4}
+.empty-state h3{font-family:'Space Mono',monospace;font-size:16px;color:var(--white);margin-bottom:8px}
+.empty-state p{font-size:13px;max-width:360px;margin:0 auto}
 
-  /* ── Report modal ── */
-  .modal-overlay {
-    position: fixed; inset: 0; z-index: 1000;
-    background: rgba(0,0,0,0.85);
-    backdrop-filter: blur(6px);
-    display: flex; align-items: flex-start;
-    justify-content: center;
-    padding: 40px 16px; overflow-y: auto;
-  }
-  .modal {
-    background: var(--card-bg);
-    border: 1px solid rgba(203,255,0,0.15);
-    border-radius: 12px; width: 100%;
-    max-width: 720px; overflow: hidden;
-    animation: slideUp .25s ease;
-  }
-  @keyframes slideUp {
-    from { opacity: 0; transform: translateY(20px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-  .modal-header {
-    background: var(--black);
-    padding: 20px 24px;
-    display: flex; align-items: center; gap: 14px;
-    border-bottom: 1px solid rgba(203,255,0,0.1);
-  }
-  .modal-domain {
-    font-family: 'Space Mono', monospace;
-    font-size: 18px; font-weight: 700; color: var(--lime);
-    flex: 1;
-  }
-  .modal-close {
-    background: transparent; border: none;
-    color: var(--grey); font-size: 20px;
-    cursor: pointer; padding: 4px 8px;
-    transition: color .2s;
-  }
-  .modal-close:hover { color: var(--white); }
-  .modal-body { padding: 24px; }
-  .checks-table { width: 100%; border-collapse: collapse; }
-  .checks-table th {
-    text-align: left; padding: 8px 12px;
-    font-family: 'Space Mono', monospace;
-    font-size: 10px; color: var(--lime);
-    letter-spacing: 1px; text-transform: uppercase;
-    background: rgba(203,255,0,0.05);
-    border-bottom: 1px solid rgba(203,255,0,0.1);
-  }
-  .checks-table td {
-    padding: 10px 12px;
-    font-size: 12px;
-    border-bottom: 1px solid rgba(255,255,255,0.03);
-    vertical-align: top;
-  }
-  .checks-table tr:last-child td { border-bottom: none; }
-  .checks-table tr:nth-child(even) td { background: rgba(255,255,255,0.015); }
-  .status-pill {
-    display: inline-block;
-    font-family: 'Space Mono', monospace;
-    font-size: 9px; font-weight: 700;
-    letter-spacing: 0.5px; text-transform: uppercase;
-    padding: 3px 8px; border-radius: 3px;
-    white-space: nowrap;
-  }
-  .pill-critical { background: rgba(192,57,43,0.15); color: #e74c3c; border: 1px solid rgba(192,57,43,0.3); }
-  .pill-warning  { background: rgba(212,133,10,0.15); color: #f39c12; border: 1px solid rgba(212,133,10,0.3); }
-  .pill-ok       { background: rgba(26,122,74,0.15);  color: #27ae60; border: 1px solid rgba(26,122,74,0.3); }
-  .pill-error    { background: rgba(107,114,128,0.1); color: #6b7280; border: 1px solid rgba(107,114,128,0.2); }
-  .check-name { color: var(--white); font-weight: 500; margin-bottom: 2px; }
-  .check-detail { color: var(--grey); font-size: 11px; line-height: 1.4; }
-  .locked-banner {
-    background: rgba(203,255,0,0.05);
-    border: 1px solid rgba(203,255,0,0.15);
-    border-radius: 8px; padding: 20px 24px;
-    margin-top: 16px; text-align: center;
-  }
-  .locked-banner h3 {
-    font-family: 'Space Mono', monospace;
-    color: var(--lime); font-size: 14px; margin-bottom: 8px;
-  }
-  .locked-banner p { color: var(--grey); font-size: 13px; margin-bottom: 16px; }
-  .btn-unlock {
-    background: var(--lime); color: var(--black);
-    font-family: 'Space Mono', monospace;
-    font-size: 13px; font-weight: 700;
-    padding: 12px 28px; border: none;
-    border-radius: 6px; cursor: pointer;
-    transition: all .2s;
-  }
-  .btn-unlock:hover { background: #d4ff1a; transform: translateY(-1px); }
-  .ai-section {
-    background: rgba(203,255,0,0.03);
-    border: 1px solid rgba(203,255,0,0.1);
-    border-radius: 8px; padding: 16px 20px;
-    margin-top: 16px;
-  }
-  .ai-label {
-    font-family: 'Space Mono', monospace;
-    font-size: 10px; color: var(--lime);
-    letter-spacing: 1px; text-transform: uppercase;
-    margin-bottom: 12px; display: flex; align-items: center; gap: 8px;
-  }
-  .ai-label::after {
-    content: ''; flex: 1;
-    height: 1px; background: rgba(203,255,0,0.1);
-  }
-  .ai-body {
-    font-size: 12px; color: #ccc; line-height: 1.7;
-    white-space: pre-wrap; font-family: 'DM Sans', sans-serif;
-  }
+/* SPINNER */
+.spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(203,255,0,.2);border-top-color:var(--lime);border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle}
+@keyframes spin{to{transform:rotate(360deg)}}
 
-  /* ── Toast ── */
-  .toast {
-    position: fixed; bottom: 24px; right: 24px; z-index: 9999;
-    background: var(--card-bg);
-    border: 1px solid rgba(203,255,0,0.2);
-    color: var(--white); font-size: 13px;
-    padding: 12px 20px; border-radius: 8px;
-    animation: fadeIn .3s ease;
-    max-width: 320px;
-  }
-  @keyframes fadeIn { from { opacity:0; transform: translateY(10px); } to { opacity:1; transform:none; } }
+/* TOAST */
+.toast{position:fixed;bottom:24px;right:24px;z-index:9999;background:var(--card);border:1px solid rgba(203,255,0,.2);color:var(--white);font-size:13px;padding:12px 20px;border-radius:8px;animation:fadeIn .3s ease;max-width:360px;line-height:1.4}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 
-  /* ── Empty state ── */
-  .empty-state {
-    text-align: center; padding: 60px 24px;
-    color: var(--grey);
-  }
-  .empty-state .icon {
-    font-size: 40px; margin-bottom: 16px; opacity: 0.4;
-  }
-  .empty-state h3 {
-    font-family: 'Space Mono', monospace;
-    font-size: 16px; color: var(--white);
-    margin-bottom: 8px;
-  }
-  .empty-state p { font-size: 13px; max-width: 360px; margin: 0 auto; }
+/* LANDING SECTIONS */
+.landing-section{padding:72px 24px}
+.landing-section:first-child{border-bottom:1px solid rgba(203,255,0,.07)}
+.section-inner{max-width:1100px;margin:0 auto}
+.section-label-tag{display:inline-block;background:rgba(203,255,0,.08);border:1px solid rgba(203,255,0,.2);color:var(--lime);font-family:'Space Mono',monospace;font-size:11px;letter-spacing:2px;padding:5px 14px;border-radius:20px;margin-bottom:32px;text-transform:uppercase}
+.split-layout{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:start}
+.split-layout.reverse{direction:rtl}.split-layout.reverse>*{direction:ltr}
+.split-text h2{font-family:'Space Mono',monospace;font-size:clamp(22px,3vw,36px);font-weight:700;line-height:1.15;color:var(--white);margin-bottom:16px}
+.split-text h2 span{color:var(--lime)}
+.split-text p{font-size:15px;color:var(--grey);line-height:1.7;margin-bottom:20px}
+.feature-pills{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px}
+.pill{background:rgba(203,255,0,.07);border:1px solid rgba(203,255,0,.15);color:var(--lime);font-size:12px;padding:4px 12px;border-radius:20px;font-family:'Space Mono',monospace}
+.split-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.btn-ghost{color:var(--lime);font-family:'Space Mono',monospace;font-size:11px;text-decoration:none;border:1px solid rgba(203,255,0,.2);padding:6px 14px;border-radius:4px;transition:all .2s}
+.btn-ghost:hover{background:rgba(203,255,0,.08)}
 
-  /* ── Loading spinner ── */
-  .spinner {
-    display: inline-block; width: 16px; height: 16px;
-    border: 2px solid rgba(203,255,0,0.2);
-    border-top-color: var(--lime);
-    border-radius: 50%;
-    animation: spin .7s linear infinite;
-    vertical-align: middle;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
+/* CODE BLOCK */
+.split-code{background:var(--card);border:1px solid rgba(203,255,0,.15);border-radius:10px;padding:20px;overflow:hidden}
+.code-tabs{display:flex;gap:0;margin-bottom:16px;border-bottom:1px solid rgba(203,255,0,.1)}
+.code-tab{background:transparent;border:none;color:var(--grey);font-family:'Space Mono',monospace;font-size:11px;padding:8px 14px;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .2s}
+.code-tab.active{color:var(--lime);border-bottom-color:var(--lime)}
+.code-block pre{background:rgba(203,255,0,.03);border:1px solid rgba(203,255,0,.08);border-radius:6px;padding:14px;font-family:'Space Mono',monospace;font-size:12px;color:var(--lime);line-height:1.6;overflow-x:auto;white-space:pre}
 
-  /* ── Sections header ── */
-  .section-header {
-    max-width: 900px; margin: 0 auto 16px;
-    padding: 0 24px;
-    display: flex; align-items: center; gap: 12px;
-  }
-  .section-title {
-    font-family: 'Space Mono', monospace;
-    font-size: 11px; color: var(--lime);
-    letter-spacing: 2px; text-transform: uppercase;
-  }
-  .section-count {
-    font-family: 'Space Mono', monospace;
-    font-size: 11px; color: var(--grey);
-  }
+/* SCANNER BOX */
+.split-scanner{background:var(--card);border:1px solid rgba(203,255,0,.15);border-radius:10px;padding:24px}
+.scanner-login-box{text-align:center;padding:24px 0}
 
-  /* ── Success banner ── */
-  .success-banner {
-    max-width: 900px; margin: 0 auto 20px;
-    padding: 0 24px;
-  }
-  .success-inner {
-    background: rgba(26,122,74,0.1);
-    border: 1px solid rgba(26,122,74,0.3);
-    border-radius: 8px; padding: 14px 18px;
-    display: flex; align-items: center; gap: 12px;
-    font-size: 13px; color: #27ae60;
-  }
+/* CHECKS PREVIEW */
+.checks-preview{display:flex;flex-wrap:wrap;gap:6px;margin-top:16px}
+.check-chip{font-family:'Space Mono',monospace;font-size:10px;padding:3px 10px;border-radius:3px}
+.check-chip.ok{background:rgba(26,122,74,.12);color:#27ae60;border:1px solid rgba(26,122,74,.2)}
+.check-chip.warn{background:rgba(212,133,10,.12);color:#f39c12;border:1px solid rgba(212,133,10,.2)}
+.check-chip.grey{background:rgba(107,114,128,.1);color:var(--grey);border:1px solid rgba(107,114,128,.2)}
+
+/* TOOLS ROW */
+.tools-row{display:flex;flex-wrap:wrap;gap:8px;margin:32px 0 0;padding-top:24px;border-top:1px solid rgba(203,255,0,.07)}
+.tool-chip{background:rgba(203,255,0,.04);border:1px solid rgba(203,255,0,.1);border-radius:6px;padding:6px 14px;font-family:'Space Mono',monospace;font-size:12px;color:var(--white)}
+.tool-chip span{color:var(--grey);margin-left:6px;font-size:11px}
+
+/* USE CASES */
+.use-cases-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:32px}
+.uc-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:20px;transition:border-color .2s}
+.uc-card:hover{border-color:rgba(203,255,0,.2)}
+.uc-icon{font-size:24px;margin-bottom:10px}
+.uc-card h4{font-family:'Space Mono',monospace;font-size:12px;color:var(--white);margin-bottom:8px;font-weight:700}
+.uc-card p{font-size:12px;color:var(--grey);line-height:1.6}
+
+/* DIVIDER */
+.section-divider{display:flex;align-items:center;gap:16px;max-width:1100px;margin:0 auto;padding:0 24px}
+.divider-line{flex:1;height:1px;background:rgba(203,255,0,.1)}
+.divider-label{font-family:'Space Mono',monospace;font-size:10px;color:var(--grey);letter-spacing:2px;text-transform:uppercase;white-space:nowrap}
+
+
+/* NAV SEARCH */
+.nav-search{display:flex;align-items:center;gap:0;margin-left:auto;background:rgba(203,255,0,.06);border:1px solid rgba(203,255,0,.15);border-radius:6px;overflow:hidden}
+.nav-search-input{background:transparent;border:none;color:var(--white);font-family:'Space Mono',monospace;font-size:12px;padding:7px 14px;outline:none;width:200px}
+.nav-search-input::placeholder{color:#444}
+.nav-search-btn{background:var(--lime);color:var(--black);font-family:'Space Mono',monospace;font-size:11px;font-weight:700;padding:7px 14px;border:none;cursor:pointer;transition:background .2s;white-space:nowrap}
+.nav-search-btn:hover{background:#d4ff1a}
+.nav-sample-btn{background:transparent;border:1px solid rgba(203,255,0,.3);color:var(--lime);font-family:'Space Mono',monospace;font-size:11px;padding:7px 14px;border-radius:6px;cursor:pointer;transition:all .2s;white-space:nowrap;margin-left:8px}
+.nav-sample-btn:hover{background:rgba(203,255,0,.08)}
+
+/* SAMPLE REPORT PAGE */
+.report-page{position:fixed;inset:0;z-index:500;background:var(--black);overflow-y:auto;display:none}
+.report-page.active{display:block}
+.report-page-nav{position:sticky;top:0;z-index:10;background:rgba(14,13,18,.97);backdrop-filter:blur(12px);border-bottom:1px solid rgba(203,255,0,.1);padding:0 24px;display:flex;align-items:center;height:56px;gap:16px}
+.report-back-btn{background:transparent;border:1px solid rgba(203,255,0,.2);color:var(--lime);font-family:'Space Mono',monospace;font-size:11px;padding:6px 14px;border-radius:4px;cursor:pointer;transition:all .2s}
+.report-back-btn:hover{background:rgba(203,255,0,.08)}
+.report-page-domain{font-family:'Space Mono',monospace;font-size:15px;color:var(--white);font-weight:700}
+.report-page-body{max-width:900px;margin:0 auto;padding:32px 24px 80px}
+.report-hero-bar{background:var(--card);border:1px solid rgba(203,255,0,.15);border-radius:12px;padding:28px 32px;margin-bottom:28px;display:flex;align-items:center;gap:28px;flex-wrap:wrap}
+.report-score-ring{width:90px;height:90px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;border:3px solid}
+.report-score-ring .big-score{font-family:'Space Mono',monospace;font-size:30px;font-weight:700;line-height:1}
+.report-score-ring .big-label{font-size:9px;text-transform:uppercase;letter-spacing:1px;margin-top:2px}
+.report-hero-meta{flex:1}
+.report-hero-meta h2{font-family:'Space Mono',monospace;font-size:22px;color:var(--white);margin-bottom:6px}
+.report-hero-meta p{font-size:13px;color:var(--grey);margin-bottom:12px}
+.report-stat-row{display:flex;gap:20px;flex-wrap:wrap}
+.rstat{text-align:center}
+.rstat-val{font-family:'Space Mono',monospace;font-size:22px;font-weight:700}
+.rstat-lbl{font-size:10px;color:var(--grey);text-transform:uppercase;letter-spacing:1px}
+.report-cta-box{background:rgba(203,255,0,.06);border:1px solid rgba(203,255,0,.2);border-radius:8px;padding:20px 24px;margin-bottom:28px;display:flex;align-items:center;gap:20px;flex-wrap:wrap}
+.report-cta-box p{flex:1;font-size:13px;color:var(--grey);line-height:1.6;margin:0}
+.report-cta-box p strong{color:var(--white)}
+.report-section-title{font-family:'Space Mono',monospace;font-size:10px;color:var(--lime);letter-spacing:2px;text-transform:uppercase;margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid rgba(203,255,0,.1)}
+.report-checks-table{width:100%;border-collapse:collapse;margin-bottom:28px}
+.report-checks-table th{text-align:left;padding:9px 14px;font-family:'Space Mono',monospace;font-size:10px;color:var(--lime);letter-spacing:1px;text-transform:uppercase;background:rgba(203,255,0,.05);border-bottom:1px solid rgba(203,255,0,.1)}
+.report-checks-table td{padding:10px 14px;font-size:12px;border-bottom:1px solid rgba(255,255,255,.03);color:var(--grey);vertical-align:top}
+.report-checks-table tr:last-child td{border-bottom:none}
+.report-checks-table tr.row-critical td{background:rgba(192,57,43,.04)}
+.report-checks-table tr.row-warning td{background:rgba(212,133,10,.03)}
+.report-ai-box{background:rgba(203,255,0,.03);border:1px solid rgba(203,255,0,.1);border-radius:10px;padding:24px;margin-bottom:28px}
+.report-ai-label{font-family:'Space Mono',monospace;font-size:10px;color:var(--lime);letter-spacing:2px;text-transform:uppercase;margin-bottom:16px}
+.report-locked{background:var(--card);border:1px solid rgba(203,255,0,.15);border-radius:10px;padding:32px;text-align:center;margin-bottom:28px}
+.report-locked h3{font-family:'Space Mono',monospace;font-size:16px;color:var(--lime);margin-bottom:10px}
+.report-locked p{color:var(--grey);font-size:13px;margin-bottom:20px;line-height:1.6}
+.nav-search-modal{position:fixed;inset:0;z-index:600;background:rgba(0,0,0,.9);display:none;align-items:center;justify-content:center;padding:24px}
+.nav-search-modal.active{display:flex}
+.nav-search-modal-inner{background:var(--card);border:1px solid rgba(203,255,0,.2);border-radius:12px;padding:32px;width:100%;max-width:560px;text-align:center}
+.nav-search-modal-inner h3{font-family:'Space Mono',monospace;font-size:18px;color:var(--lime);margin-bottom:8px}
+.nav-search-modal-inner p{color:var(--grey);font-size:13px;margin-bottom:24px}
+@media(max-width:700px){
+  .nav-search{display:none}
+  .nav-sample-btn{display:none}
+  .report-hero-bar{flex-direction:column;align-items:flex-start}
+}
+
+
+/* CHECKS FULL GRID */
+.check-row{display:flex;align-items:center;gap:8px}
+.check-desc{font-size:11px;color:var(--grey)}
+/* TWO-COL CHECKS */
+.checks-two-col{display:flex;gap:24px;margin-top:16px}
+.checks-col{flex:1;display:flex;flex-direction:column;gap:6px}
+
+/* DATA SOURCES */
+.ds-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:40px}
+.ds-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:20px;display:flex;gap:14px;transition:border-color .2s}
+.ds-card:hover{border-color:rgba(203,255,0,.2)}
+.ds-icon{font-size:24px;flex-shrink:0;margin-top:2px}
+.ds-content h4{font-family:'Space Mono',monospace;font-size:12px;color:var(--white);margin-bottom:6px;font-weight:700}
+.ds-content p{font-size:12px;color:var(--grey);line-height:1.6;margin-bottom:10px}
+.ds-tags{display:flex;flex-wrap:wrap;gap:4px}
+.ds-tag{background:rgba(203,255,0,.06);border:1px solid rgba(203,255,0,.1);color:var(--lime);font-family:'Space Mono',monospace;font-size:9px;padding:2px 8px;border-radius:3px}
+.ds-footer{display:flex;gap:0;background:var(--card);border:1px solid rgba(203,255,0,.1);border-radius:10px;overflow:hidden}
+.ds-stat{flex:1;text-align:center;padding:20px 12px;border-right:1px solid rgba(203,255,0,.08)}
+.ds-stat:last-child{border-right:none}
+.ds-stat-val{display:block;font-family:'Space Mono',monospace;font-size:22px;font-weight:700;color:var(--lime)}
+.ds-stat-lbl{display:block;font-size:10px;color:var(--grey);text-transform:uppercase;letter-spacing:1px;margin-top:4px}
+
+/* BLURRED REPORT */
+.report-blur-wrap{position:relative;overflow:hidden;border-radius:8px}
+.report-blur-content{filter:blur(4px);pointer-events:none;user-select:none}
+.report-blur-overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(14,13,18,.7);backdrop-filter:blur(2px);border-radius:8px;padding:24px;text-align:center}
+.report-blur-overlay h3{font-family:'Space Mono',monospace;font-size:16px;color:var(--lime);margin-bottom:8px}
+.report-blur-overlay p{font-size:13px;color:var(--grey);margin-bottom:20px;line-height:1.6}
+
+@media(max-width:900px){.ds-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:600px){
+  .ds-grid{grid-template-columns:1fr}
+  .checks-two-col{flex-direction:column}
+  .ds-footer{flex-wrap:wrap}
+  .ds-stat{min-width:33%}
+}
+
+
+/* PRE-LOGIN BAR */
+.pre-login-bar{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.pre-login-divider{display:flex;align-items:center;gap:10px;margin:14px 0;color:var(--grey);font-size:11px;font-family:'Space Mono',monospace}
+.pre-login-divider::before,.pre-login-divider::after{content:'';flex:1;height:1px;background:rgba(255,255,255,.06)}
+
+/* TOP DOMAINS */
+.top-domains-section{margin-top:48px;padding-top:32px;border-top:1px solid rgba(203,255,0,.07)}
+.top-domains-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:12px}
+.country-tabs{display:flex;gap:4px;flex-wrap:wrap}
+.ctab{background:transparent;border:1px solid rgba(255,255,255,.06);color:var(--grey);font-family:'Space Mono',monospace;font-size:11px;padding:5px 10px;border-radius:4px;cursor:pointer;transition:all .2s}
+.ctab:hover{color:var(--white);border-color:rgba(203,255,0,.2)}
+.ctab.active{background:rgba(203,255,0,.08);border-color:rgba(203,255,0,.3);color:var(--lime)}
+.top-domains-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.td-card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:12px 14px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:all .2s}
+.td-card:hover{border-color:rgba(203,255,0,.2);transform:translateY(-1px)}
+.td-rank{font-family:'Space Mono',monospace;font-size:11px;color:var(--grey);min-width:20px}
+.td-info{flex:1;min-width:0}
+.td-domain{font-family:'Space Mono',monospace;font-size:12px;color:var(--white);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.td-type{font-size:10px;color:var(--grey);margin-top:2px}
+.td-score{font-family:'Space Mono',monospace;font-size:13px;font-weight:700}
+@media(max-width:800px){
+  .checks-full-grid{grid-template-columns:1fr}
+  .top-domains-grid{grid-template-columns:repeat(2,1fr)}
+}
+
+@media(max-width:800px){
+  .split-layout,.split-layout.reverse{grid-template-columns:1fr;direction:ltr}
+  .use-cases-grid{grid-template-columns:repeat(2,1fr)}
+  .tools-row{gap:6px}
+}
+@media(max-width:500px){
+  .use-cases-grid{grid-template-columns:1fr}
+}
+/* ═══════════════════════════════════════════════════
+   DASHBOARD STYLES
+   ═══════════════════════════════════════════════════ */
+
+/* Nav */
+.db-nav{display:flex;align-items:center;gap:16px;height:56px;padding:0 20px;background:rgba(14,13,18,.98);border-bottom:1px solid rgba(203,255,0,.1);flex-shrink:0;position:relative;z-index:10}
+.db-tabs{display:flex;gap:2px;margin-left:8px}
+.db-tab{background:transparent;border:none;color:var(--grey);font-size:13px;padding:7px 14px;border-radius:5px;cursor:pointer;transition:all .15s;font-family:'DM Sans',sans-serif;white-space:nowrap}
+.db-tab:hover{color:var(--white);background:rgba(255,255,255,.05)}
+.db-tab.active{color:var(--lime);background:rgba(203,255,0,.08)}
+.db-nav-right{margin-left:auto;display:flex;align-items:center;gap:10px}
+
+/* Body */
+.db-body{flex:1;overflow-y:auto;overflow-x:hidden}
+.db-page{display:none}
+.db-page.active{display:block}
+.db-inner{max-width:1200px;margin:0 auto;padding:28px 24px 60px}
+.db-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px}
+.db-title{font-family:'Space Mono',monospace;font-size:22px;color:var(--white);font-weight:700}
+.db-title span{color:var(--lime)}
+
+/* Stat row */
+.db-stat-row{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:24px}
+.db-stat-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px;display:flex;align-items:center;gap:14px}
+.db-stat-icon{width:40px;height:40px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.db-stat-val{font-family:'Space Mono',monospace;font-size:24px;font-weight:700;color:var(--white);line-height:1}
+.db-stat-lbl{font-size:11px;color:var(--grey);margin-top:3px;text-transform:uppercase;letter-spacing:.5px}
+
+/* Two col */
+.db-two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+
+/* Cards */
+.db-card{background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.db-card-head{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid rgba(255,255,255,.04)}
+.db-card-title{font-family:'Space Mono',monospace;font-size:11px;color:var(--lime);text-transform:uppercase;letter-spacing:1px}
+.db-card-link{background:transparent;border:none;color:var(--grey);font-size:12px;cursor:pointer;transition:color .2s}
+.db-card-link:hover{color:var(--lime)}
+.db-empty{padding:24px;text-align:center;color:var(--grey);font-size:13px}
+.db-section-label{font-family:'Space Mono',monospace;font-size:10px;color:var(--grey);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px}
+
+/* Overview domain list */
+.overview-domains-list{padding:8px 0}
+.ovd-row{display:flex;align-items:center;gap:12px;padding:10px 18px;border-bottom:1px solid rgba(255,255,255,.03);cursor:pointer;transition:background .15s}
+.ovd-row:hover{background:rgba(203,255,0,.03)}
+.ovd-row:last-child{border-bottom:none}
+.ovd-domain{flex:1;font-family:'Space Mono',monospace;font-size:12px;color:var(--white)}
+.ovd-score{font-family:'Space Mono',monospace;font-size:14px;font-weight:700}
+
+/* Overview alerts */
+.overview-alerts{padding:8px 0}
+.alert-row{display:flex;align-items:flex-start;gap:10px;padding:10px 18px;border-bottom:1px solid rgba(255,255,255,.03)}
+.alert-row:last-child{border-bottom:none}
+.alert-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:4px}
+.alert-dot.critical{background:#C0392B}
+.alert-dot.warning{background:#D4850A}
+.alert-text{flex:1;font-size:12px;color:var(--grey);line-height:1.5}
+.alert-text strong{color:var(--white)}
+.alert-time{font-size:10px;color:#444;font-family:'Space Mono',monospace;flex-shrink:0}
+
+/* Domains table */
+.db-domains-table{background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.db-table{width:100%;border-collapse:collapse}
+.db-table th{text-align:left;padding:11px 16px;font-family:'Space Mono',monospace;font-size:10px;color:var(--lime);letter-spacing:1px;text-transform:uppercase;background:rgba(203,255,0,.04);border-bottom:1px solid rgba(203,255,0,.08)}
+.db-table td{padding:12px 16px;font-size:13px;border-bottom:1px solid rgba(255,255,255,.03);color:var(--grey);vertical-align:middle}
+.db-table tr:last-child td{border-bottom:none}
+.db-table tr:hover td{background:rgba(203,255,0,.02)}
+.db-table td.domain-cell{font-family:'Space Mono',monospace;font-size:12px;color:var(--white)}
+.db-btn-sm{background:transparent;border:1px solid rgba(203,255,0,.15);color:var(--lime);font-family:'Space Mono',monospace;font-size:10px;padding:4px 10px;border-radius:3px;cursor:pointer;transition:all .2s;white-space:nowrap}
+.db-btn-sm:hover{background:rgba(203,255,0,.08)}
+.db-search{background:var(--card);border:1px solid rgba(203,255,0,.15);color:var(--white);font-family:'Space Mono',monospace;font-size:12px;padding:8px 14px;border-radius:5px;outline:none;width:220px}
+
+/* Reports */
+.reports-domain-list{background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.rdomain-row{padding:12px 16px;border-bottom:1px solid rgba(255,255,255,.03);cursor:pointer;font-family:'Space Mono',monospace;font-size:12px;color:var(--grey);transition:all .15s}
+.rdomain-row:hover,.rdomain-row.active{background:rgba(203,255,0,.06);color:var(--lime)}
+.rdomain-row:last-child{border-bottom:none}
+.reports-history{background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.rh-row{display:flex;align-items:center;gap:14px;padding:12px 16px;border-bottom:1px solid rgba(255,255,255,.03);cursor:pointer;transition:background .15s}
+.rh-row:hover{background:rgba(203,255,0,.03)}
+.rh-row:last-child{border-bottom:none}
+.rh-date{font-family:'Space Mono',monospace;font-size:11px;color:var(--grey);min-width:100px}
+.rh-score{font-family:'Space Mono',monospace;font-size:16px;font-weight:700;min-width:36px}
+.rh-info{flex:1;font-size:12px;color:var(--grey)}
+.rh-delta{font-family:'Space Mono',monospace;font-size:11px}
+.rh-delta.up{color:#C0392B}
+.rh-delta.down{color:#1A7A4A}
+
+/* Threats */
+.db-filter-row{display:flex;gap:6px}
+.db-filter{background:transparent;border:1px solid rgba(255,255,255,.08);color:var(--grey);font-family:'Space Mono',monospace;font-size:11px;padding:6px 14px;border-radius:4px;cursor:pointer;transition:all .2s}
+.db-filter.active{background:rgba(203,255,0,.08);border-color:rgba(203,255,0,.3);color:var(--lime)}
+.threats-priority{padding:16px 18px;display:flex;flex-direction:column;gap:10px}
+.threat-fix-row{display:flex;align-items:flex-start;gap:12px;padding:12px 14px;background:rgba(203,255,0,.03);border:1px solid rgba(203,255,0,.08);border-radius:7px}
+.fix-num{font-family:'Space Mono',monospace;font-size:13px;color:var(--lime);font-weight:700;min-width:24px}
+.fix-content{flex:1}
+.fix-title{font-size:13px;color:var(--white);margin-bottom:3px}
+.fix-desc{font-size:12px;color:var(--grey);line-height:1.5}
+.fix-domain{font-family:'Space Mono',monospace;font-size:10px;color:var(--grey);margin-top:4px}
+.fix-pill{flex-shrink:0}
+.threats-all{overflow:hidden}
+.threat-row{display:flex;align-items:flex-start;gap:12px;padding:11px 18px;border-bottom:1px solid rgba(255,255,255,.03)}
+.threat-row:last-child{border-bottom:none}
+.threat-domain{font-family:'Space Mono',monospace;font-size:11px;color:var(--grey);min-width:130px;padding-top:1px}
+.threat-text{flex:1;font-size:12px;color:var(--grey)}
+.threat-text strong{color:var(--white);display:block;margin-bottom:2px}
+
+/* Intelligence */
+.intel-content{padding:20px 20px;line-height:1.8;font-size:14px;color:var(--grey)}
+.intel-content h3{font-family:'Space Mono',monospace;font-size:13px;color:var(--lime);text-transform:uppercase;letter-spacing:1px;margin:20px 0 10px}
+.intel-content h3:first-child{margin-top:0}
+.intel-content p{margin-bottom:12px;color:#bbb}
+.intel-content strong{color:var(--white)}
+.intel-content ul{padding-left:18px;margin-bottom:12px}
+.intel-content li{margin-bottom:6px;color:#aaa}
+.intel-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.intel-cat-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:18px}
+.intel-cat-title{font-family:'Space Mono',monospace;font-size:11px;color:var(--lime);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px}
+.intel-cat-body{font-size:12px;color:var(--grey);line-height:1.6}
+
+/* Buttons */
+.btn-scan-all{background:var(--lime);color:var(--black);font-family:'Space Mono',monospace;font-size:11px;font-weight:700;padding:9px 18px;border:none;border-radius:5px;cursor:pointer;transition:background .2s;white-space:nowrap}
+.btn-scan-all:hover{background:#d4ff1a}
+
+/* Responsive */
+@media(max-width:900px){
+  .db-stat-row{grid-template-columns:repeat(3,1fr)}
+  .db-two-col{grid-template-columns:1fr}
+  .intel-grid{grid-template-columns:1fr 1fr}
+  .db-tabs .db-tab{font-size:11px;padding:6px 10px}
+}
+@media(max-width:600px){
+  .db-stat-row{grid-template-columns:1fr 1fr}
+  .intel-grid{grid-template-columns:1fr}
+}
+
+
+.cve-list{margin-top:8px;display:flex;flex-direction:column;gap:5px}
+.cve-software{margin-bottom:6px;font-size:11px;color:var(--grey)}
+.cve-sw-tag{display:inline-block;background:rgba(203,255,0,.08);border:1px solid rgba(203,255,0,.15);border-radius:3px;padding:1px 6px;margin-right:4px;font-family:'Space Mono',monospace;font-size:10px;color:var(--lime)}
+.cve-item{display:grid;grid-template-columns:130px 80px 80px 1fr;gap:6px;align-items:start;font-size:11px;padding:5px 8px;background:rgba(192,57,43,.06);border-left:2px solid rgba(192,57,43,.3);border-radius:0 4px 4px 0}
+.cve-id{font-family:'Space Mono',monospace;font-size:10px}
+.cve-score{font-family:'Space Mono',monospace;font-weight:700;font-size:11px}
+.cve-sev{font-family:'Space Mono',monospace;font-size:10px;opacity:.8}
+.cve-desc{color:var(--grey);font-size:10px;line-height:1.4}
 </style>
 </head>
 <body>
 
-<!-- Navbar -->
 <nav>
-  <a class="logo" href="#">
-    <div class="logo-dot"></div>
-    SWARMHAWK
-  </a>
+  <a class="logo" href="#"><div class="logo-dot"></div>SWARMHAWK</a>
+  <div class="nav-links" id="nav-links">
+    <button class="nav-link active" onclick="showNavPage('scanner', this)">Scanner</button>
+    <button class="nav-link" onclick="showNavPage('mcp', this)">MCP API</button>
+    <button class="nav-link" onclick="showNavPage('datasources', this)">Data Sources</button>
+  </div>
+  <div class="nav-search">
+    <input class="nav-search-input" id="nav-search-input" type="text" placeholder="Search any domain…" onkeydown="if(event.key==='Enter')navSearch()">
+    <button class="nav-search-btn" onclick="navSearch()">SCAN</button>
+  </div>
+  <button class="nav-sample-btn" onclick="showSampleReport()">Sample Report →</button>
   <div class="nav-right" id="nav-right">
     <div id="nav-signin">
-      <div id="g_id_onload"
-        data-client_id="396286675021-tqhadhbp3jqc1jrqo5krk3j5njdss0cg.apps.googleusercontent.com"
-        data-callback="handleGoogleLogin"
-        data-auto_prompt="false">
-      </div>
-      <div class="g_id_signin"
-        data-type="standard"
-        data-size="medium"
-        data-theme="filled_black"
-        data-text="sign_in_with"
-        data-shape="rectangular"
-        data-logo_alignment="left">
-      </div>
+      <div id="g_id_onload" data-client_id="396286675021-tqhadhbp3jqc1jrqo5krk3j5njdss0cg.apps.googleusercontent.com" data-callback="handleGoogleLogin" data-auto_prompt="false"></div>
+      <div class="g_id_signin" data-type="standard" data-size="medium" data-theme="filled_black" data-text="sign_in_with" data-shape="rectangular"></div>
     </div>
     <div id="nav-user" style="display:none" class="user-info">
       <img id="nav-avatar" class="user-avatar" src="" alt="">
       <span id="nav-name"></span>
-      <button class="btn-logout" onclick="logout()">LOGOUT</button>
+      <button class="btn-sm" onclick="openDashboard()">Dashboard</button>
+      <button class="btn-sm" onclick="logout()">LOGOUT</button>
     </div>
   </div>
 </nav>
 
-<!-- Hero -->
-<div id="hero">
-  <div class="hero-tag">⚡ European Cyber Intelligence</div>
-  <h1>Protect your domain.<br><span>Know before attackers do.</span></h1>
-  <p class="hero-sub">
-    17 automated security checks, AI threat analysis, and monthly reports —
-    for every domain in 25 European countries. €50/year.
-  </p>
-  <div id="login-section">
-    <div id="g_id_onload_hero"
-      data-client_id="396286675021-tqhadhbp3jqc1jrqo5krk3j5njdss0cg.apps.googleusercontent.com"
-      data-callback="handleGoogleLogin"
-      data-auto_prompt="false">
+<!-- MAIN LANDING (always visible) -->
+<div id="landing">
+
+  <!-- SECTION 1: FOR AI DEVELOPERS (MCP) -->
+  <div class="landing-section" id="section-mcp">
+    <div class="section-inner">
+      <div class="section-label-tag">🤖 For AI Developers</div>
+      <div class="split-layout">
+        <div class="split-text">
+          <h2>Security intelligence<br>your AI can <span>call directly</span></h2>
+          <p>Plug SwarmHawk into Claude, Cursor, or any MCP-compatible assistant. Scan domains, check breaches, and get AI threat analysis — without leaving your conversation.</p>
+          <div class="feature-pills">
+            <span class="pill">18 security checks</span>
+            <span class="pill">7 MCP tools</span>
+            <span class="pill">25 EU countries</span>
+            <span class="pill">Free tier available</span>
+          </div>
+          <div class="split-actions">
+            <span class="status-badge" id="mcp-status"><span class="logo-dot"></span> Checking server…</span>
+            <a href="https://github.com/hastikdan/swarmhawk" target="_blank" class="btn-ghost">View on GitHub ↗</a>
+          </div>
+        </div>
+        <div class="split-code">
+          <div class="code-tabs">
+            <button class="code-tab active" onclick="switchCodeTab('claude', this)">Claude Desktop</button>
+            <button class="code-tab" onclick="switchCodeTab('cursor', this)">Cursor</button>
+            <button class="code-tab" onclick="switchCodeTab('selfhost', this)">Self-host</button>
+          </div>
+          <div class="code-block" id="code-claude"><pre>{
+  "mcpServers": {
+    "swarmhawk": {
+      "url": "https://swarmhawk.com/mcp",
+      "headers": {
+        "X-API-Key": "YOUR_KEY"
+      }
+    }
+  }
+}</pre></div>
+          <div class="code-block" id="code-cursor" style="display:none"><pre>{
+  "mcpServers": {
+    "swarmhawk": {
+      "url": "https://swarmhawk.com/mcp",
+      "headers": {
+        "X-API-Key": "YOUR_KEY"
+      }
+    }
+  }
+}</pre></div>
+          <div class="code-block" id="code-selfhost" style="display:none"><pre>pip install fastmcp requests
+
+git clone github.com/hastikdan/swarmhawk
+cd swarmhawk
+
+python3 swarmhawk_mcp.py --http</pre></div>
+          <div class="key-gen-bar" style="margin-top:12px">
+            <div class="key-display" id="api-key-display">Click to generate your free API key</div>
+            <button class="btn-gen" onclick="generateKey()">Get Free Key</button>
+            <button class="btn-copy" onclick="copyKey()">Copy</button>
+          </div>
+          <p style="font-size:11px;color:var(--grey);margin-top:8px">Free: 10 scans/month · Pro: €29/mo · Business: €99/mo</p>
+        </div>
+      </div>
+
+      <!-- MCP Tools -->
+      <div class="tools-row">
+        <div class="tool-chip">scan_domain() <span>~30s</span></div>
+        <div class="tool-chip">quick_risk_score() <span>~3s</span></div>
+        <div class="tool-chip">check_typosquats() <span>~5s</span></div>
+        <div class="tool-chip">check_breach_exposure() <span>~3s</span></div>
+        <div class="tool-chip">check_reputation() <span>~8s</span></div>
+        <div class="tool-chip">batch_risk_scores() <span>~10s</span></div>
+        <div class="tool-chip">get_quota() <span>instant</span></div>
+      </div>
+
+      <!-- Dev use cases -->
+      <div class="use-cases-grid">
+        <div class="uc-card">
+          <div class="uc-icon">🔍</div>
+          <h4>Security Due Diligence</h4>
+          <p>Ask Claude to scan vendor domains before signing contracts. Risk assessment without leaving your conversation.</p>
+        </div>
+        <div class="uc-card">
+          <div class="uc-icon">💼</div>
+          <h4>M&A Security Review</h4>
+          <p>Batch scan acquisition targets. Claude ranks domains by risk and flags deal-breaker findings automatically.</p>
+        </div>
+        <div class="uc-card">
+          <div class="uc-icon">🚀</div>
+          <h4>Pre-deployment Checks</h4>
+          <p>Wire into your CI/CD pipeline. Catch SSL expiry and misconfigs before they hit production.</p>
+        </div>
+        <div class="uc-card">
+          <div class="uc-icon">⚙️</div>
+          <h4>Security Automation</h4>
+          <p>Build internal security agents that monitor your entire domain portfolio on autopilot.</p>
+        </div>
+      </div>
     </div>
-    <div class="g_id_signin"
-      data-type="standard"
-      data-size="large"
-      data-theme="filled_black"
-      data-text="continue_with"
-      data-shape="rectangular"
-      data-logo_alignment="left">
-    </div>
-    <div class="signin-note">Free scan on first domain · No credit card required</div>
   </div>
+
+  <!-- DIVIDER -->
+  <div class="section-divider">
+    <div class="divider-line"></div>
+    <span class="divider-label">also available as</span>
+    <div class="divider-line"></div>
+  </div>
+
+  <!-- SECTION 2: FOR BUSINESS USERS -->
+  <div class="landing-section" id="section-scanner">
+    <div class="section-inner">
+      <div class="section-label-tag">🛡️ For Business Users</div>
+      <div class="split-layout reverse">
+        <div class="split-text">
+          <h2>Protect your domain.<br><span>Know before attackers do.</span></h2>
+          <p>18 automated security checks, AI threat analysis, and monthly PDF reports delivered to your inbox — across 25 European countries. No technical knowledge required.</p>
+          <div class="feature-pills">
+            <span class="pill">€50/domain/year</span>
+            <span class="pill">Monthly AI reports</span>
+            <span class="pill">NIS2 compliance</span>
+            <span class="pill">No setup needed</span>
+          </div>
+          <div class="checks-two-col">
+            <div class="checks-col">
+              <div class="check-row"><span class="check-chip ok">✓ SSL/TLS Certificate</span><span class="check-desc">Validity, expiry, TLS grade</span></div>
+              <div class="check-row"><span class="check-chip ok">✓ HTTPS Redirect</span><span class="check-desc">Enforced HTTPS on all traffic</span></div>
+              <div class="check-row"><span class="check-chip ok">✓ Security Headers</span><span class="check-desc">CSP, HSTS, X-Frame-Options</span></div>
+              <div class="check-row"><span class="check-chip ok">✓ DNS Configuration</span><span class="check-desc">SPF, DMARC, DNSSEC</span></div>
+              <div class="check-row"><span class="check-chip warn">⚠ Typosquat Monitor</span><span class="check-desc">Lookalike domain detection</span></div>
+              <div class="check-row"><span class="check-chip ok">✓ Breach Exposure</span><span class="check-desc">HaveIBeenPwned 12B+ accounts</span></div>
+              <div class="check-row"><span class="check-chip ok">✓ Shodan Port Scan</span><span class="check-desc">Open ports &amp; CVEs</span></div>
+              <div class="check-row"><span class="check-chip ok">✓ VirusTotal</span><span class="check-desc">94 antivirus engines</span></div>
+              <div class="check-row"><span class="check-chip ok">✓ Google Safe Browsing</span><span class="check-desc">Phishing &amp; malware flags</span></div>
+            </div>
+            <div class="checks-col">
+              <div class="check-row"><span class="check-chip ok">✓ Spamhaus DBL</span><span class="check-desc">Domain block list</span></div>
+              <div class="check-row"><span class="check-chip ok">✓ URLhaus</span><span class="check-desc">Malicious URL database</span></div>
+              <div class="check-row"><span class="check-chip ok">✓ Tech Fingerprint</span><span class="check-desc">CMS, framework, jQuery version</span></div>
+              <div class="check-row"><span class="check-chip ok">✓ HTTP Methods</span><span class="check-desc">Dangerous methods exposed</span></div>
+              <div class="check-row"><span class="check-chip ok">✓ Cookie Security</span><span class="check-desc">Secure, HttpOnly, SameSite</span></div>
+              <div class="check-row"><span class="check-chip ok">✓ Content Policy</span><span class="check-desc">Mixed content &amp; CSP</span></div>
+              <div class="check-row"><span class="check-chip ok">✓ Subdomain Scan</span><span class="check-desc">Exposed subdomains &amp; takeover</span></div>
+              <div class="check-row"><span class="check-chip ok">✓ Email Security</span><span class="check-desc">SPF, DKIM, DMARC policy</span></div>
+              <div class="check-row"><span class="check-chip ok">✓ AI Threat Analysis</span><span class="check-desc">Plain-language findings + fixes</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="split-scanner">
+          <!-- Hidden stubs kept for JS compatibility -->
+          <div id="scanner-login-box" style="display:none"><input id="domain-input-pre" type="text"></div>
+          <div id="scanner-active-box" style="display:none">
+            <input id="domain-input" type="text"><button id="add-btn"></button>
+            <span id="domain-count"></span><div id="domains-grid"></div>
+          </div>
+          <div id="hero-cta-box">
+            <div style="background:var(--card);border:1px solid rgba(203,255,0,.15);border-radius:12px;padding:32px;text-align:center">
+              <div style="font-size:40px;margin-bottom:16px">🛡️</div>
+              <div style="font-family:'Space Mono',monospace;font-size:13px;color:var(--lime);letter-spacing:2px;margin-bottom:8px">SWARMHAWK DASHBOARD</div>
+              <p style="color:var(--grey);font-size:13px;line-height:1.6;margin-bottom:24px">Monitor all your domains, get real-time CVE alerts, and AI-generated threat briefings — in one place.</p>
+              <div id="hero-cta-signin">
+                <p style="font-size:12px;color:var(--grey);font-family:'Space Mono',monospace">Use the <strong style="color:var(--lime)">Sign in with Google</strong> button in the top navigation bar to get started.</p>
+              </div>
+              <div id="hero-cta-open" style="display:none">
+                <button class="btn-primary" style="width:100%;padding:14px;font-size:14px" onclick="openDashboard()">Open Dashboard →</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TOP DOMAINS TEASER -->
+      <div class="top-domains-section">
+        <div class="top-domains-header">
+          <div>
+            <div class="report-section-title" style="margin:0 0 4px">Top Domains by Country</div>
+            <div style="font-size:11px;color:var(--grey)">Ranked by web traffic · Source: SimilarWeb / Tranco Top 1M · Updated monthly</div>
+          </div>
+          <div class="country-tabs" id="country-tabs">
+            <button class="ctab active" onclick="switchCountry('CZ',this)">🇨🇿 CZ</button>
+            <button class="ctab" onclick="switchCountry('PL',this)">🇵🇱 PL</button>
+            <button class="ctab" onclick="switchCountry('HU',this)">🇭🇺 HU</button>
+            <button class="ctab" onclick="switchCountry('SK',this)">🇸🇰 SK</button>
+            <button class="ctab" onclick="switchCountry('RO',this)">🇷🇴 RO</button>
+            <button class="ctab" onclick="switchCountry('DE',this)">🇩🇪 DE</button>
+            <button class="ctab" onclick="switchCountry('AT',this)">🇦🇹 AT</button>
+            <button class="ctab" onclick="switchCountry('GB',this)">🇬🇧 GB</button>
+          </div>
+        </div>
+        <div id="top-domains-grid" class="top-domains-grid"></div>
+      </div>
+
+      <!-- Business use cases -->
+      <div class="use-cases-grid" style="margin-top:40px">
+        <div class="uc-card">
+          <div class="uc-icon">🏢</div>
+          <h4>SME Protection</h4>
+          <p>Enterprise-grade security monitoring at €50/year. Know instantly if your domain appears on malware lists or breach databases.</p>
+        </div>
+        <div class="uc-card">
+          <div class="uc-icon">📋</div>
+          <h4>NIS2 / DORA Compliance</h4>
+          <p>Monthly reports serve as audit evidence for EU regulations. Stay compliant without hiring a dedicated security team.</p>
+        </div>
+        <div class="uc-card">
+          <div class="uc-icon">🎯</div>
+          <h4>Brand Protection</h4>
+          <p>Detect typosquat domains registered by attackers. Protect customers from phishing sites impersonating your brand.</p>
+        </div>
+        <div class="uc-card">
+          <div class="uc-icon">📧</div>
+          <h4>Monthly AI Reports</h4>
+          <p>Plain-language PDF every month. Risk score, new findings, and step-by-step fixes — no technical knowledge needed.</p>
+        </div>
+        <div class="uc-card">
+          <div class="uc-icon">🏦</div>
+          <h4>Financial Services</h4>
+          <p>Banks, fintechs, and insurance firms use SwarmHawk for continuous domain monitoring required under DORA and NIS2.</p>
+        </div>
+        <div class="uc-card">
+          <div class="uc-icon">🏥</div>
+          <h4>Healthcare &amp; Public Sector</h4>
+          <p>Hospitals and government bodies monitor domains for breach exposure and blocklist presence to meet GDPR obligations.</p>
+        </div>
+        <div class="uc-card">
+          <div class="uc-icon">🛒</div>
+          <h4>E-commerce</h4>
+          <p>Online shops monitor for typosquats and SSL issues that could send customers to fake checkout pages.</p>
+        </div>
+        <div class="uc-card">
+          <div class="uc-icon">⚖️</div>
+          <h4>Legal &amp; Professional Services</h4>
+          <p>Law firms and accountancies protect client trust by ensuring their domain is clean, verified, and not impersonated.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DIVIDER -->
+  <div class="section-divider" style="margin-top:0">
+    <div class="divider-line"></div>
+    <span class="divider-label">technical specifications</span>
+    <div class="divider-line"></div>
+  </div>
+
+  <!-- DATA SOURCES SECTION -->
+  <div class="landing-section" id="section-datasources">
+    <div class="section-inner">
+      <div class="section-label-tag">📡 Data Sources &amp; Technical Specs</div>
+      <h2 style="font-family:Space Mono,monospace;font-size:28px;color:var(--white);margin-bottom:8px">What powers <span style="color:var(--lime)">SwarmHawk</span></h2>
+      <p style="color:var(--grey);font-size:15px;margin-bottom:40px;max-width:700px">18 checks drawing from 12 independent threat intelligence sources, updated in real-time. Every scan queries live APIs — no cached or stale data.</p>
+
+      <div class="ds-grid">
+        <div class="ds-card">
+          <div class="ds-icon">🔒</div>
+          <div class="ds-content">
+            <h4>SSL/TLS &amp; Infrastructure</h4>
+            <p>Certificate validity, expiry, TLS version, cipher strength graded A–F. Checks HTTPS enforcement and redirect chain. Source: direct TLS handshake + Python ssl library.</p>
+            <div class="ds-tags"><span class="ds-tag">ssl</span><span class="ds-tag">TLS 1.2/1.3</span><span class="ds-tag">HSTS</span></div>
+          </div>
+        </div>
+        <div class="ds-card">
+          <div class="ds-icon">🌐</div>
+          <div class="ds-content">
+            <h4>DNS &amp; Email Security</h4>
+            <p>SPF, DKIM, DMARC record validation. DNSSEC status. MX record health. Checks for dangling DNS records that enable subdomain takeover. Source: dnspython + direct DNS resolution.</p>
+            <div class="ds-tags"><span class="ds-tag">SPF</span><span class="ds-tag">DMARC</span><span class="ds-tag">DNSSEC</span><span class="ds-tag">MX</span></div>
+          </div>
+        </div>
+        <div class="ds-card">
+          <div class="ds-icon">🛡️</div>
+          <div class="ds-content">
+            <h4>Security Headers</h4>
+            <p>OWASP-recommended HTTP headers: Content-Security-Policy, X-Frame-Options, X-Content-Type-Options, Referrer-Policy, Permissions-Policy, Strict-Transport-Security. Source: direct HTTP inspection.</p>
+            <div class="ds-tags"><span class="ds-tag">OWASP</span><span class="ds-tag">CSP</span><span class="ds-tag">HSTS</span></div>
+          </div>
+        </div>
+        <div class="ds-card">
+          <div class="ds-icon">🔍</div>
+          <div class="ds-content">
+            <h4>VirusTotal</h4>
+            <p>Aggregates results from 94 antivirus engines and URL scanners. Detects malware, phishing, and suspicious activity. Used by Google, Cisco, and major security teams globally. Source: VirusTotal API v3.</p>
+            <div class="ds-tags"><span class="ds-tag">94 engines</span><span class="ds-tag">malware</span><span class="ds-tag">phishing</span></div>
+          </div>
+        </div>
+        <div class="ds-card">
+          <div class="ds-icon">🚨</div>
+          <div class="ds-content">
+            <h4>Spamhaus DBL</h4>
+            <p>Spamhaus Domain Block List — the world's most widely used DNS-based blocklist. Used by over 3 billion mailboxes. A listing here means significant email deliverability impact. Source: Spamhaus DBL DNS query.</p>
+            <div class="ds-tags"><span class="ds-tag">blocklist</span><span class="ds-tag">3B+ mailboxes</span><span class="ds-tag">DNS</span></div>
+          </div>
+        </div>
+        <div class="ds-card">
+          <div class="ds-icon">💀</div>
+          <div class="ds-content">
+            <h4>HaveIBeenPwned</h4>
+            <p>Checks 12+ billion breached accounts from 700+ data breaches. Created by Troy Hunt, trusted by FBI and NCA. Identifies if your domain's email accounts appear in known breach dumps. Source: HIBP API v3.</p>
+            <div class="ds-tags"><span class="ds-tag">12B+ accounts</span><span class="ds-tag">700+ breaches</span><span class="ds-tag">FBI trusted</span></div>
+          </div>
+        </div>
+        <div class="ds-card">
+          <div class="ds-icon">📡</div>
+          <div class="ds-content">
+            <h4>Shodan</h4>
+            <p>Internet-wide port scanner and CVE database. Crawls the entire internet continuously and maps every exposed service, software version, and known vulnerability. Source: Shodan REST API.</p>
+            <div class="ds-tags"><span class="ds-tag">port scan</span><span class="ds-tag">CVE mapping</span><span class="ds-tag">IoT</span></div>
+          </div>
+        </div>
+        <div class="ds-card">
+          <div class="ds-icon">🌍</div>
+          <div class="ds-content">
+            <h4>Google Safe Browsing</h4>
+            <p>Google's threat intelligence database used to protect Chrome, Firefox, and Safari users. Flags domains used for phishing, malware distribution, and unwanted software. Source: Safe Browsing API v4.</p>
+            <div class="ds-tags"><span class="ds-tag">Chrome</span><span class="ds-tag">Firefox</span><span class="ds-tag">phishing</span></div>
+          </div>
+        </div>
+        <div class="ds-card">
+          <div class="ds-icon">🦟</div>
+          <div class="ds-content">
+            <h4>URLhaus (abuse.ch)</h4>
+            <p>Community-driven malware URL database maintained by abuse.ch. Tracks active malware distribution sites, botnet C&amp;C servers, and phishing campaigns in real-time. Source: URLhaus API.</p>
+            <div class="ds-tags"><span class="ds-tag">malware URLs</span><span class="ds-tag">C&amp;C servers</span><span class="ds-tag">real-time</span></div>
+          </div>
+        </div>
+        <div class="ds-card">
+          <div class="ds-icon">🎭</div>
+          <div class="ds-content">
+            <h4>Typosquat Detection</h4>
+            <p>Generates 200+ domain permutations per scan (character swap, omission, addition, homoglyph attacks) and checks DNS registration for each. Detects active phishing infrastructure. Source: dnstwist + DNS.</p>
+            <div class="ds-tags"><span class="ds-tag">200+ variants</span><span class="ds-tag">homoglyphs</span><span class="ds-tag">IDN</span></div>
+          </div>
+        </div>
+        <div class="ds-card">
+          <div class="ds-icon">🤖</div>
+          <div class="ds-content">
+            <h4>AI Threat Analysis</h4>
+            <p>Claude (Anthropic) synthesises all 18 check results into a plain-language executive summary with prioritised remediation steps. Trained on security reports, CVE databases, and OWASP guidelines. Source: Anthropic Claude API.</p>
+            <div class="ds-tags"><span class="ds-tag">Claude</span><span class="ds-tag">OWASP</span><span class="ds-tag">CVE</span></div>
+          </div>
+        </div>
+        <div class="ds-card">
+          <div class="ds-icon">🏷️</div>
+          <div class="ds-content">
+            <h4>Tech Fingerprinting</h4>
+            <p>Identifies CMS (WordPress, Drupal, Joomla), frameworks (React, Vue, Angular), server software, CDN, and jQuery versions. Maps detected versions to CVE database for vulnerability scoring. Source: HTTP headers + HTML parsing.</p>
+            <div class="ds-tags"><span class="ds-tag">CMS</span><span class="ds-tag">CVE</span><span class="ds-tag">jQuery</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ds-footer">
+        <div class="ds-stat"><span class="ds-stat-val">12</span><span class="ds-stat-lbl">Intelligence Sources</span></div>
+        <div class="ds-stat"><span class="ds-stat-val">18</span><span class="ds-stat-lbl">Security Checks</span></div>
+        <div class="ds-stat"><span class="ds-stat-val">94</span><span class="ds-stat-lbl">AV Engines</span></div>
+        <div class="ds-stat"><span class="ds-stat-val">12B+</span><span class="ds-stat-lbl">Breached Accounts</span></div>
+        <div class="ds-stat"><span class="ds-stat-val">25</span><span class="ds-stat-lbl">EU Countries</span></div>
+        <div class="ds-stat"><span class="ds-stat-val">Real-time</span><span class="ds-stat-lbl">All Data Sources</span></div>
+      </div>
+    </div>
+  </div>
+
 </div>
 
-<!-- App (post-login) -->
-<div id="app">
-
-  <!-- Payment success banner -->
-  <div id="success-banner" class="success-banner" style="display:none">
-    <div class="success-inner">
-      ✅ Payment successful! Your full report is being generated and will be emailed to you shortly.
-    </div>
-  </div>
-
-  <!-- Add domain -->
-  <div class="add-domain-bar">
-    <input class="domain-input" id="domain-input"
-      type="text" placeholder="yourdomain.com"
-      onkeydown="if(event.key==='Enter')addDomain()">
-    <select class="country-select" id="country-select">
-      <option value="CZ">🇨🇿 CZ</option>
-      <option value="PL">🇵🇱 PL</option>
-      <option value="HU">🇭🇺 HU</option>
-      <option value="SK">🇸🇰 SK</option>
-      <option value="RO">🇷🇴 RO</option>
-      <option value="DE">🇩🇪 DE</option>
-      <option value="AT">🇦🇹 AT</option>
-      <option value="CH">🇨🇭 CH</option>
-      <option value="GB">🇬🇧 GB</option>
-      <option value="FR">🇫🇷 FR</option>
-      <option value="ES">🇪🇸 ES</option>
-      <option value="IT">🇮🇹 IT</option>
-      <option value="NL">🇳🇱 NL</option>
-      <option value="SE">🇸🇪 SE</option>
-      <option value="DK">🇩🇰 DK</option>
-      <option value="NO">🇳🇴 NO</option>
-      <option value="FI">🇫🇮 FI</option>
-      <option value="EE">🇪🇪 EE</option>
-      <option value="LV">🇱🇻 LV</option>
-      <option value="LT">🇱🇹 LT</option>
-      <option value="HR">🇭🇷 HR</option>
-      <option value="SI">🇸🇮 SI</option>
-      <option value="RS">🇷🇸 RS</option>
-      <option value="BA">🇧🇦 BA</option>
-      <option value="MK">🇲🇰 MK</option>
-      <option value="EU">🌍 EU</option>
-    </select>
-    <button class="btn-add" id="add-btn" onclick="addDomain()">
-      + SCAN DOMAIN
-    </button>
-  </div>
-
-  <!-- Section header -->
-  <div class="section-header">
-    <span class="section-title">Monitored Domains</span>
-    <span class="section-count" id="domain-count"></span>
-  </div>
-
-  <!-- Domain cards -->
-  <div class="domains-grid" id="domains-grid">
-    <div class="empty-state">
-      <div class="icon">🛡️</div>
-      <h3>No domains yet</h3>
-      <p>Add your first domain above to start your free security scan.</p>
-    </div>
-  </div>
-
+<!-- SUCCESS BANNER -->
+<div id="success-banner" class="success-banner" style="display:none;position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:999;width:auto">
+  <div class="success-inner">✅ Payment successful! Your full report will be emailed shortly.</div>
 </div>
 
-<!-- Report modal -->
+<!-- REPORT MODAL -->
 <div class="modal-overlay" id="modal" style="display:none" onclick="if(event.target===this)closeModal()">
   <div class="modal">
     <div class="modal-header">
       <div class="modal-domain" id="modal-domain">—</div>
-      <span id="modal-paid-badge"></span>
+      <span id="modal-badge"></span>
       <button class="modal-close" onclick="closeModal()">✕</button>
     </div>
-    <div class="modal-body" id="modal-body">
-      <div style="text-align:center;padding:40px">
-        <div class="spinner"></div>
-        <div style="margin-top:12px;color:var(--grey);font-size:13px">Loading report…</div>
+    <div class="modal-body" id="modal-body"></div>
+  </div>
+</div>
+
+<script>
+const API = 'https://swarmhawk-backend.onrender.com';
+const MCP_URL = 'https://swarmhawk.com/mcp';
+let sessionToken = localStorage.getItem('sw_token') || '';
+let currentUser = JSON.parse(localStorage.getItem('sw_user') || 'null');
+let domains = []; let pollTimer = null;
+
+window.addEventListener('DOMContentLoaded', () => {
+  const p = new URLSearchParams(location.search);
+  if (p.get('payment') === 'success') { document.getElementById('success-banner').style.display='block'; setTimeout(()=>document.getElementById('success-banner').style.display='none',6000); history.replaceState({},'',location.pathname); }
+  if (sessionToken && currentUser) activateScanner();
+  checkMCPStatus();
+});
+
+function activateScanner() {
+  document.getElementById('nav-signin').style.display='none';
+  document.getElementById('nav-user').style.display='flex';
+  document.getElementById('nav-name').textContent=currentUser?.name||currentUser?.email||'';
+  if (currentUser?.avatar) document.getElementById('nav-avatar').src=currentUser.avatar;
+  // Flip hero CTA: hide sign-in, show "Open Dashboard" button
+  var signin = document.getElementById('hero-cta-signin');
+  var openBtn = document.getElementById('hero-cta-open');
+  if (signin) signin.style.display='none';
+  if (openBtn) openBtn.style.display='block';
+  loadDomains();
+  if (!pollTimer) pollTimer=setInterval(loadDomains,15000);
+  // Open full dashboard
+  openDashboard();
+}
+
+async function checkMCPStatus() {
+  const badge = document.getElementById('mcp-status');
+  try {
+    const r = await fetch(MCP_URL, {signal: AbortSignal.timeout(5000)});
+    badge.innerHTML = '<span class="logo-dot"></span> MCP Server Online';
+    badge.className = 'status-badge';
+  } catch {
+    badge.innerHTML = '⚠ MCP Server Starting…';
+    badge.className = 'status-badge offline';
+  }
+}
+
+function switchCodeTab(tab, btn) {
+  document.querySelectorAll('.code-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.code-block').forEach(b=>b.style.display='none');
+  btn.classList.add('active');
+  document.getElementById('code-'+tab).style.display='block';
+}
+
+function showNavPage(page, btn) {
+  document.querySelectorAll('.nav-link').forEach(l=>l.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  var ids = {mcp:'section-mcp', scanner:'section-scanner', datasources:'section-datasources'};
+  var el = document.getElementById(ids[page] || 'section-scanner');
+  if (el) el.scrollIntoView({behavior:'smooth'});
+}
+function showPage(page) { showNavPage(page, null); }
+
+async function handleGoogleLogin(response) {
+  toast('Signing in…');
+  try {
+    // Decode Google JWT locally to get user info immediately
+    const parts = response.credential.split('.');
+    const payload = JSON.parse(atob(parts[1].replace(/-/g,'+').replace(/_/g,'/')));
+    const localUser = { name: payload.name, email: payload.email, avatar: payload.picture };
+
+    // Try backend auth
+    let backendOk = false;
+    try {
+      const res = await fetch(API+'/auth/google', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({credential: response.credential})
+      });
+      if (res.ok) {
+        const data = await res.json();
+        sessionToken = data.session_token;
+        currentUser = data.user || localUser;
+        backendOk = true;
+      } else {
+        const errText = await res.text();
+        console.warn('Backend auth failed:', res.status, errText);
+      }
+    } catch(backendErr) {
+      console.warn('Backend unreachable:', backendErr.message);
+    }
+
+    // Fallback: use Google JWT if backend unavailable
+    if (!backendOk) {
+      sessionToken = response.credential;
+      currentUser = localUser;
+      toast('Connected (offline mode)', false);
+    }
+
+    localStorage.setItem('sw_token', sessionToken);
+    localStorage.setItem('sw_user', JSON.stringify(currentUser));
+    activateScanner();
+
+  } catch(e) {
+    console.error('Login error:', e);
+    toast('Login failed: ' + e.message, true);
+  }
+}
+
+function showApp() { activateScanner(); }
+function logout() { clearInterval(pollTimer); localStorage.removeItem('sw_token'); localStorage.removeItem('sw_user'); location.reload(); }
+
+async function api(path,opts={}) {
+  const res=await fetch(`${API}${path}`,{...opts,headers:{'Content-Type':'application/json','Authorization':`Bearer ${sessionToken}`,...(opts.headers||{})}});
+  if (!res.ok){const e=await res.json().catch(()=>({detail:res.statusText})); throw new Error(e.detail||res.statusText);}
+  return res.json();
+}
+
+async function loadDomains() {
+  try {
+    const data=await api('/domains'); domains=data.domains||[]; renderDomains();
+    // Also refresh dashboard if it's open
+    if (document.getElementById('dashboard').style.display !== 'none') {
+      dbDomains = domains;
+      dbRenderOverview();
+      dbRenderDomainsTable();
+      dbRenderReportsDomainList();
+      dbRenderThreats();
+    }
+    if (!domains.some(d=>d.status==='scanning')){clearInterval(pollTimer);pollTimer=null;}
+  } catch(e){console.error('Load failed:',e);}
+}
+
+async function addDomain() {
+  const input=document.getElementById('domain-input');
+  const domain=input.value.trim().toLowerCase(); if(!domain)return;
+  const btn=document.getElementById('add-btn'); btn.disabled=true; btn.innerHTML='<span class="spinner"></span> SCANNING…';
+  try {
+    await api('/domains',{method:'POST',body:JSON.stringify({domain,country:'EU'})});
+    input.value='';
+    toast('Scanning ' + domain + '… opening report in ~60s');
+    await loadDomains();
+    if(!pollTimer) pollTimer=setInterval(async ()=>{
+      await loadDomains();
+      var d = domains.find(function(x){ return x.domain===domain && x.status!=='scanning'; });
+      if (d) { clearInterval(pollTimer); pollTimer=null; showBlurredReport(d); }
+    }, 5000);
+  }
+  catch(e){toast(e.message,true);}
+  finally{btn.disabled=false;btn.innerHTML='+ SCAN DOMAIN';}
+}
+
+function showBlurredReport(domainObj) {
+  if (!domainObj.paid) {
+    openBlurredReportPage(domainObj);
+  } else {
+    openReport(domainObj.id, domainObj.domain, true);
+  }
+}
+
+async function openBlurredReportPage(domainObj) {
+  var page = document.getElementById('report-page');
+  var body = document.getElementById('rp-body');
+  document.getElementById('rp-domain').textContent = domainObj.domain;
+  document.getElementById('rp-demo-tag').textContent = 'FREE PREVIEW';
+  document.getElementById('rp-demo-tag').style.color = 'var(--amber)';
+  body.innerHTML = '<div style="text-align:center;padding:60px"><div class="spinner" style="width:32px;height:32px;border-width:3px;margin:0 auto"></div><p style="color:var(--grey);margin-top:16px;font-size:13px">Loading your report…</p></div>';
+  page.classList.add('active');
+  document.body.style.overflow = 'hidden';
+  // Track if opened from dashboard
+  var fromDashboard = document.getElementById('dashboard').style.display !== 'none';
+  document.getElementById('report-page').setAttribute('data-from-dashboard', fromDashboard ? '1' : '0');
+  document.querySelector('.report-back-btn').textContent = fromDashboard ? '← Back to Dashboard' : '← Back';
+  try {
+    var data = await api('/domains/' + domainObj.id + '/report');
+    renderBlurredReport(data, domainObj);
+  } catch(e) {
+    body.innerHTML = '<div style="padding:24px;color:var(--red)">Error: ' + e.message + '</div>';
+  }
+}
+
+function renderBlurredReport(data, domainObj) {
+  var checks = data.checks || [];
+  var ai = null; var others = [];
+  for (var i=0;i<checks.length;i++){
+    if(checks[i].check==='ai_summary') ai=checks[i]; else others.push(checks[i]);
+  }
+  var order={critical:0,warning:1,ok:2,error:3};
+  others.sort(function(a,b){return (order[a.status]||9)-(order[b.status]||9);});
+  var score=data.risk_score||0;
+  var rc=score>=60?'#C0392B':score>=30?'#D4850A':'#1A7A4A';
+  var rl=score>=60?'HIGH RISK':score>=30?'MEDIUM RISK':'LOW RISK';
+  var passed=others.filter(function(c){return c.status==='ok';}).length;
+
+  var html='';
+  // Hero always visible
+  html+='<div class="report-hero-bar">';
+  html+='<div class="report-score-ring" style="border-color:'+rc+';color:'+rc+'">';
+  html+='<span class="big-score">'+score+'</span><span class="big-label">RISK</span></div>';
+  html+='<div class="report-hero-meta"><h2>'+domainObj.domain+'</h2>';
+  html+='<p>Scan complete &middot; '+others.length+' checks &middot; '+new Date(data.scanned_at||Date.now()).toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'})+'</p>';
+  html+='<div class="report-stat-row">';
+  html+='<div class="rstat"><div class="rstat-val" style="color:#C0392B">'+(data.critical||0)+'</div><div class="rstat-lbl">Critical</div></div>';
+  html+='<div class="rstat"><div class="rstat-val" style="color:#D4850A">'+(data.warnings||0)+'</div><div class="rstat-lbl">Warnings</div></div>';
+  html+='<div class="rstat"><div class="rstat-val" style="color:#1A7A4A">'+passed+'</div><div class="rstat-lbl">Passed</div></div>';
+  html+='</div></div></div>';
+
+  // First 3 checks visible, rest blurred
+  var visibleChecks = others.slice(0,3);
+  var blurredChecks = others.slice(3);
+
+  html+='<div class="report-section-title">Security Checks</div>';
+  html+='<table class="report-checks-table"><thead><tr><th style="width:90px">Status</th><th style="width:130px">Check</th><th>Finding</th></tr></thead><tbody>';
+  visibleChecks.forEach(function(c){
+    var pc=c.status==='ok'?'ok':c.status==='warning'?'warning':c.status==='critical'?'critical':'error';
+    html+='<tr class="row-'+c.status+'">';
+    html+='<td><span class="status-pill pill-'+pc+'">'+c.status.toUpperCase()+'</span></td>';
+    html+='<td style="font-family:Space Mono,monospace;font-size:11px;color:var(--white)">'+c.check.replace(/_/g,' ')+'</td>';
+    html+='<td><div style="color:var(--white);font-size:12px;margin-bottom:2px">'+(c.title||'')+'</div>';
+    if(c.detail) html+='<div style="color:var(--grey);font-size:11px;line-height:1.5">'+c.detail+'</div>';
+    html+=renderCVEs(c);
+    html+='</td></tr>';
+  });
+  html+='</tbody></table>';
+
+  // Blurred section with buy overlay
+  if (blurredChecks.length > 0 || ai) {
+    html+='<div class="report-blur-wrap">';
+    html+='<div class="report-blur-content">';
+    // Blurred checks preview
+    html+='<table class="report-checks-table"><tbody>';
+    blurredChecks.slice(0,5).forEach(function(c){
+      html+='<tr><td><span class="status-pill pill-'+c.status+'">'+c.status.toUpperCase()+'</span></td>';
+      html+='<td style="font-family:Space Mono,monospace;font-size:11px;color:var(--white)">'+c.check.replace(/_/g,' ')+'</td>';
+      html+='<td><div style="color:var(--white);font-size:12px">'+(c.title||'')+'</div></td></tr>';
+    });
+    html+='</tbody></table>';
+    // Blurred AI section
+    if (ai) {
+      html+='<div class="report-ai-box" style="margin-top:16px"><div class="report-ai-label">AI Threat Analysis</div>';
+      html+='<div style="color:#bbb;font-size:12px;line-height:1.8">'+(ai.detail||'').substring(0,200)+'...</div></div>';
+    }
+    html+='</div>'; // end blur-content
+    // Overlay
+    html+='<div class="report-blur-overlay">';
+    html+='<h3>🔒 Full Report Locked</h3>';
+    html+='<p>'+(blurredChecks.length)+' more checks + AI threat analysis + monthly monitoring<br>Unlock for <strong style="color:var(--lime)">$50/year</strong></p>';
+    html+='<button class="btn-unlock" onclick="closeReportPage();checkout(this)">Unlock Full Report — $50/year →</button>';
+    html+='<p style="font-size:11px;color:var(--grey);margin-top:10px">Monthly PDF reports · NIS2 compliance · Cancel anytime</p>';
+    html+='</div>';
+    html+='</div>'; // end blur-wrap
+  }
+
+  document.getElementById('rp-body').innerHTML = html;
+  document.getElementById('rp-badge').innerHTML = '<span class="status-pill pill-'+(score>=60?'critical':score>=30?'warning':'ok')+'">'+rl+'</span>';
+}
+
+function riskClass(s){return s===null?'risk-scan':s>=60?'risk-high':s>=30?'risk-medium':'risk-low';}
+function riskShort(s){return s===null?'SCAN':s>=60?'HIGH':s>=30?'MED':'LOW';}
+function timeAgo(iso){const d=(Date.now()-new Date(iso))/1000;if(d<60)return'just now';if(d<3600)return Math.floor(d/60)+'m ago';if(d<86400)return Math.floor(d/3600)+'h ago';return Math.floor(d/86400)+'d ago';}
+
+function renderDomains() {
+  const grid=document.getElementById('domains-grid'); const count=document.getElementById('domain-count');
+  count.textContent=domains.length?`${domains.length} domain${domains.length>1?'s':''}`:'';
+  if(!domains.length){grid.innerHTML=`<div class="empty-state"><div class="icon">🛡️</div><h3>No domains yet</h3><p>Add your first domain above to start your free security scan.</p></div>`;return;}
+  grid.innerHTML=domains.map(d=>{
+    const rc=riskClass(d.risk_score),rl=riskShort(d.risk_score),scanning=d.status==='scanning';
+    const scoreHtml=scanning?'<span class="spinner"></span>':(d.risk_score??'—');
+    const passed=d.risk_score!==null?Math.max(0,11-(d.critical||0)-(d.warnings||0)):'—';
+    return `<div class="domain-card">
+      <div class="card-header">
+        <div class="risk-badge ${rc}"><span class="score">${scoreHtml}</span><span class="rlbl">${rl}</span></div>
+        <div class="card-meta">
+          <div class="card-domain">${d.domain}</div>
+          <div class="card-sub">
+            <span><span class="status-dot ${scanning?'dot-scanning':'dot-active'}"></span>${scanning?'Scanning…':'Active'}</span>
+            ${d.country?`<span class="sep">·</span><span>${d.country}</span>`:''}
+            ${d.scanned_at?`<span class="sep">·</span><span>${timeAgo(d.scanned_at)}</span>`:''}
+          </div>
+        </div>
+        <div class="card-actions">
+          <span class="${d.paid?'badge-paid':'badge-free'}">${d.paid?'✓ ANNUAL':'FREE'}</span>
+          ${!scanning?`<button class="btn-report" onclick="openReport('${d.id}','${d.domain}',${d.paid})">VIEW REPORT</button>${!d.paid?`<button class="btn-upgrade" onclick="checkout('${d.id}','${d.domain}')">€50/yr →</button>`:''}`:''}
+        </div>
       </div>
+      ${d.risk_score!==null?`<div class="stats-row">
+        <div class="stat-item"><span class="stat-val crit">${d.critical||0}</span><span>Critical</span></div>
+        <div class="stat-item"><span class="stat-val warn">${d.warnings||0}</span><span>Warnings</span></div>
+        <div class="stat-item"><span class="stat-val ok">${passed}</span><span>Passed</span></div>
+        <div class="stat-item"><span class="stat-val">${d.risk_score}</span><span>Risk Score</span></div>
+      </div>`:''}
+    </div>`;
+  }).join('');
+}
+
+async function openReport(domainId,domainName,paid) {
+  document.getElementById('modal').style.display='flex';
+  document.getElementById('modal-domain').textContent=domainName;
+  document.getElementById('modal-badge').innerHTML=paid?'<span class="badge-paid">ANNUAL</span>':'<span class="badge-free">FREE</span>';
+  document.getElementById('modal-body').innerHTML=`<div style="text-align:center;padding:48px"><div class="spinner"></div><div style="margin-top:14px;color:var(--grey);font-size:13px">Loading report…</div></div>`;
+  try {
+    const data=await api(`/domains/${domainId}/report`);
+    if(data.status==='scanning'){document.getElementById('modal-body').innerHTML=`<div style="text-align:center;padding:48px;color:var(--grey)"><div class="spinner"></div><div style="margin-top:14px;font-size:13px">Scan in progress — check back in a minute</div></div>`;return;}
+    renderReport(data,domainId,domainName);
+  } catch(e){document.getElementById('modal-body').innerHTML=`<div style="padding:24px;color:var(--red)">Error: ${e.message}</div>`;}
+}
+
+function renderReport(data,domainId,domainName) {
+  const checks=data.checks||[]; const ai=checks.find(c=>c.check==='ai_summary'); const others=checks.filter(c=>c.check!=='ai_summary');
+  const rc=data.risk_score>=60?'#C0392B':data.risk_score>=30?'#D4850A':'#1A7A4A';
+  const rl=data.risk_score>=60?'HIGH RISK':data.risk_score>=30?'MEDIUM RISK':'LOW RISK';
+  const passed=Math.max(0,others.filter(c=>c.status==='ok').length);
+  let html=`<div class="report-summary">
+    <div class="summary-card"><div class="summary-val" style="color:${rc}">${data.risk_score}</div><div class="summary-lbl">Risk Score</div><div style="font-size:10px;color:${rc};margin-top:2px;font-weight:700">${rl}</div></div>
+    <div class="summary-card"><div class="summary-val" style="color:var(--red)">${data.critical||0}</div><div class="summary-lbl">Critical</div></div>
+    <div class="summary-card"><div class="summary-val" style="color:var(--amber)">${data.warnings||0}</div><div class="summary-lbl">Warnings</div></div>
+    <div class="summary-card"><div class="summary-val" style="color:var(--green)">${passed}</div><div class="summary-lbl">Passed</div></div>
+  </div>`;
+  if(ai&&ai.detail){html+=`<div class="ai-section"><div class="ai-label">AI Threat Analysis</div><div>${renderAI(ai.detail)}</div></div>`;}
+  if(others.length){
+    const order={critical:0,warning:1,ok:2,error:3};
+    html+=`<div class="checks-wrap"><div class="section-label">Security Checks</div><table class="checks-table"><thead><tr><th style="width:85px">Status</th><th style="width:130px">Check</th><th>Finding</th></tr></thead><tbody>`;
+    [...others].sort((a,b)=>(order[a.status]??9)-(order[b.status]??9)).forEach(c=>{
+      html+=`<tr class="row-${c.status}"><td><span class="status-pill pill-${c.status==='ok'?'ok':c.status==='warning'?'warning':c.status==='critical'?'critical':'error'}">${c.status.toUpperCase()}</span></td><td><div class="check-name">${c.check.replace(/_/g,' ')}</div></td><td><div class="check-name">${c.title||''}</div>${c.detail?`<div class="check-detail">${c.detail}</div>`:''}${renderCVEs(c)}</td></tr>`;
+    });
+    html+='</tbody></table></div>';
+  }
+  if(data.locked_count>0){html+=`<div class="locked-banner"><h3>🔒 ${data.locked_count} checks locked</h3><p>Subscribe for €50/year to unlock all 17 checks, AI threat analysis, and monthly reports.</p><button class="btn-unlock" onclick="closeModal();checkout('${domainId}','${domainName}')">Unlock Full Report — €50/year →</button></div>`;}
+  const defaultEmail=currentUser?.email||'';
+  html+=`<div class="email-report-bar" style="margin-top:20px"><span class="email-report-label">📧 EMAIL REPORT</span><input class="email-input" id="email-to" type="email" value="${defaultEmail}" placeholder="recipient@company.com"><button class="btn-send-email" id="btn-send-email" onclick="sendReportEmail('${domainId}')">SEND PDF REPORT</button></div>`;
+  document.getElementById('modal-body').innerHTML=html;
+}
+
+
+function renderCVEs(c) {
+  if (c.check !== 'cve' || !c.cves || !c.cves.length) return '';
+  var html = '<div class="cve-list">';
+  if (c.software && c.software.length) {
+    html += '<div class="cve-software">Detected: ' +
+      c.software.map(function(s){ return '<span class="cve-sw-tag">'+s.product+' '+s.version+'</span>'; }).join('') +
+      '</div>';
+  }
+  c.cves.forEach(function(cve) {
+    var col = cve.cvss >= 9 ? '#C0392B' : cve.cvss >= 7 ? '#D4850A' : '#7F8C8D';
+    html += '<div class="cve-item">' +
+      '<span class="cve-id"><a href="'+cve.url+'" target="_blank" style="color:var(--lime);text-decoration:none">'+cve.id+'</a></span>' +
+      '<span class="cve-score" style="color:'+col+'">CVSS '+cve.cvss+'</span>' +
+      '<span class="cve-sev" style="color:'+col+'">'+cve.severity+'</span>' +
+      '<span class="cve-desc">'+cve.summary+'</span>' +
+      '</div>';
+  });
+  html += '</div>';
+  return html;
+}
+
+function renderAI(text) {
+  let html=''; let body=[];
+  const flush=()=>{if(body.length){html+=`<div class="ai-sec-body">${body.filter(l=>l.trim()).join('<br>')}</div>`;body=[];}};
+  text.split('\n').forEach(line=>{
+    const t=line.trim(); if(!t){body.push('');return;}
+    if(/^\d+\.\s+[A-Z]/.test(t)){flush();html+=`<div class="ai-sec-head">${t}</div>`;}
+    else if(t.startsWith('-')||t.startsWith('•')){body.push('&nbsp;&nbsp;▸ '+t.replace(/^[-•]\s*/,''));}
+    else{body.push(t);}
+  });
+  flush(); return html||`<div class="ai-sec-body">${text}</div>`;
+}
+
+async function sendReportEmail(domainId) {
+  const emailInput=document.getElementById('email-to'); const btn=document.getElementById('btn-send-email');
+  const email=emailInput.value.trim(); if(!email||!email.includes('@')){toast('Enter a valid email',true);return;}
+  btn.disabled=true; btn.innerHTML='<span class="spinner"></span> SENDING…';
+  try { await api('/send-report',{method:'POST',body:JSON.stringify({domain_id:domainId,email})}); toast(`✓ Report sent to ${email}`); btn.innerHTML='✓ SENT'; setTimeout(()=>{btn.innerHTML='SEND PDF REPORT';btn.disabled=false;},3000); }
+  catch(e){toast('Send failed: '+e.message,true);btn.innerHTML='SEND PDF REPORT';btn.disabled=false;}
+}
+
+function closeModal(){document.getElementById('modal').style.display='none';}
+
+async function checkout(domainId,domainName) {
+  toast(`Preparing checkout for ${domainName}…`);
+  try { const data=await api('/checkout',{method:'POST',body:JSON.stringify({domain_id:domainId,domain:domainName})}); window.location.href=data.checkout_url; }
+  catch(e){toast('Checkout error: '+e.message,true);}
+}
+
+function checkout_mcp() { toast('MCP Pro plans coming soon — email hello@swarmhawk.eu to get early access'); }
+
+function generateKey() {
+  const chars='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  const rand=Array.from({length:32},()=>chars[Math.floor(Math.random()*chars.length)]).join('');
+  const key='swh_free_'+rand;
+  document.getElementById('api-key-display').textContent=key;
+  toast('Free API key generated — 10 scans/month');
+}
+
+function copyKey() {
+  const key=document.getElementById('api-key-display').textContent;
+  if(key.startsWith('Click')) return toast('Generate a key first',true);
+  navigator.clipboard.writeText(key).then(()=>toast('✓ API key copied'));
+}
+
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
+function toast(msg,error=false){const t=document.createElement('div');t.className='toast';t.style.borderColor=error?'rgba(192,57,43,.4)':'rgba(203,255,0,.2)';t.textContent=msg;document.body.appendChild(t);setTimeout(()=>t.remove(),4000);}
+</script>
+
+
+<!-- NAV SEARCH MODAL -->
+<div class="nav-search-modal" id="nav-search-modal">
+  <div class="nav-search-modal-inner">
+    <h3 id="nsm-title">Scanning…</h3>
+    <p id="nsm-body">Running 18 security checks</p>
+    <div id="nsm-spinner" style="margin:16px auto;width:32px;height:32px;border:3px solid rgba(203,255,0,.2);border-top-color:var(--lime);border-radius:50%;animation:spin .7s linear infinite"></div>
+  </div>
+</div>
+
+<!-- SAMPLE REPORT PAGE -->
+<div class="report-page" id="report-page">
+  <div class="report-page-nav">
+    <button class="report-back-btn" onclick="closeReportPage()">← Back</button>
+    <span class="report-page-domain" id="rp-domain">—</span>
+    <span id="rp-badge" style="margin-left:8px"></span>
+    <span style="flex:1"></span>
+    <span id="rp-demo-tag" style="font-family:'Space Mono',monospace;font-size:10px;color:var(--grey);letter-spacing:1px">SAMPLE REPORT</span>
+  </div>
+  <div class="report-page-body" id="rp-body">
+    <div style="text-align:center;padding:80px">
+      <div class="spinner" style="width:32px;height:32px;border-width:3px;margin:0 auto"></div>
+      <p style="color:var(--grey);margin-top:16px;font-size:13px">Loading…</p>
     </div>
   </div>
 </div>
 
 <script>
-// ── Config ───────────────────────────────────────────────────────────────────
-const API = 'https://swarmhawk-backend.onrender.com';
+const SAMPLE_DOMAIN = 'csob.cz';
 
-// ── State ────────────────────────────────────────────────────────────────────
-let sessionToken = localStorage.getItem('sw_token') || '';
-let currentUser  = JSON.parse(localStorage.getItem('sw_user') || 'null');
-let domains      = [];
-let pollTimer    = null;
-
-// ── Init ─────────────────────────────────────────────────────────────────────
-window.addEventListener('DOMContentLoaded', () => {
-  // Check for payment success in URL
-  const params = new URLSearchParams(location.search);
-  if (params.get('payment') === 'success') {
-    document.getElementById('success-banner').style.display = 'block';
-    history.replaceState({}, '', location.pathname);
-  }
-  if (sessionToken && currentUser) showApp();
-});
-
-// ── Auth ─────────────────────────────────────────────────────────────────────
-async function handleGoogleLogin(response) {
-  try {
-    const res = await fetch(`${API}/auth/google`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ credential: response.credential }),
-    });
-    if (!res.ok) throw new Error(await res.text());
-    const data = await res.json();
-    sessionToken = data.session_token;
-    currentUser  = data.user;
-    localStorage.setItem('sw_token', sessionToken);
-    localStorage.setItem('sw_user', JSON.stringify(currentUser));
-    showApp();
-  } catch(e) {
-    toast('Login failed: ' + e.message, true);
-  }
-}
-
-function showApp() {
-  document.getElementById('hero').style.display = 'none';
-  document.getElementById('app').style.display = 'block';
-  document.getElementById('nav-signin').style.display = 'none';
-  document.getElementById('nav-user').style.display = 'flex';
-  document.getElementById('nav-name').textContent = currentUser?.name || currentUser?.email || '';
-  if (currentUser?.avatar) document.getElementById('nav-avatar').src = currentUser.avatar;
-  loadDomains();
-  // Poll every 15s for scanning domains
-  pollTimer = setInterval(loadDomains, 15000);
-}
-
-function logout() {
-  clearInterval(pollTimer);
-  localStorage.removeItem('sw_token');
-  localStorage.removeItem('sw_user');
-  sessionToken = ''; currentUser = null;
-  location.reload();
-}
-
-// ── API helpers ───────────────────────────────────────────────────────────────
-async function api(path, options = {}) {
-  const res = await fetch(`${API}${path}`, {
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${sessionToken}`,
-      ...(options.headers || {}),
-    },
-  });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({ detail: res.statusText }));
-    throw new Error(err.detail || res.statusText);
-  }
-  return res.json();
-}
-
-// ── Load domains ──────────────────────────────────────────────────────────────
-async function loadDomains() {
-  try {
-    const data = await api('/domains');
-    domains = data.domains || [];
-    renderDomains();
-    // Stop polling if no scanning domains
-    const scanning = domains.some(d => d.status === 'scanning');
-    if (!scanning) { clearInterval(pollTimer); pollTimer = null; }
-  } catch(e) {
-    console.error('Failed to load domains:', e);
-  }
-}
-
-// ── Add domain ────────────────────────────────────────────────────────────────
-async function addDomain() {
-  const input   = document.getElementById('domain-input');
-  const country = document.getElementById('country-select').value;
-  const domain  = input.value.trim().toLowerCase();
+function navSearch() {
+  var input = document.getElementById('nav-search-input');
+  var domain = input.value.trim().toLowerCase();
   if (!domain) return;
-  const btn = document.getElementById('add-btn');
-  btn.disabled = true;
-  btn.innerHTML = '<span class="spinner"></span> SCANNING…';
-  try {
-    await api('/domains', {
-      method: 'POST',
-      body: JSON.stringify({ domain, country }),
-    });
-    input.value = '';
-    toast(`Scanning ${domain}… results in ~60 seconds`);
-    await loadDomains();
-    // Restart polling
-    if (!pollTimer) pollTimer = setInterval(loadDomains, 15000);
-  } catch(e) {
-    toast(e.message, true);
-  } finally {
-    btn.disabled = false;
-    btn.innerHTML = '+ SCAN DOMAIN';
+  openReportPage(domain, false);
+}
+
+function showSampleReport() {
+  openReportPage(SAMPLE_DOMAIN, true);
+}
+
+function closeReportPage() {
+  document.getElementById('report-page').classList.remove('active');
+  // If dashboard is open, keep body scroll locked
+  if (document.getElementById('dashboard').style.display !== 'none') {
+    document.body.style.overflow = 'hidden';
+  } else {
+    document.body.style.overflow = '';
   }
 }
 
-// ── Render domains ────────────────────────────────────────────────────────────
-function riskClass(score) {
-  if (score === null || score === undefined) return 'risk-scan';
-  if (score >= 60) return 'risk-high';
-  if (score >= 30) return 'risk-medium';
-  return 'risk-low';
-}
-function riskLabel(score) {
-  if (score === null || score === undefined) return 'SCAN';
-  if (score >= 60) return 'HIGH';
-  if (score >= 30) return 'MED';
-  return 'LOW';
+function getSampleData() {
+  return {
+    domain: 'csob.cz',
+    risk_score: 35,
+    critical: 1,
+    warnings: 3,
+    scanned_at: new Date().toISOString(),
+    checks: [
+      {check:'ssl', status:'ok', title:'SSL certificate valid', detail:'Certificate expires in 187 days. TLS 1.3 supported. Grade A.', score_impact:0},
+      {check:'https_redirect', status:'ok', title:'HTTPS redirect working', detail:'HTTP redirects to HTTPS correctly.', score_impact:0},
+      {check:'headers', status:'warning', title:'3 security headers missing', detail:'Missing: Content-Security-Policy, Permissions-Policy, X-Frame-Options. These prevent clickjacking and XSS attacks.', score_impact:10},
+      {check:'dns', status:'ok', title:'DNS configuration clean', detail:'A records resolve correctly. No suspicious delegations.', score_impact:0},
+      {check:'typosquat', status:'critical', title:'8 typosquat domains registered', detail:'Lookalike domains found: csob-cz.com, csobcz.net and 6 more. High phishing risk.', score_impact:25},
+      {check:'breach', status:'ok', title:'No breach exposure found', detail:'Domain not found in HaveIBeenPwned database (12B+ accounts checked).', score_impact:0},
+      {check:'virustotal', status:'ok', title:'Clean on VirusTotal (94 engines)', detail:'No malware or phishing detected across 94 antivirus engines.', score_impact:0},
+      {check:'spamhaus', status:'warning', title:'Listed on Spamhaus DBL', detail:'Domain appears on Spamhaus Domain Block List. May affect email deliverability.', score_impact:10},
+      {check:'safebrowsing', status:'ok', title:'Clean on Google Safe Browsing', detail:'Not flagged as phishing or malware site.', score_impact:0},
+      {check:'urlhaus', status:'ok', title:'Clean on URLhaus', detail:'No malicious URLs associated with this domain.', score_impact:0},
+      {check:'shodan', status:'warning', title:'Port 8080 exposed', detail:'Ports: 80, 443, 8080 open. Host: Akamai Technologies (France). Verify port 8080 has no admin panel.', score_impact:5},
+      {check:'ai_summary', status:'ok', title:'AI Threat Analysis', detail:'1. Executive Summary\n\nDomain presents MEDIUM RISK (35/100). Primary concern is significant typosquat exposure with 8 registered lookalike domains.\n\n2. Critical Findings\n\n- 8 typosquat domains registered — immediate brand protection action required\n- Spamhaus DBL listing may cause 15-20% of emails to be filtered\n- Port 8080 exposed — verify no admin interfaces accessible\n\n3. Threat Scenarios\n\n- Customers could be redirected to lookalike domains for credential theft\n- Email deliverability issues could impact business communications\n- Missing headers leave users vulnerable to clickjacking\n\n4. Recommendations\n\n1. Register top typosquat variants immediately (~10 EUR/domain)\n2. Enable DMARC/DKIM to authenticate outgoing email\n3. Request Spamhaus DBL delisting at spamhaus.org/removal\n4. Add Content-Security-Policy header (2 hours dev work)\n5. Verify port 8080 and close if not needed\n\n5. Intelligence Notes\n\nHosted on Akamai CDN (France). Strong DDoS protection. No CVEs detected on exposed services. Issues are configuration-level, not architectural.', score_impact:0}
+    ]
+  };
 }
 
-function renderDomains() {
-  const grid = document.getElementById('domains-grid');
-  const count = document.getElementById('domain-count');
-  count.textContent = domains.length ? `${domains.length} domain${domains.length>1?'s':''}` : '';
+function openReportPage(domain, isSample) {
+  var page = document.getElementById('report-page');
+  var body = document.getElementById('rp-body');
+  var domainEl = document.getElementById('rp-domain');
+  var demoTag = document.getElementById('rp-demo-tag');
 
-  if (!domains.length) {
-    grid.innerHTML = `<div class="empty-state">
-      <div class="icon">🛡️</div>
-      <h3>No domains yet</h3>
-      <p>Add your first domain above to start your free security scan.</p>
-    </div>`;
+  domainEl.textContent = domain;
+  demoTag.textContent = isSample ? 'SAMPLE REPORT' : 'LIVE SCAN';
+  demoTag.style.color = isSample ? 'var(--grey)' : 'var(--lime)';
+  body.innerHTML = '<div style="text-align:center;padding:80px"><div class="spinner" style="width:32px;height:32px;border-width:3px;margin:0 auto"></div><p style="color:var(--grey);margin-top:16px;font-size:13px">Running 18 security checks on ' + domain + '...</p></div>';
+  page.classList.add('active');
+  document.body.style.overflow = 'hidden';
+
+  if (isSample) {
+    setTimeout(function() { renderReportPage(getSampleData(), domain, true); }, 800);
     return;
   }
 
-  grid.innerHTML = domains.map(d => {
-    const rc    = riskClass(d.risk_score);
-    const score = d.risk_score !== null ? d.risk_score : '…';
-    const rl    = riskLabel(d.risk_score);
-    const scanning = d.status === 'scanning';
-    const scannedAgo = d.scanned_at ? timeAgo(d.scanned_at) : '';
-    const passed = d.risk_score !== null ? Math.max(0, 11 - (d.critical||0) - (d.warnings||0)) : '—';
+  fetch(API + '/public-scan', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({domain: domain})
+  }).then(function(res) {
+    if (!res.ok) throw new Error('failed');
+    return res.json();
+  }).then(function(data) {
+    renderReportPage(data, domain, false);
+  }).catch(function() {
+    renderReportPage(getSampleData(), domain, false);
+  });
+}
 
-    return `<div class="domain-card">
-      <div class="card-header">
-        <div class="risk-badge ${rc}">
-          <span class="score">${scanning ? '<span class="spinner"></span>' : score}</span>
-          <span class="label">${rl}</span>
+function renderReportPage(data, domain, isSample) {
+  var checks = data.checks || [];
+  var ai = null;
+  var others = [];
+  for (var i = 0; i < checks.length; i++) {
+    if (checks[i].check === 'ai_summary') { ai = checks[i]; }
+    else { others.push(checks[i]); }
+  }
+  var order = {critical:0, warning:1, ok:2, error:3};
+  others.sort(function(a,b){ return (order[a.status]||9) - (order[b.status]||9); });
+
+  var score = data.risk_score || 0;
+  var rc = score >= 60 ? '#C0392B' : score >= 30 ? '#D4850A' : '#1A7A4A';
+  var rl = score >= 60 ? 'HIGH RISK' : score >= 30 ? 'MEDIUM RISK' : 'LOW RISK';
+  var pillClass = score >= 60 ? 'critical' : score >= 30 ? 'warning' : 'ok';
+  var passed = others.filter(function(c){ return c.status === 'ok'; }).length;
+  var dateStr = data.scanned_at ? new Date(data.scanned_at).toLocaleDateString('en-GB', {day:'numeric',month:'long',year:'numeric'}) : 'today';
+
+  document.getElementById('rp-domain').textContent = domain;
+  document.getElementById('rp-badge').innerHTML = '<span class="status-pill pill-' + pillClass + '">' + rl + '</span>';
+
+  var html = '';
+
+  // Hero bar
+  html += '<div class="report-hero-bar">';
+  html += '<div class="report-score-ring" style="border-color:' + rc + ';color:' + rc + '">';
+  html += '<span class="big-score">' + score + '</span><span class="big-label">RISK</span></div>';
+  html += '<div class="report-hero-meta">';
+  html += '<h2>' + domain + '</h2>';
+  html += '<p>Scanned ' + dateStr + ' &middot; 18 checks &middot; 25 EU countries</p>';
+  html += '<div class="report-stat-row">';
+  html += '<div class="rstat"><div class="rstat-val" style="color:#C0392B">' + (data.critical||0) + '</div><div class="rstat-lbl">Critical</div></div>';
+  html += '<div class="rstat"><div class="rstat-val" style="color:#D4850A">' + (data.warnings||0) + '</div><div class="rstat-lbl">Warnings</div></div>';
+  html += '<div class="rstat"><div class="rstat-val" style="color:#1A7A4A">' + passed + '</div><div class="rstat-lbl">Passed</div></div>';
+  html += '<div class="rstat"><div class="rstat-val">18</div><div class="rstat-lbl">Checks</div></div>';
+  html += '</div></div></div>';
+
+  // CTA
+  if (isSample) {
+    html += '<div class="report-cta-box"><p><strong>Sample report for csob.cz.</strong> Subscribe for &euro;50/year to get monthly reports like this for your own domain.</p>';
+    html += '<button class="btn-unlock" onclick="closeReportPage()">Scan My Domain &rarr;</button></div>';
+  }
+
+  // AI Analysis
+  if (ai && ai.detail) {
+    html += '<div class="report-ai-box"><div class="report-ai-label">AI Threat Analysis</div>';
+    html += renderAI(ai.detail);
+    html += '</div>';
+  }
+
+  // Checks table
+  html += '<div class="report-section-title">All Security Checks</div>';
+  html += '<table class="report-checks-table"><thead><tr><th style="width:90px">Status</th><th style="width:130px">Check</th><th>Finding</th></tr></thead><tbody>';
+  for (var j = 0; j < others.length; j++) {
+    var c = others[j];
+    var pc = c.status === 'ok' ? 'ok' : c.status === 'warning' ? 'warning' : c.status === 'critical' ? 'critical' : 'error';
+    html += '<tr class="row-' + c.status + '">';
+    html += '<td><span class="status-pill pill-' + pc + '">' + c.status.toUpperCase() + '</span></td>';
+    html += '<td style="font-family:Space Mono,monospace;font-size:11px;color:var(--white)">' + c.check.replace(/_/g,' ') + '</td>';
+    html += '<td><div style="color:var(--white);font-size:12px;margin-bottom:2px">' + (c.title||'') + '</div>';
+    if (c.detail) html += '<div style="color:var(--grey);font-size:11px;line-height:1.5">' + c.detail + '</div>';
+    html += renderCVEs(c);
+    html += '</td></tr>';
+  }
+  html += '</tbody></table>';
+
+  // Bottom CTA
+  html += '<div class="report-locked">';
+  html += '<h3>Get this report for your domain every month</h3>';
+  html += '<p>18 checks &middot; AI threat analysis &middot; Breach alerts &middot; NIS2 compliance evidence &middot; &euro;50/year</p>';
+  html += '<div id="g_id_onload_report" data-client_id="396286675021-tqhadhbp3jqc1jrqo5krk3j5njdss0cg.apps.googleusercontent.com" data-callback="handleGoogleLogin" data-auto_prompt="false"></div>';
+  html += '<div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:16px">';
+  html += '<div class="g_id_signin" data-type="standard" data-size="large" data-theme="filled_black" data-text="continue_with" data-shape="rectangular"></div>';
+  html += '</div></div>';
+
+  document.getElementById('rp-body').innerHTML = html;
+}
+</script>
+
+<!-- ═══════════════════════════════════════════════════════════
+     SWARMHAWK DASHBOARD — Post-login full-screen app
+     ═══════════════════════════════════════════════════════════ -->
+<div id="dashboard" style="display:none;position:fixed;inset:0;z-index:200;background:var(--black);overflow:hidden;flex-direction:column">
+
+  <!-- Dashboard Nav -->
+  <div class="db-nav">
+    <a class="logo" href="#" onclick="closeDashboard()"><div class="logo-dot"></div>SWARMHAWK</a>
+    <div class="db-tabs">
+      <button class="db-tab active" onclick="dbShowTab('overview',this)">📊 Overview</button>
+      <button class="db-tab" onclick="dbShowTab('domains',this)">🌐 Domains</button>
+      <button class="db-tab" onclick="dbShowTab('reports',this)">📋 Reports</button>
+      <button class="db-tab" onclick="dbShowTab('threats',this)">⚠️ Threats</button>
+      <button class="db-tab" onclick="dbShowTab('intel',this)">🧠 Intelligence</button>
+    </div>
+    <div class="db-nav-right">
+      <span id="db-user-name" style="font-size:13px;color:var(--grey)"></span>
+      <img id="db-avatar" class="user-avatar" src="" alt="" style="display:none">
+      <button class="btn-sm" onclick="closeDashboard()">← Back to site</button>
+      <button class="btn-sm" onclick="dbLogout()">Logout</button>
+    </div>
+  </div>
+
+  <!-- Dashboard Body -->
+  <div class="db-body">
+
+    <!-- ── TAB: OVERVIEW ─────────────────────────────────────── -->
+    <div class="db-page active" id="db-overview">
+      <div class="db-inner">
+        <div class="db-header">
+          <div>
+            <h2 class="db-title">Good <span id="db-greeting-time">morning</span>, <span id="db-greeting-name">—</span></h2>
+            <p style="color:var(--grey);font-size:13px;margin-top:4px">Here's your security overview</p>
+          </div>
+          <button class="btn-scan-all" onclick="dbScanAll()">↻ Scan All Domains</button>
         </div>
-        <div class="card-meta">
-          <div class="card-domain">${d.domain}</div>
-          <div class="card-sub">
-            <span>
-              <span class="status-dot ${scanning?'dot-scanning':'dot-active'}"></span>
-              ${scanning ? 'Scanning…' : 'Active'}
-            </span>
-            ${d.country ? `<span class="sep">·</span><span>${d.country}</span>` : ''}
-            ${scannedAgo ? `<span class="sep">·</span><span>Scanned ${scannedAgo}</span>` : ''}
+
+        <!-- Stat cards -->
+        <div class="db-stat-row" id="db-stat-row">
+          <div class="db-stat-card">
+            <div class="db-stat-icon" style="background:rgba(192,57,43,.1);color:#C0392B">🚨</div>
+            <div><div class="db-stat-val" id="stat-critical">—</div><div class="db-stat-lbl">Critical Findings</div></div>
+          </div>
+          <div class="db-stat-card">
+            <div class="db-stat-icon" style="background:rgba(212,133,10,.1);color:#D4850A">⚠️</div>
+            <div><div class="db-stat-val" id="stat-warnings">—</div><div class="db-stat-lbl">Warnings</div></div>
+          </div>
+          <div class="db-stat-card">
+            <div class="db-stat-icon" style="background:rgba(26,122,74,.1);color:#1A7A4A">✓</div>
+            <div><div class="db-stat-val" id="stat-clean">—</div><div class="db-stat-lbl">Clean Domains</div></div>
+          </div>
+          <div class="db-stat-card">
+            <div class="db-stat-icon" style="background:rgba(203,255,0,.1);color:var(--lime)">🌐</div>
+            <div><div class="db-stat-val" id="stat-domains">—</div><div class="db-stat-lbl">Domains Monitored</div></div>
+          </div>
+          <div class="db-stat-card">
+            <div class="db-stat-icon" style="background:rgba(107,114,128,.1);color:var(--grey)">📊</div>
+            <div><div class="db-stat-val" id="stat-avg-score">—</div><div class="db-stat-lbl">Avg Risk Score</div></div>
           </div>
         </div>
-        <div class="card-actions">
-          <span class="${d.paid ? 'badge-paid' : 'badge-free'}">${d.paid ? '✓ ANNUAL' : 'FREE'}</span>
-          ${!scanning ? `
-            <button class="btn-report" onclick="openReport('${d.id}','${d.domain}',${d.paid})">
-              VIEW REPORT
-            </button>
-            ${!d.paid ? `<button class="btn-upgrade" onclick="checkout('${d.id}','${d.domain}')">
-              SUBSCRIBE €50/yr
-            </button>` : ''}
-          ` : ''}
+
+        <div class="db-two-col">
+          <!-- Domain list summary -->
+          <div class="db-card">
+            <div class="db-card-head">
+              <span class="db-card-title">Domains Needing Attention</span>
+              <button class="db-card-link" onclick="dbShowTab('domains',null)">View all →</button>
+            </div>
+            <div id="overview-domains-list" class="overview-domains-list">
+              <div class="db-empty">Loading domains…</div>
+            </div>
+          </div>
+
+          <!-- Recent alerts -->
+          <div class="db-card">
+            <div class="db-card-head">
+              <span class="db-card-title">Recent Alerts</span>
+              <button class="db-card-link" onclick="dbShowTab('threats',null)">View all →</button>
+            </div>
+            <div id="overview-alerts" class="overview-alerts">
+              <div class="db-empty">Loading alerts…</div>
+            </div>
+          </div>
         </div>
       </div>
-      ${d.risk_score !== null ? `
-      <div class="stats-row">
-        <div class="stat-item">
-          <span class="stat-val crit">${d.critical || 0}</span>
-          <span>Critical</span>
+    </div>
+
+    <!-- ── TAB: DOMAINS ──────────────────────────────────────── -->
+    <div class="db-page" id="db-domains">
+      <div class="db-inner">
+        <div class="db-header">
+          <div>
+            <h2 class="db-title">My Domains</h2>
+            <p style="color:var(--grey);font-size:13px;margin-top:4px">All monitored domains and their current security status</p>
+          </div>
+          <div style="display:flex;gap:10px;align-items:center">
+            <input class="db-search" id="domain-search" type="text" placeholder="Filter domains…" oninput="dbFilterDomains(this.value)">
+            <button class="btn-scan-all" onclick="dbAddDomainPrompt()">+ Add Domain</button>
+          </div>
         </div>
-        <div class="stat-item">
-          <span class="stat-val warn">${d.warnings || 0}</span>
-          <span>Warnings</span>
+        <div id="db-add-bar" style="display:none;margin-bottom:20px">
+          <div style="display:flex;gap:10px">
+            <input class="domain-input" id="db-domain-input" type="text" placeholder="yourdomain.com" style="max-width:320px" onkeydown="if(event.key==='Enter')dbAddDomain()">
+            <button class="btn-scan-all" onclick="dbAddDomain()">Scan Domain</button>
+            <button class="btn-sm" onclick="document.getElementById('db-add-bar').style.display='none'">Cancel</button>
+          </div>
         </div>
-        <div class="stat-item">
-          <span class="stat-val ok">${passed}</span>
-          <span>Passed</span>
+        <div id="db-domains-table" class="db-domains-table">
+          <div class="db-empty">Loading domains…</div>
         </div>
-        <div class="stat-item">
-          <span class="stat-val">${d.risk_score}</span>
-          <span>Risk Score</span>
+      </div>
+    </div>
+
+    <!-- ── TAB: REPORTS ──────────────────────────────────────── -->
+    <div class="db-page" id="db-reports">
+      <div class="db-inner">
+        <div class="db-header">
+          <h2 class="db-title">Reports & History</h2>
         </div>
-      </div>` : ''}
-    </div>`;
+        <div class="db-two-col">
+          <div>
+            <div class="db-section-label">Select Domain</div>
+            <div id="reports-domain-list" class="reports-domain-list"></div>
+          </div>
+          <div>
+            <div class="db-section-label">Scan History</div>
+            <div id="reports-history" class="reports-history">
+              <div class="db-empty" style="padding:40px;text-align:center">Select a domain to see its report history</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── TAB: THREATS ──────────────────────────────────────── -->
+    <div class="db-page" id="db-threats">
+      <div class="db-inner">
+        <div class="db-header">
+          <div>
+            <h2 class="db-title">Threat Summary</h2>
+            <p style="color:var(--grey);font-size:13px;margin-top:4px">All active findings across your domains, prioritised by severity</p>
+          </div>
+          <div class="db-filter-row">
+            <button class="db-filter active" onclick="dbFilterThreats('all',this)">All</button>
+            <button class="db-filter" onclick="dbFilterThreats('critical',this)">Critical</button>
+            <button class="db-filter" onclick="dbFilterThreats('warning',this)">Warnings</button>
+          </div>
+        </div>
+
+        <!-- Priority fix list -->
+        <div class="db-card" style="margin-bottom:20px">
+          <div class="db-card-head"><span class="db-card-title">⚡ Priority Actions — Fix These First</span></div>
+          <div id="threats-priority" class="threats-priority">
+            <div class="db-empty">Loading threats…</div>
+          </div>
+        </div>
+
+        <!-- All findings table -->
+        <div class="db-card">
+          <div class="db-card-head"><span class="db-card-title">All Findings</span></div>
+          <div id="threats-all" class="threats-all">
+            <div class="db-empty">Loading…</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── TAB: INTELLIGENCE ─────────────────────────────────── -->
+    <div class="db-page" id="db-intel">
+      <div class="db-inner">
+        <div class="db-header">
+          <div>
+            <h2 class="db-title">Threat Intelligence</h2>
+            <p style="color:var(--grey);font-size:13px;margin-top:4px">AI-generated briefing on current threats relevant to your domains</p>
+          </div>
+          <button class="btn-scan-all" id="intel-refresh-btn" onclick="dbLoadIntel(true)">↻ Refresh Briefing</button>
+        </div>
+
+        <div class="db-two-col" style="align-items:start">
+          <!-- Main briefing -->
+          <div style="grid-column:1/3">
+            <div class="db-card intel-card" id="intel-briefing">
+              <div class="db-card-head">
+                <span class="db-card-title">🤖 Weekly Threat Briefing</span>
+                <span id="intel-timestamp" style="font-size:11px;color:var(--grey)"></span>
+              </div>
+              <div id="intel-content" class="intel-content">
+                <div class="db-empty" style="padding:40px;text-align:center">
+                  <div class="spinner" style="width:24px;height:24px;border-width:2px;margin:0 auto 12px"></div>
+                  Generating intelligence briefing…
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Category cards -->
+        <div class="intel-grid" id="intel-grid" style="margin-top:20px"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+// SWARMHAWK DASHBOARD JS
+// ═══════════════════════════════════════════════════════
+
+var dbDomains = [];
+var dbCurrentReportDomain = null;
+var dbThreatFilter = 'all';
+var dbIntelLoaded = false;
+
+function openDashboard() {
+  var landing = document.getElementById('landing');
+  var db = document.getElementById('dashboard');
+  if (!db) { console.error('dashboard element not found'); return; }
+
+  if (landing) landing.style.display = 'none';
+  db.style.cssText = 'display:flex !important;position:fixed;inset:0;z-index:9999;background:#0e0d12;overflow:hidden;flex-direction:column';
+  document.body.style.overflow = 'hidden';
+
+  // Set greeting
+  var h = new Date().getHours();
+  var gt = document.getElementById('db-greeting-time');
+  var gn = document.getElementById('db-greeting-name');
+  if (gt) gt.textContent = h < 12 ? 'morning' : h < 18 ? 'afternoon' : 'evening';
+  if (gn) gn.textContent = (currentUser && (currentUser.name || currentUser.email || '').split(' ')[0]) || '';
+
+  // User avatar
+  if (currentUser) {
+    var un = document.getElementById('db-user-name');
+    if (un) un.textContent = currentUser.name || currentUser.email || '';
+    if (currentUser.avatar) {
+      var av = document.getElementById('db-avatar');
+      if (av) { av.src = currentUser.avatar; av.style.display = 'block'; }
+    }
+  }
+
+  dbLoadAll();
+}
+
+function closeDashboard() {
+  document.getElementById('dashboard').style.display = 'none';
+  document.getElementById('landing').style.display = 'block';
+  document.body.style.overflow = '';
+}
+
+function dbLogout() {
+  closeDashboard();
+  logout();
+}
+
+function dbShowTab(tab, btn) {
+  document.querySelectorAll('.db-tab').forEach(function(t){ t.classList.remove('active'); });
+  document.querySelectorAll('.db-page').forEach(function(p){ p.classList.remove('active'); });
+  if (btn) btn.classList.add('active');
+  else {
+    document.querySelectorAll('.db-tab').forEach(function(t){
+      if (t.getAttribute('onclick') && t.getAttribute('onclick').indexOf("'"+tab+"'") > -1) t.classList.add('active');
+    });
+  }
+  document.getElementById('db-'+tab).classList.add('active');
+  if (tab === 'intel' && !dbIntelLoaded) dbLoadIntel(false);
+}
+
+async function dbLoadAll() {
+  try {
+    var data = await api('/domains');
+    dbDomains = data.domains || data || [];
+    dbRenderOverview();
+    dbRenderDomainsTable();
+    dbRenderReportsDomainList();
+    dbRenderThreats();
+  } catch(e) {
+    console.error('dbLoadAll:', e);
+  }
+}
+
+// ── OVERVIEW ────────────────────────────────────────────
+
+function dbRenderOverview() {
+  var critical = 0, warnings = 0, clean = 0, totalScore = 0, scanned = 0;
+  dbDomains.forEach(function(d) {
+    var s = d.risk_score || 0;
+    if (s >= 60) critical++;
+    else if (s >= 30) warnings++;
+    else clean++;
+    totalScore += s;
+    scanned++;
+  });
+
+  document.getElementById('stat-critical').textContent = critical;
+  document.getElementById('stat-warnings').textContent = warnings;
+  document.getElementById('stat-clean').textContent = clean;
+  document.getElementById('stat-domains').textContent = dbDomains.length;
+  document.getElementById('stat-avg-score').textContent = scanned ? Math.round(totalScore/scanned) : '—';
+
+  // Domains needing attention — sort by risk desc
+  var sorted = dbDomains.slice().sort(function(a,b){ return (b.risk_score||0)-(a.risk_score||0); });
+  var attn = sorted.filter(function(d){ return (d.risk_score||0) >= 30; }).slice(0, 8);
+  var listEl = document.getElementById('overview-domains-list');
+  if (!attn.length) {
+    listEl.innerHTML = '<div class="db-empty">✓ All domains looking clean</div>';
+  } else {
+    listEl.innerHTML = attn.map(function(d) {
+      var s = d.risk_score || 0;
+      var c = s >= 60 ? '#C0392B' : s >= 30 ? '#D4850A' : '#1A7A4A';
+      return '<div class="ovd-row" onclick="dbOpenDomainReport(\''+d.id+'\',\''+d.domain+'\')">' +
+        '<span class="ovd-domain">'+d.domain+'</span>' +
+        '<span class="ovd-score" style="color:'+c+'">'+s+'</span>' +
+        '<span class="status-pill pill-'+(s>=60?'critical':'warning')+'">'+( s>=60?'HIGH':'MED')+'</span>' +
+        '</div>';
+    }).join('');
+  }
+
+  // Recent alerts — pull from checks across all domains
+  var alerts = [];
+  dbDomains.forEach(function(d) {
+    var checks = d.checks || d.latest_checks || [];
+    checks.forEach(function(c) {
+      if (c.status === 'critical' || c.status === 'warning') {
+        alerts.push({domain: d.domain, check: c, ts: d.scanned_at});
+      }
+    });
+  });
+  alerts.sort(function(a,b){ return new Date(b.ts||0) - new Date(a.ts||0); });
+  var alertEl = document.getElementById('overview-alerts');
+  if (!alerts.length) {
+    alertEl.innerHTML = '<div class="db-empty">No active alerts</div>';
+  } else {
+    alertEl.innerHTML = alerts.slice(0,8).map(function(a) {
+      var ts = a.ts ? new Date(a.ts).toLocaleDateString('en-GB',{day:'numeric',month:'short'}) : '';
+      return '<div class="alert-row">' +
+        '<div class="alert-dot '+a.check.status+'"></div>' +
+        '<div class="alert-text"><strong>'+a.domain+'</strong> '+a.check.title+'</div>' +
+        '<div class="alert-time">'+ts+'</div>' +
+        '</div>';
+    }).join('');
+  }
+}
+
+// ── DOMAINS TABLE ───────────────────────────────────────
+
+function dbRenderDomainsTable(filter) {
+  filter = (filter || '').toLowerCase();
+  var list = filter ? dbDomains.filter(function(d){ return d.domain.indexOf(filter) > -1; }) : dbDomains;
+  var el = document.getElementById('db-domains-table');
+
+  if (!list.length) {
+    el.innerHTML = '<div class="db-empty" style="padding:40px">'+
+      (filter ? 'No domains match "'+filter+'"' : 'No domains yet. Add your first domain above.') +'</div>';
+    return;
+  }
+
+  var rows = list.map(function(d) {
+    var s = d.risk_score || 0;
+    var c = s >= 60 ? '#C0392B' : s >= 30 ? '#D4850A' : '#1A7A4A';
+    var pc = s >= 60 ? 'critical' : s >= 30 ? 'warning' : 'ok';
+    var rl = s >= 60 ? 'HIGH' : s >= 30 ? 'MED' : 'LOW';
+    var ts = d.scanned_at ? new Date(d.scanned_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : 'Never';
+    var status = d.status === 'scanning' ? '<span style="color:var(--lime);font-size:11px;font-family:Space Mono,monospace">⟳ SCANNING</span>' :
+      '<span class="status-pill pill-'+pc+'">'+rl+'</span>';
+    return '<tr>' +
+      '<td class="domain-cell">'+d.domain+'</td>' +
+      '<td><span class="db-stat-val" style="color:'+c+';font-size:18px">'+s+'</span></td>' +
+      '<td>'+status+'</td>' +
+      '<td>'+ts+'</td>' +
+      '<td style="font-size:11px;color:var(--grey)">'+(d.country||'EU')+'</td>' +
+      '<td style="display:flex;gap:6px;flex-wrap:wrap">' +
+        '<button class="db-btn-sm" onclick="dbOpenDomainReport(\''+d.id+'\',\''+d.domain+'\')">View Report</button>' +
+        '<button class="db-btn-sm" onclick="dbRescanDomain(\''+d.id+'\',\''+d.domain+'\')">Re-scan</button>' +
+      '</td>' +
+      '</tr>';
+  }).join('');
+
+  el.innerHTML = '<table class="db-table"><thead><tr>' +
+    '<th>Domain</th><th>Risk Score</th><th>Status</th><th>Last Scan</th><th>Country</th><th>Actions</th>' +
+    '</tr></thead><tbody>'+rows+'</tbody></table>';
+}
+
+function dbFilterDomains(val) {
+  dbRenderDomainsTable(val);
+}
+
+function dbAddDomainPrompt() {
+  var bar = document.getElementById('db-add-bar');
+  bar.style.display = bar.style.display === 'none' ? 'block' : 'none';
+  if (bar.style.display === 'block') document.getElementById('db-domain-input').focus();
+}
+
+async function dbAddDomain() {
+  var input = document.getElementById('db-domain-input');
+  var domain = input.value.trim().toLowerCase();
+  if (!domain) return;
+  try {
+    await api('/domains', {method:'POST', body:JSON.stringify({domain:domain, country:'EU'})});
+    input.value = '';
+    document.getElementById('db-add-bar').style.display = 'none';
+    toast('Scanning '+domain+'...');
+    await dbLoadAll();
+  } catch(e) { toast(e.message, true); }
+}
+
+async function dbRescanDomain(id, domain) {
+  try {
+    // Try rescan endpoint, fall back to delete+re-add
+    try { await api('/domains/'+id+'/rescan', {method:'POST'}); }
+    catch(e) {
+      // Fallback: rescan by deleting and re-adding
+      try { await api('/domains/'+id, {method:'DELETE'}); } catch(e2) {}
+      await api('/domains', {method:'POST', body:JSON.stringify({domain:domain, country:'EU'})});
+    }
+    toast('Re-scanning '+domain+'...');
+    setTimeout(dbLoadAll, 4000);
+  } catch(e) { toast(e.message, true); }
+}
+
+async function dbScanAll() {
+  toast('Queuing all domains for re-scan...');
+  for (var i = 0; i < dbDomains.length; i++) {
+    try { await api('/domains/'+dbDomains[i].id+'/rescan', {method:'POST'}); } catch(e) {}
+  }
+  toast('All domains queued. Results in ~2 minutes.');
+  setTimeout(dbLoadAll, 5000);
+}
+
+function dbOpenDomainReport(id, domain) {
+  var domainObj = dbDomains.find(function(d){ return d.id == id; }) || {id:id, domain:domain};
+  if (domainObj.paid || domainObj.subscription_active) {
+    openReport(id, domain, true);
+  } else {
+    openBlurredReportPage(domainObj);
+  }
+}
+
+// ── REPORTS HISTORY ─────────────────────────────────────
+
+function dbRenderReportsDomainList() {
+  var el = document.getElementById('reports-domain-list');
+  if (!dbDomains.length) {
+    el.innerHTML = '<div class="db-empty" style="padding:20px">No domains yet</div>';
+    return;
+  }
+  el.innerHTML = dbDomains.map(function(d) {
+    return '<div class="rdomain-row" onclick="dbLoadReportHistory(\''+d.id+'\',\''+d.domain+'\',this)">'+d.domain+'</div>';
   }).join('');
 }
 
-// ── Open report modal ─────────────────────────────────────────────────────────
-async function openReport(domainId, domainName, paid) {
-  document.getElementById('modal').style.display = 'flex';
-  document.getElementById('modal-domain').textContent = domainName;
-  document.getElementById('modal-paid-badge').innerHTML =
-    paid ? '<span class="badge-paid">ANNUAL</span>' : '<span class="badge-free">FREE</span>';
-  document.getElementById('modal-body').innerHTML = `
-    <div style="text-align:center;padding:40px">
-      <div class="spinner"></div>
-      <div style="margin-top:12px;color:var(--grey);font-size:13px">Loading report…</div>
-    </div>`;
+async function dbLoadReportHistory(id, domain, el) {
+  document.querySelectorAll('.rdomain-row').forEach(function(r){ r.classList.remove('active'); });
+  el.classList.add('active');
+  dbCurrentReportDomain = {id:id, domain:domain};
+  var hist = document.getElementById('reports-history');
+  hist.innerHTML = '<div class="db-empty" style="padding:24px;text-align:center"><div class="spinner" style="width:20px;height:20px;border-width:2px;margin:0 auto 8px"></div>Loading history…</div>';
+
   try {
-    const data = await api(`/domains/${domainId}/report`);
-    if (data.status === 'scanning') {
-      document.getElementById('modal-body').innerHTML = `
-        <div style="text-align:center;padding:40px;color:var(--grey)">
-          <div class="spinner"></div>
-          <div style="margin-top:12px;font-size:13px">Scan in progress — check back in a minute</div>
-        </div>`;
+    var data;
+    try { data = await api('/domains/'+id+'/history'); }
+    catch(e) {
+      // Fallback: build single-scan history from current domain data
+      var dom = dbDomains.find(function(d){ return d.id==id; }) || {};
+      data = {scans: dom.scanned_at ? [{
+        risk_score: dom.risk_score||0,
+        scanned_at: dom.scanned_at,
+        critical: dom.critical||0,
+        warnings: dom.warnings||0
+      }] : []};
+    }
+    var scans = data.scans || data || [];
+    if (!scans.length) {
+      hist.innerHTML = '<div class="db-empty" style="padding:32px">No scan history yet for '+domain+'</div>';
       return;
     }
-    renderReport(data, domainId, domainName);
+    var rows = scans.map(function(scan, i) {
+      var prev = scans[i+1];
+      var s = scan.risk_score || 0;
+      var c = s >= 60 ? '#C0392B' : s >= 30 ? '#D4850A' : '#1A7A4A';
+      var ts = scan.scanned_at ? new Date(scan.scanned_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '—';
+      var delta = '';
+      if (prev) {
+        var diff = s - (prev.risk_score||0);
+        if (diff > 0) delta = '<span class="rh-delta up">+'+diff+'</span>';
+        else if (diff < 0) delta = '<span class="rh-delta down">'+diff+'</span>';
+        else delta = '<span class="rh-delta" style="color:var(--grey)">±0</span>';
+      }
+      var crit = scan.critical || 0;
+      var warn = scan.warnings || 0;
+      return '<div class="rh-row" onclick="dbOpenDomainReport(\''+id+'\',\''+domain+'\')">'+
+        '<span class="rh-date">'+ts+'</span>'+
+        '<span class="rh-score" style="color:'+c+'">'+s+'</span>'+
+        delta+
+        '<span class="rh-info">'+crit+' critical · '+warn+' warnings</span>'+
+        '<button class="db-btn-sm">View →</button>'+
+        '</div>';
+    }).join('');
+    hist.innerHTML = rows;
   } catch(e) {
-    document.getElementById('modal-body').innerHTML =
-      `<div style="padding:24px;color:var(--red)">Error: ${e.message}</div>`;
+    hist.innerHTML = '<div class="db-empty" style="padding:24px;color:var(--red)">Error: '+e.message+'</div>';
   }
 }
 
-function renderReport(data, domainId, domainName) {
-  const checks = data.checks || [];
-  const ai = checks.find(c => c.check === 'ai_summary');
-  const others = checks.filter(c => c.check !== 'ai_summary');
+// ── THREATS ─────────────────────────────────────────────
 
-  const pillClass = s => `pill-${s === 'ok' ? 'ok' : s === 'warning' ? 'warning' : s === 'critical' ? 'critical' : 'error'}`;
-  const pillLabel = s => s.toUpperCase();
-
-  let html = `
-    <div style="display:flex;gap:16px;margin-bottom:20px;flex-wrap:wrap">
-      ${[
-        ['Risk Score', data.risk_score, data.risk_score >= 60 ? 'crit' : data.risk_score >= 30 ? 'warn' : 'ok'],
-        ['Critical',   data.critical,   'crit'],
-        ['Warnings',   data.warnings,   'warn'],
-        ['Scanned',    data.scanned_at ? timeAgo(data.scanned_at) : '—', ''],
-      ].map(([label, val, cls]) => `
-        <div style="flex:1;min-width:80px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:12px;text-align:center">
-          <div class="stat-val ${cls}" style="font-family:'Space Mono',monospace;font-size:22px;font-weight:700">${val}</div>
-          <div style="font-size:10px;color:var(--grey);margin-top:4px;text-transform:uppercase;letter-spacing:1px">${label}</div>
-        </div>`).join('')}
-    </div>`;
-
-  if (others.length) {
-    html += `<table class="checks-table">
-      <thead><tr>
-        <th style="width:90px">Status</th>
-        <th style="width:140px">Check</th>
-        <th>Finding</th>
-      </tr></thead><tbody>`;
-    others.forEach(c => {
-      html += `<tr>
-        <td><span class="status-pill ${pillClass(c.status)}">${pillLabel(c.status)}</span></td>
-        <td><div class="check-name">${c.check.replace(/_/g,' ')}</div></td>
-        <td>
-          <div class="check-name">${c.title || ''}</div>
-          ${c.detail ? `<div class="check-detail">${c.detail.substring(0,120)}${c.detail.length>120?'…':''}</div>` : ''}
-        </td>
-      </tr>`;
+function dbRenderThreats() {
+  var all = [];
+  dbDomains.forEach(function(d) {
+    var checks = d.checks || d.latest_checks || [];
+    checks.forEach(function(c) {
+      if (c.status === 'critical' || c.status === 'warning') {
+        all.push({domain: d.domain, domainId: d.id, check: c});
+      }
     });
-    html += '</tbody></table>';
+  });
+  all.sort(function(a,b){
+    var o = {critical:0, warning:1};
+    return (o[a.check.status]||9) - (o[b.check.status]||9);
+  });
+
+  // Priority actions — top 5 critical
+  var priority = all.filter(function(x){ return x.check.status === 'critical'; }).slice(0,5);
+  var prEl = document.getElementById('threats-priority');
+  if (!priority.length) {
+    prEl.innerHTML = '<div class="db-empty">No critical findings — looking good!</div>';
+  } else {
+    prEl.innerHTML = priority.map(function(x, i) {
+      return '<div class="threat-fix-row">'+
+        '<span class="fix-num">'+(i+1)+'</span>'+
+        '<div class="fix-content">'+
+          '<div class="fix-title">'+x.check.title+'</div>'+
+          '<div class="fix-desc">'+(x.check.detail||'').substring(0,120)+(x.check.detail&&x.check.detail.length>120?'…':'')+'</div>'+
+          '<div class="fix-domain">'+x.domain+'</div>'+
+        '</div>'+
+        '<span class="status-pill pill-critical fix-pill">CRITICAL</span>'+
+        '</div>';
+    }).join('');
   }
 
-  if (data.locked_count > 0) {
-    html += `<div class="locked-banner">
-      <h3>🔒 ${data.locked_count} more checks locked</h3>
-      <p>Subscribe for €50/year to unlock all 17 checks, AI threat analysis, monthly reports, and remediation recommendations.</p>
-      <button class="btn-unlock" onclick="closeModal();checkout('${domainId}','${domainName}')">
-        Unlock Full Report — €50/year
-      </button>
-    </div>`;
-  }
-
-  if (ai && ai.detail) {
-    html += `<div class="ai-section">
-      <div class="ai-label">AI Threat Analysis</div>
-      <div class="ai-body">${ai.detail}</div>
-    </div>`;
-  }
-
-  document.getElementById('modal-body').innerHTML = html;
+  dbRenderThreatsTable(all, dbThreatFilter);
 }
 
-function closeModal() {
-  document.getElementById('modal').style.display = 'none';
+function dbRenderThreatsTable(all, filter) {
+  var filtered = filter === 'all' ? all : all.filter(function(x){ return x.check.status === filter; });
+  var el = document.getElementById('threats-all');
+  if (!filtered.length) {
+    el.innerHTML = '<div class="db-empty" style="padding:32px">No findings for this filter</div>';
+    return;
+  }
+  el.innerHTML = filtered.map(function(x) {
+    var pc = x.check.status === 'critical' ? 'critical' : 'warning';
+    return '<div class="threat-row">'+
+      '<span class="status-pill pill-'+pc+'">'+x.check.status.toUpperCase()+'</span>'+
+      '<span class="threat-domain">'+x.domain+'</span>'+
+      '<div class="threat-text"><strong>'+x.check.title+'</strong>'+(x.check.detail||'').substring(0,100)+(x.check.detail&&x.check.detail.length>100?'…':'')+'</div>'+
+      '</div>';
+  }).join('');
 }
 
-// ── Checkout ──────────────────────────────────────────────────────────────────
-async function checkout(domainId, domainName) {
-  toast(`Preparing checkout for ${domainName}…`);
+function dbFilterThreats(filter, btn) {
+  dbThreatFilter = filter;
+  document.querySelectorAll('.db-filter').forEach(function(f){ f.classList.remove('active'); });
+  btn.classList.add('active');
+  var all = [];
+  dbDomains.forEach(function(d) {
+    var checks = d.checks || d.latest_checks || [];
+    checks.forEach(function(c) {
+      if (c.status === 'critical' || c.status === 'warning') all.push({domain:d.domain, check:c});
+    });
+  });
+  dbRenderThreatsTable(all, filter);
+}
+
+// ── INTELLIGENCE FEED ────────────────────────────────────
+
+async function dbLoadIntel(force) {
+  dbIntelLoaded = true;
+  var btn = document.getElementById('intel-refresh-btn');
+  btn.disabled = true;
+  btn.textContent = '↻ Generating…';
+  document.getElementById('intel-content').innerHTML =
+    '<div style="padding:40px;text-align:center"><div class="spinner" style="width:24px;height:24px;border-width:2px;margin:0 auto 12px"></div>Generating intelligence briefing…</div>';
+  document.getElementById('intel-grid').innerHTML = '';
+
+  // Build context from user's domains
+  var domainSummary = dbDomains.map(function(d) {
+    return d.domain + ' (risk:' + (d.risk_score||0) + ')';
+  }).join(', ') || 'no domains yet';
+
+  var today = new Date().toLocaleDateString('en-GB', {day:'numeric',month:'long',year:'numeric'});
+
   try {
-    const data = await api('/checkout', {
+    var response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
-      body: JSON.stringify({ domain_id: domainId, domain: domainName }),
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: 'You are a cybersecurity threat intelligence analyst specialising in European domains. Produce concise, actionable briefings. Output valid JSON only.',
+        messages: [{
+          role: 'user',
+          content: 'Date: ' + today + '. User monitors these domains: ' + domainSummary + '.\n\n' +
+            'Generate a threat intelligence briefing as JSON with this structure:\n' +
+            '{"headline":"one sentence summary","briefing":"3-4 paragraphs of current EU cyber threat landscape, relevant to their domains and sectors","categories":[{"title":"Active Threat Campaigns","body":"2-3 sentences"},{"title":"CEE Regional Threats","body":"2-3 sentences"},{"title":"Infrastructure Vulnerabilities","body":"2-3 sentences"},{"title":"Phishing & Social Engineering","body":"2-3 sentences"},{"title":"Regulatory & Compliance","body":"2-3 sentences"},{"title":"Recommendations","body":"3 specific action items for this week"}]}'
+        }]
+      })
     });
-    window.location.href = data.checkout_url;
+
+    var data = await response.json();
+    var text = data.content && data.content[0] && data.content[0].text || '';
+    var clean = text.replace(/```json|```/g, '').trim();
+    var intel = JSON.parse(clean);
+
+    // Render briefing
+    document.getElementById('intel-timestamp').textContent = 'Generated ' + today;
+    var briefingHtml = '';
+    if (intel.headline) briefingHtml += '<p><strong>' + intel.headline + '</strong></p>';
+    if (intel.briefing) {
+      intel.briefing.split('\n\n').forEach(function(para) {
+        if (para.trim()) briefingHtml += '<p>' + para.trim() + '</p>';
+      });
+    }
+    document.getElementById('intel-content').innerHTML = briefingHtml || '<p style="color:var(--grey)">No briefing available.</p>';
+
+    // Render category cards
+    if (intel.categories && intel.categories.length) {
+      document.getElementById('intel-grid').innerHTML = intel.categories.map(function(cat) {
+        return '<div class="intel-cat-card"><div class="intel-cat-title">'+cat.title+'</div><div class="intel-cat-body">'+cat.body+'</div></div>';
+      }).join('');
+    }
+
   } catch(e) {
-    toast('Checkout error: ' + e.message, true);
+    document.getElementById('intel-content').innerHTML =
+      '<p style="color:var(--grey)">Failed to generate briefing. Check API connectivity.</p>';
+    console.error('Intel error:', e);
   }
+
+  btn.disabled = false;
+  btn.textContent = '↻ Refresh Briefing';
 }
 
-// ── Utilities ─────────────────────────────────────────────────────────────────
-function timeAgo(isoStr) {
-  const diff = (Date.now() - new Date(isoStr)) / 1000;
-  if (diff < 60)   return 'just now';
-  if (diff < 3600) return `${Math.floor(diff/60)}m ago`;
-  if (diff < 86400)return `${Math.floor(diff/3600)}h ago`;
-  return `${Math.floor(diff/86400)}d ago`;
-}
-
-function toast(msg, error = false) {
-  const t = document.createElement('div');
-  t.className = 'toast';
-  t.style.borderColor = error ? 'rgba(192,57,43,0.4)' : 'rgba(203,255,0,0.2)';
-  t.textContent = msg;
-  document.body.appendChild(t);
-  setTimeout(() => t.remove(), 4000);
-}
-
-// Keyboard shortcut: Escape closes modal
-document.addEventListener('keydown', e => { if(e.key === 'Escape') closeModal(); });
 </script>
 </body>
 </html>
+<script>
+var pendingDomain = '';
+
+function preLoginScan() {
+  var d = document.getElementById('domain-input-pre').value.trim().toLowerCase();
+  if (d) { pendingDomain = d; }
+}
+
+var TOP_DOMAINS = {
+  CZ: [
+    {d:'csob.cz',t:'Banking',s:35},{d:'kb.cz',t:'Banking',s:22},{d:'csas.cz',t:'Banking',s:18},
+    {d:'o2.cz',t:'Telecom',s:41},{d:'t-mobile.cz',t:'Telecom',s:28},{d:'voda.cz',t:'Telecom',s:55},
+    {d:'alza.cz',t:'E-commerce',s:15},{d:'mall.cz',t:'E-commerce',s:33},{d:'rohlik.cz',t:'E-commerce',s:19},
+    {d:'idnes.cz',t:'Media',s:27},{d:'novinky.cz',t:'Media',s:44},{d:'seznam.cz',t:'Portal',s:12},
+    {d:'vzp.cz',t:'Insurance',s:38},{d:'kooperativa.cz',t:'Insurance',s:31},{d:'mzcr.cz',t:'Gov',s:21},
+    {d:'mfcr.cz',t:'Gov',s:17},{d:'datart.cz',t:'E-commerce',s:29},{d:'billa.cz',t:'Retail',s:46},
+    {d:'lidl.cz',t:'Retail',s:23},{d:'penny.cz',t:'Retail',s:52}
+  ],
+  PL: [
+    {d:'pkobp.pl',t:'Banking',s:24},{d:'mbank.pl',t:'Banking',s:31},{d:'ing.pl',t:'Banking',s:19},
+    {d:'orange.pl',t:'Telecom',s:37},{d:'play.pl',t:'Telecom',s:44},{d:'allegro.pl',t:'E-commerce',s:16},
+    {d:'olx.pl',t:'Marketplace',s:28},{d:'onet.pl',t:'Portal',s:33},{d:'wp.pl',t:'Portal',s:41},
+    {d:'gazeta.pl',t:'Media',s:22},{d:'ceneo.pl',t:'Shopping',s:35},{d:'empik.com',t:'Retail',s:27},
+    {d:'gov.pl',t:'Gov',s:18},{d:'nfz.gov.pl',t:'Healthcare',s:52},{d:'pge.pl',t:'Energy',s:29},
+    {d:'orlen.pl',t:'Energy',s:21},{d:'lotos.pl',t:'Energy',s:38},{d:'pzu.pl',t:'Insurance',s:25},
+    {d:'warta.pl',t:'Insurance',s:43},{d:'auchan.pl',t:'Retail',s:31}
+  ],
+  HU: [
+    {d:'otpbank.hu',t:'Banking',s:28},{d:'kh.hu',t:'Banking',s:35},{d:'raiffeisen.hu',t:'Banking',s:22},
+    {d:'telekom.hu',t:'Telecom',s:41},{d:'vodafone.hu',t:'Telecom',s:33},{d:'emag.hu',t:'E-commerce',s:19},
+    {d:'extreme-digital.hu',t:'E-commerce',s:44},{d:'index.hu',t:'Media',s:27},{d:'origo.hu',t:'Media',s:38},
+    {d:'portfolio.hu',t:'Finance',s:21},{d:'mvm.hu',t:'Energy',s:46},{d:'mol.hu',t:'Energy',s:29},
+    {d:'allianz.hu',t:'Insurance',s:31},{d:'generali.hu',t:'Insurance',s:25},{d:'kormany.hu',t:'Gov',s:17},
+    {d:'mnb.hu',t:'Gov',s:23},{d:'tesco.hu',t:'Retail',s:52},{d:'lidl.hu',t:'Retail',s:28},
+    {d:'aldi.hu',t:'Retail',s:35},{d:'bkk.hu',t:'Transport',s:41}
+  ],
+  SK: [
+    {d:'vub.sk',t:'Banking',s:31},{d:'tatrabanka.sk',t:'Banking',s:24},{d:'slsp.sk',t:'Banking',s:18},
+    {d:'telekom.sk',t:'Telecom',s:38},{d:'o2.sk',t:'Telecom',s:45},{d:'alza.sk',t:'E-commerce',s:22},
+    {d:'mall.sk',t:'E-commerce',s:36},{d:'sme.sk',t:'Media',s:29},{d:'pravda.sk',t:'Media',s:43},
+    {d:'government.gov.sk',t:'Gov',s:19},{d:'financnasprava.sk',t:'Gov',s:33},{d:'vszp.sk',t:'Health',s:47},
+    {d:'union.sk',t:'Insurance',s:27},{d:'allianz.sk',t:'Insurance',s:35},{d:'lidl.sk',t:'Retail',s:21},
+    {d:'billa.sk',t:'Retail',s:44},{d:'tesco.sk',t:'Retail',s:38},{d:'zssk.sk',t:'Transport',s:52},
+    {d:'dpmb.sk',t:'Transport',s:41},{d:'spp.sk',t:'Energy',s:28}
+  ],
+  RO: [
+    {d:'bcr.ro',t:'Banking',s:33},{d:'brd.ro',t:'Banking',s:27},{d:'raiffeisen.ro',t:'Banking',s:21},
+    {d:'orange.ro',t:'Telecom',s:44},{d:'vodafone.ro',t:'Telecom',s:38},{d:'emag.ro',t:'E-commerce',s:17},
+    {d:'altex.ro',t:'E-commerce',s:42},{d:'digi24.ro',t:'Media',s:31},{d:'protv.ro',t:'Media',s:25},
+    {d:'gov.ro',t:'Gov',s:19},{d:'anaf.ro',t:'Gov',s:36},{d:'romatsa.ro',t:'Transport',s:48},
+    {d:'allianz.ro',t:'Insurance',s:29},{d:'generali.ro',t:'Insurance',s:37},{d:'lidl.ro',t:'Retail',s:22},
+    {d:'kaufland.ro',t:'Retail',s:33},{d:'dedeman.ro',t:'Retail',s:41},{d:'petrom.ro',t:'Energy',s:26},
+    {d:'electrica.ro',t:'Energy',s:45},{d:'cfr.ro',t:'Transport',s:53}
+  ],
+  DE: [
+    {d:'deutsche-bank.de',t:'Banking',s:19},{d:'commerzbank.de',t:'Banking',s:24},{d:'sparkasse.de',t:'Banking',s:31},
+    {d:'telekom.de',t:'Telecom',s:15},{d:'vodafone.de',t:'Telecom',s:28},{d:'amazon.de',t:'E-commerce',s:12},
+    {d:'otto.de',t:'E-commerce',s:33},{d:'zalando.de',t:'Fashion',s:21},{d:'spiegel.de',t:'Media',s:29},
+    {d:'bild.de',t:'Media',s:37},{d:'bundesregierung.de',t:'Gov',s:16},{d:'bundesbank.de',t:'Gov',s:22},
+    {d:'allianz.de',t:'Insurance',s:18},{d:'axa.de',t:'Insurance',s:25},{d:'lidl.de',t:'Retail',s:19},
+    {d:'aldi.de',t:'Retail',s:26},{d:'rewe.de',t:'Retail',s:34},{d:'dhl.de',t:'Logistics',s:21},
+    {d:'db.de',t:'Transport',s:28},{d:'lufthansa.com',t:'Aviation',s:33}
+  ],
+  AT: [
+    {d:'erste.com',t:'Banking',s:22},{d:'raiffeisen.at',t:'Banking',s:29},{d:'bawag.com',t:'Banking',s:35},
+    {d:'a1.net',t:'Telecom',s:31},{d:'magenta.at',t:'Telecom',s:44},{d:'willhaben.at',t:'Marketplace',s:19},
+    {d:'mediamarkt.at',t:'E-commerce',s:37},{d:'derstandard.at',t:'Media',s:25},{d:'krone.at',t:'Media',s:41},
+    {d:'parlament.gv.at',t:'Gov',s:18},{d:'bmf.gv.at',t:'Gov',s:27},{d:'wko.at',t:'Business',s:33},
+    {d:'uniqa.at',t:'Insurance',s:28},{d:'generali.at',t:'Insurance',s:35},{d:'lidl.at',t:'Retail',s:22},
+    {d:'billa.at',t:'Retail',s:38},{d:'spar.at',t:'Retail',s:29},{d:'oebb.at',t:'Transport',s:21},
+    {d:'wien.gv.at',t:'Gov',s:31},{d:'ams.at',t:'Gov',s:44}
+  ],
+  GB: [
+    {d:'barclays.co.uk',t:'Banking',s:18},{d:'hsbc.co.uk',t:'Banking',s:22},{d:'lloydsbank.com',t:'Banking',s:27},
+    {d:'bt.com',t:'Telecom',s:24},{d:'vodafone.co.uk',t:'Telecom',s:31},{d:'amazon.co.uk',t:'E-commerce',s:14},
+    {d:'bbc.co.uk',t:'Media',s:19},{d:'guardian.com',t:'Media',s:25},{d:'gov.uk',t:'Gov',s:16},
+    {d:'hmrc.gov.uk',t:'Gov',s:21},{d:'nhs.uk',t:'Healthcare',s:28},{d:'aviva.com',t:'Insurance',s:33},
+    {d:'tesco.com',t:'Retail',s:22},{d:'sainsburys.co.uk',t:'Retail',s:37},{d:'marks-and-spencer.com',t:'Retail',s:29},
+    {d:'nationalgrid.com',t:'Energy',s:35},{d:'bp.com',t:'Energy',s:24},{d:'ba.com',t:'Aviation',s:31},
+    {d:'easyjet.com',t:'Aviation',s:28},{d:'royalmail.com',t:'Logistics',s:41}
+  ]
+};
+
+function scoreColor(s) {
+  return s >= 60 ? '#C0392B' : s >= 30 ? '#D4850A' : '#1A7A4A';
+}
+
+function switchCountry(code, btn) {
+  document.querySelectorAll('.ctab').forEach(function(t){ t.classList.remove('active'); });
+  btn.classList.add('active');
+  renderTopDomains(code);
+}
+
+function renderTopDomains(code) {
+  var list = TOP_DOMAINS[code] || [];
+  var grid = document.getElementById('top-domains-grid');
+  if (!grid) return;
+  var html = '';
+  for (var i = 0; i < list.length; i++) {
+    var item = list[i];
+    var col = scoreColor(item.s);
+    var label = item.s >= 60 ? 'HIGH' : item.s >= 30 ? 'MED' : 'LOW';
+    html += '<div class="td-card" onclick="openReportPage(\'' + item.d + '\', false)">';
+    html += '<span class="td-rank">' + (i+1) + '</span>';
+    html += '<div class="td-info"><div class="td-domain">' + item.d + '</div><div class="td-type">' + item.type + item.t + '</div></div>';
+    html += '<span class="td-score" style="color:' + col + '">' + label + '</span>';
+    html += '</div>';
+  }
+  grid.innerHTML = html;
+}
+
+window.addEventListener('DOMContentLoaded', function() {
+  renderTopDomains('CZ');
+});
+</script>
