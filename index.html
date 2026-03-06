@@ -1875,15 +1875,26 @@ function dbAddDomainPrompt() {
 
 async function dbAddDomain() {
   var input = document.getElementById('db-domain-input');
+  var btn = input.nextElementSibling;
   var domain = input.value.trim().toLowerCase();
   if (!domain) return;
+  btn.disabled = true; btn.textContent = 'Scanning…';
   try {
     await api('/domains', {method:'POST', body:JSON.stringify({domain:domain, country:'EU'})});
     input.value = '';
     document.getElementById('db-add-bar').style.display = 'none';
-    toast('Scanning '+domain+'...');
+    toast('Scanning '+domain+'… takes ~60s');
     await dbLoadAll();
+    // Poll until scan completes
+    var polls = 0;
+    var poll = setInterval(async function() {
+      polls++;
+      await dbLoadAll();
+      var d = dbDomains.find(function(x){ return x.domain===domain && x.status!=='scanning'; });
+      if (d || polls > 24) { clearInterval(poll); } // stop after ~2min
+    }, 5000);
   } catch(e) { toast(e.message, true); }
+  finally { btn.disabled = false; btn.textContent = 'Scan Domain'; }
 }
 
 async function dbRescanDomain(id, domain) {
@@ -2073,24 +2084,30 @@ async function dbLoadIntel(force) {
   var today = new Date().toLocaleDateString('en-GB', {day:'numeric',month:'long',year:'numeric'});
 
   try {
-    var response = await fetch('https://api.anthropic.com/v1/messages', {
+    // Route through backend — backend has ANTHROPIC_API_KEY set
+    var response = await fetch(API + '/intel', {
       method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
-        system: 'You are a cybersecurity threat intelligence analyst specialising in European domains. Produce concise, actionable briefings. Output valid JSON only.',
-        messages: [{
-          role: 'user',
-          content: 'Date: ' + today + '. User monitors these domains: ' + domainSummary + '.\n\n' +
-            'Generate a threat intelligence briefing as JSON with this structure:\n' +
-            '{"headline":"one sentence summary","briefing":"3-4 paragraphs of current EU cyber threat landscape, relevant to their domains and sectors","categories":[{"title":"Active Threat Campaigns","body":"2-3 sentences"},{"title":"CEE Regional Threats","body":"2-3 sentences"},{"title":"Infrastructure Vulnerabilities","body":"2-3 sentences"},{"title":"Phishing & Social Engineering","body":"2-3 sentences"},{"title":"Regulatory & Compliance","body":"2-3 sentences"},{"title":"Recommendations","body":"3 specific action items for this week"}]}'
-        }]
-      })
+      headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + sessionToken},
+      body: JSON.stringify({domains: domainSummary, date: today})
     });
 
-    var data = await response.json();
-    var text = data.content && data.content[0] && data.content[0].text || '';
+    // If backend /intel not available yet, call Anthropic directly via backend proxy
+    var data, text;
+    if (response.status === 404) {
+      // Fallback: try /api/claude proxy
+      var r2 = await fetch(API + '/claude', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + sessionToken},
+        body: JSON.stringify({
+          prompt: 'Date: ' + today + '. User monitors these domains: ' + domainSummary + '.\n\nGenerate a threat intelligence briefing as JSON with this structure:\n{"headline":"one sentence summary","briefing":"3-4 paragraphs of current EU cyber threat landscape, relevant to their domains and sectors","categories":[{"title":"Active Threat Campaigns","body":"2-3 sentences"},{"title":"CEE Regional Threats","body":"2-3 sentences"},{"title":"Infrastructure Vulnerabilities","body":"2-3 sentences"},{"title":"Phishing & Social Engineering","body":"2-3 sentences"},{"title":"Regulatory & Compliance","body":"2-3 sentences"},{"title":"Recommendations","body":"3 specific action items for this week"}]}'
+        })
+      });
+      data = await r2.json();
+      text = (data.content && data.content[0] && data.content[0].text) || data.text || data.result || '';
+    } else {
+      data = await response.json();
+      text = (data.content && data.content[0] && data.content[0].text) || data.text || data.briefing || '';
+    }
     var clean = text.replace(/```json|```/g, '').trim();
     var intel = JSON.parse(clean);
 
