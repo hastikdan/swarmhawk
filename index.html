@@ -1186,16 +1186,22 @@ function showNavPage(page, btn) {
 function showPage(page) { showNavPage(page, null); }
 
 async function handleGoogleLogin(response) {
-  toast('Signing in…');
-  try {
-    // Decode Google JWT locally to get user info immediately
-    const parts = response.credential.split('.');
-    const payload = JSON.parse(atob(parts[1].replace(/-/g,'+').replace(/_/g,'/')));
-    const localUser = { name: payload.name, email: payload.email, avatar: payload.picture };
+  // Decode Google JWT locally for immediate user info
+  const parts = response.credential.split('.');
+  const payload = JSON.parse(atob(parts[1].replace(/-/g,'+').replace(/_/g,'/')));
+  const localUser = { name: payload.name, email: payload.email, avatar: payload.picture };
 
-    // Try backend auth
-    let backendOk = false;
+  // Show name immediately while backend wakes up
+  toast('Signing in as ' + (payload.name || payload.email) + '…');
+
+  // Retry backend up to 3 times (handles Render cold start ~10-15s)
+  var lastErr = '';
+  for (var attempt = 1; attempt <= 3; attempt++) {
     try {
+      if (attempt > 1) {
+        toast('Connecting to server… (attempt ' + attempt + '/3)');
+        await new Promise(function(r){ setTimeout(r, 4000); }); // wait 4s between retries
+      }
       const res = await fetch(API+'/auth/google', {
         method: 'POST',
         headers: {'Content-Type':'application/json'},
@@ -1205,30 +1211,23 @@ async function handleGoogleLogin(response) {
         const data = await res.json();
         sessionToken = data.session_token;
         currentUser = data.user || localUser;
-        backendOk = true;
+        localStorage.setItem('sw_token', sessionToken);
+        localStorage.setItem('sw_user', JSON.stringify(currentUser));
+        activateScanner();
+        return; // success — exit
       } else {
-        const errText = await res.text();
-        console.warn('Backend auth failed:', res.status, errText);
+        const errJson = await res.json().catch(()=>({detail: res.statusText}));
+        lastErr = errJson.detail || res.statusText;
+        console.warn('Backend auth attempt', attempt, 'failed:', res.status, lastErr);
       }
-    } catch(backendErr) {
-      console.warn('Backend unreachable:', backendErr.message);
+    } catch(e) {
+      lastErr = e.message;
+      console.warn('Backend auth attempt', attempt, 'error:', e.message);
     }
-
-    // Fallback: use Google JWT if backend unavailable
-    if (!backendOk) {
-      sessionToken = response.credential;
-      currentUser = localUser;
-      toast('Connected (offline mode)', false);
-    }
-
-    localStorage.setItem('sw_token', sessionToken);
-    localStorage.setItem('sw_user', JSON.stringify(currentUser));
-    activateScanner();
-
-  } catch(e) {
-    console.error('Login error:', e);
-    toast('Login failed: ' + e.message, true);
   }
+
+  // All 3 attempts failed — tell user clearly instead of silently breaking
+  toast('Could not reach server (' + lastErr + '). Try again in a moment.', true);
 }
 
 function showApp() { activateScanner(); }
@@ -2347,49 +2346,17 @@ async function dbLoadIntel(force) {
       }
     } catch(be) { console.warn('Backend intel unavailable:', be.message); }
 
-    // Direct Anthropic call fallback
+    // Backend /intel not available — show clear message instead of API key prompt
     if (!backendOk) {
-      var AKEY = window._sw_akey || '';
-      if (!AKEY) {
-        document.getElementById('intel-content').innerHTML =
-          '<div style="padding:24px;text-align:center">' +
-          '<p style="color:var(--grey);margin-bottom:16px">Enter your Anthropic API key to enable AI briefings:</p>' +
-          '<div style="display:flex;gap:8px;justify-content:center;max-width:440px;margin:0 auto">' +
-          '<input id="akey-input" type="password" class="domain-input" placeholder="sk-ant-..." style="flex:1">' +
-          '<button class="btn-scan-all" onclick="window._sw_akey=document.getElementById(&quot;akey-input&quot;).value;dbLoadIntel(true)">Connect</button>' +
-          '</div><p style="font-size:11px;color:var(--grey);margin-top:10px">Key stays in browser memory only — never sent to our servers</p>' +
-          '</div>';
-        btn.disabled = false; btn.textContent = '↻ Refresh Briefing';
-        return;
-      }
-      var ar = await fetch('https://api.anthropic.com/v1/messages', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': AKEY,
-          'anthropic-version': '2023-06-01',
-          'anthropic-dangerous-direct-browser-access': 'true'
-        },
-        body: JSON.stringify({
-          model: 'claude-haiku-4-5-20251001',
-          max_tokens: 1000,
-          system: 'You are a cybersecurity analyst. Output valid JSON only, no markdown.',
-          messages: [{role:'user', content:
-            'Date: '+today+'. Domains: '+domainSummary+'. ' +
-            'Generate threat intelligence briefing as JSON: ' +
-            '{"headline":"one sentence","briefing":"3 paragraphs","categories":[' +
-            '{"title":"Active Threats","body":"2 sentences"},' +
-            '{"title":"CEE Regional","body":"2 sentences"},' +
-            '{"title":"Vulnerabilities","body":"2 sentences"},' +
-            '{"title":"Phishing","body":"2 sentences"},' +
-            '{"title":"Compliance","body":"2 sentences"},' +
-            '{"title":"Recommendations","body":"3 actions"}]}'
-          }]
-        })
-      });
-      var ad = await ar.json();
-      if (ad.error) throw new Error(ad.error.message);
-      text = ad.content && ad.content[0] && ad.content[0].text || '';
+      document.getElementById('intel-content').innerHTML =
+        '<div style="padding:32px;text-align:center">' +
+        '<div style="font-size:28px;margin-bottom:12px">🧠</div>' +
+        '<p style="color:var(--white);font-weight:600;margin-bottom:8px">Intelligence service unavailable</p>' +
+        '<p style="color:var(--grey);font-size:13px;max-width:380px;margin:0 auto">The backend is warming up or ANTHROPIC_API_KEY is not set on the server. Try again in 30 seconds.</p>' +
+        '<button class="btn-scan-all" style="margin-top:16px" onclick="dbLoadIntel(true)">↻ Retry</button>' +
+        '</div>';
+      btn.disabled = false; btn.textContent = '↻ Refresh Briefing';
+      return;
     }
     var clean = text.replace(/```json|```/g, '').trim();
     var intel = JSON.parse(clean);
