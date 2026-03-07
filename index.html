@@ -559,6 +559,46 @@ h1 span{color:var(--lime)}
 .prospect-chevron{font-size:12px;color:var(--grey);transition:transform .2s;margin-left:auto}
 .prospect-chevron.open{transform:rotate(180deg)}
 
+
+/* ── OUTREACH TAB ── */
+.outreach-toolbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:20px}
+.outreach-filter-btn{font-size:11px;padding:6px 14px;border-radius:20px;border:1px solid rgba(255,255,255,.12);background:transparent;color:var(--grey);cursor:pointer;font-family:'Space Mono',monospace;transition:all .15s}
+.outreach-filter-btn.active{background:rgba(203,255,0,.1);color:var(--lime);border-color:rgba(203,255,0,.3)}
+.outreach-stats-mini{display:flex;gap:20px;margin-left:auto;font-size:12px;font-family:'Space Mono',monospace}
+.outreach-stat-mini{color:var(--grey)}
+.outreach-stat-mini span{color:var(--white);font-weight:700}
+.outreach-list{display:flex;flex-direction:column;gap:12px}
+.outreach-card{background:var(--card);border:1px solid rgba(255,255,255,.06);border-radius:10px;overflow:hidden}
+.outreach-card.status-approved{border-left:3px solid #1A7A4A}
+.outreach-card.status-sent{border-left:3px solid var(--grey);opacity:.7}
+.outreach-card.status-skipped{border-left:3px solid #333;opacity:.5}
+.outreach-card.status-pending{border-left:3px solid #D4850A}
+.outreach-card-head{display:flex;align-items:center;gap:10px;padding:14px 18px;cursor:pointer}
+.outreach-domain{font-size:14px;font-weight:700;font-family:'Space Mono',monospace;color:var(--white);flex:1}
+.outreach-meta{display:flex;gap:8px;align-items:center}
+.outreach-status-pill{font-size:10px;font-family:'Space Mono',monospace;padding:3px 9px;border-radius:10px;font-weight:600;text-transform:uppercase}
+.pill-pending{background:rgba(212,133,10,.15);color:#E67E22}
+.pill-approved{background:rgba(26,122,74,.15);color:#2ECC71}
+.pill-sent{background:rgba(255,255,255,.08);color:var(--grey)}
+.pill-skipped{background:rgba(255,255,255,.04);color:#555}
+.outreach-card-body{display:none;padding:0 18px 18px;border-top:1px solid rgba(255,255,255,.04)}
+.outreach-card-body.open{display:block}
+.outreach-email-editor{width:100%;min-height:200px;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.1);border-radius:6px;color:var(--white);font-size:13px;font-family:'Space Mono',monospace;line-height:1.6;padding:14px;resize:vertical;margin:12px 0 10px;box-sizing:border-box}
+.outreach-email-editor:focus{outline:none;border-color:rgba(203,255,0,.3)}
+.outreach-card-actions{display:flex;gap:8px;flex-wrap:wrap}
+.btn-approve{background:rgba(26,122,74,.2);color:#2ECC71;border:1px solid rgba(26,122,74,.3);padding:7px 16px;border-radius:6px;font-size:12px;font-family:'Space Mono',monospace;cursor:pointer;transition:all .15s}
+.btn-approve:hover{background:rgba(26,122,74,.35)}
+.btn-skip-prospect{background:rgba(255,255,255,.04);color:var(--grey);border:1px solid rgba(255,255,255,.1);padding:7px 16px;border-radius:6px;font-size:12px;font-family:'Space Mono',monospace;cursor:pointer}
+.btn-regen-email{background:rgba(203,255,0,.06);color:var(--lime);border:1px solid rgba(203,255,0,.15);padding:7px 16px;border-radius:6px;font-size:12px;font-family:'Space Mono',monospace;cursor:pointer}
+.btn-send-all{background:var(--lime);color:var(--black);padding:9px 20px;border-radius:6px;font-size:13px;font-family:'Space Mono',monospace;font-weight:700;cursor:pointer;border:none}
+.btn-send-all:hover{background:#b8e600}
+.btn-run-scan{background:rgba(255,255,255,.06);color:var(--white);border:1px solid rgba(255,255,255,.12);padding:9px 16px;border-radius:6px;font-size:12px;font-family:'Space Mono',monospace;cursor:pointer}
+.outreach-cve-inline{font-size:11px;color:#E74C3C;font-family:'Space Mono',monospace}
+.outreach-empty{padding:60px;text-align:center;color:var(--grey)}
+.outreach-saving{font-size:11px;color:var(--lime);font-family:'Space Mono',monospace;margin-left:8px;opacity:0;transition:opacity .3s}
+.outreach-saving.show{opacity:1}
+
+@keyframes scanPulse{0%,100%{opacity:1}50%{opacity:.4}}
 </style>
 </head>
 <body>
@@ -1019,6 +1059,67 @@ python3 swarmhawk_mcp.py --http</pre></div>
               sorted by CVE severity with AI-generated cold email hooks.
             </div>
             <button class="btn-scan-all" onclick="prospectRunScan()">⟳ Run Live Scan Now</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+
+    <!-- ── TAB: OUTREACH ────────────────────────────────────── -->
+    <div class="db-page" id="db-outreach">
+      <div class="db-inner">
+
+        <div class="db-header">
+          <div>
+            <h2 class="db-title">📨 Outreach</h2>
+            <p style="color:var(--grey);font-size:13px;margin-top:4px">
+              Review AI-drafted cold emails, edit, approve, then send in one click
+            </p>
+          </div>
+          <div style="display:flex;gap:10px">
+            <button class="btn-run-scan" onclick="outreachRunScan()">⟳ Run Scan Now</button>
+            <button class="btn-send-all" onclick="outreachSendApproved()" id="outreach-send-btn">
+              ✉ Send Approved
+            </button>
+          </div>
+        </div>
+
+        <!-- Filters + stats -->
+        <div class="outreach-toolbar">
+          <button class="outreach-filter-btn active" onclick="outreachSetFilter('pending',this)">Pending</button>
+          <button class="outreach-filter-btn" onclick="outreachSetFilter('approved',this)">Approved</button>
+          <button class="outreach-filter-btn" onclick="outreachSetFilter('sent',this)">Sent</button>
+          <button class="outreach-filter-btn" onclick="outreachSetFilter('skipped',this)">Skipped</button>
+          <button class="outreach-filter-btn" onclick="outreachSetFilter('all',this)">All</button>
+          <div class="outreach-stats-mini" id="outreach-stats-mini">
+            <span class="outreach-stat-mini">Pending <span id="ostat-pending">—</span></span>
+            <span class="outreach-stat-mini">Approved <span id="ostat-approved">—</span></span>
+            <span class="outreach-stat-mini">Sent <span id="ostat-sent">—</span></span>
+          </div>
+        </div>
+
+        <!-- Scan progress -->
+        <div id="outreach-scan-progress" style="display:none;margin-bottom:16px">
+          <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--grey);font-family:'Space Mono',monospace;margin-bottom:5px">
+            <span id="outreach-scan-label">Running daily scan…</span>
+            <span id="outreach-scan-pct"></span>
+          </div>
+          <div style="background:rgba(255,255,255,.06);border-radius:3px;height:3px">
+            <div id="outreach-scan-bar" style="height:3px;background:var(--lime);border-radius:3px;width:5%;animation:scanPulse 1.2s ease-in-out infinite"></div>
+          </div>
+        </div>
+
+        <!-- Cards list -->
+        <div id="outreach-list" class="outreach-list">
+          <div class="outreach-empty">
+            <div style="font-size:28px;margin-bottom:10px">📨</div>
+            <div style="color:var(--white);font-weight:600;margin-bottom:6px">No outreach queue yet</div>
+            <div style="font-size:13px;max-width:360px;margin:0 auto 18px">
+              Click <strong style="color:var(--lime)">Run Scan Now</strong> to detect
+              vulnerable domains — AI drafts the email, you review and approve.
+            </div>
+            <button class="btn-send-all" onclick="outreachRunScan()">⟳ Run Scan Now</button>
           </div>
         </div>
 
@@ -1628,6 +1729,7 @@ function renderReportPage(data, domain, isSample) {
       <button class="db-tab" onclick="dbShowTab('threats',this)">⚠️ Threats</button>
       <button class="db-tab" onclick="dbShowTab('intel',this)">🧠 Intelligence</button>
       <button class="db-tab" onclick="dbShowTab('prospects',this)">🎯 Prospects</button>
+      <button class="db-tab" onclick="dbShowTab('outreach',this)">📨 Outreach</button>
     </div>
     <div class="db-nav-right">
       <span id="db-user-name" style="font-size:13px;color:var(--grey)"></span>
@@ -1879,6 +1981,7 @@ function dbShowTab(tab, btn) {
   }
   document.getElementById('db-'+tab).classList.add('active');
   if (tab === 'intel' && !dbIntelLoaded) dbLoadIntel(false);
+  if (tab === 'outreach') outreachLoad();
 }
 
 async function dbLoadAll() {
@@ -2761,6 +2864,235 @@ async function prospectScanDomain(domain, country) {
   }
 }
 
+
+
+// ═══════════════════════════════════════════════════════
+// OUTREACH TAB
+// ═══════════════════════════════════════════════════════
+
+var outreachProspects = [];
+var outreachFilter    = 'pending';
+
+async function outreachLoad() {
+  try {
+    var data = await api('/outreach/prospects?status=' + outreachFilter + '&min_cvss=7');
+    outreachProspects = data.prospects || [];
+    outreachUpdateStats();
+    outreachRender();
+  } catch(e) {
+    document.getElementById('outreach-list').innerHTML =
+      '<div class="outreach-empty">Failed to load: ' + e.message + '</div>';
+  }
+}
+
+async function outreachUpdateStats() {
+  try {
+    var all = await api('/outreach/prospects?status=all');
+    var rows = all.prospects || [];
+    var count = function(s){ return rows.filter(function(r){ return r.status===s; }).length; };
+    var el = function(id,v){ var e=document.getElementById(id); if(e) e.textContent=v; };
+    el('ostat-pending',  count('pending'));
+    el('ostat-approved', count('approved'));
+    el('ostat-sent',     count('sent'));
+  } catch(e) {}
+}
+
+function outreachSetFilter(f, btn) {
+  outreachFilter = f;
+  document.querySelectorAll('.outreach-filter-btn').forEach(function(b){ b.classList.remove('active'); });
+  if (btn) btn.classList.add('active');
+  outreachLoad();
+}
+
+function outreachRender() {
+  var list = document.getElementById('outreach-list');
+  if (!list) return;
+
+  if (!outreachProspects.length) {
+    var labels = { pending:'No pending prospects — run a scan first.',
+                   approved:'No approved emails yet.',
+                   sent:'No emails sent yet.',
+                   skipped:'Nothing skipped.',
+                   all:'No prospects in database — run a scan.' };
+    list.innerHTML = '<div class="outreach-empty">' + (labels[outreachFilter]||'Nothing here.') + '</div>';
+    return;
+  }
+
+  list.innerHTML = outreachProspects.map(function(p, idx) {
+    var cves    = Array.isArray(p.cves) ? p.cves : [];
+    var top     = cves[0] || {};
+    var sw      = Array.isArray(p.software) ? p.software : [];
+    var statusClass = 'status-' + p.status;
+    var pillClass   = 'pill-' + p.status;
+    var statusLabel = { pending:'⏳ Pending', approved:'✓ Approved', sent:'✉ Sent', skipped:'— Skipped' }[p.status] || p.status;
+
+    var cvssColor = p.max_cvss >= 9 ? '#E74C3C' : p.max_cvss >= 7 ? '#E67E22' : '#3498DB';
+    var cveInline = top.id ? '<span class="outreach-cve-inline">' + top.id + ' CVSS ' + top.cvss + '</span>' : '';
+    var swInline  = sw.map(function(s){ return s.product+' '+s.version; }).join(' · ');
+
+    var emailBody = (p.email_body || '').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+    var actionBtns = '';
+    if (p.status === 'pending' || p.status === 'approved') {
+      actionBtns = (p.status === 'pending'
+        ? '<button class="btn-approve" onclick="outreachApprove(\''+p.id+'\','+idx+')">✓ Approve</button>'
+        : '<button class="btn-approve" style="opacity:.6" onclick="outreachUnapprove(\''+p.id+'\','+idx+')">↩ Unapprove</button>') +
+        '<button class="btn-regen-email" onclick="outreachRegenEmail(\''+p.id+'\','+idx+')">↻ Re-draft</button>' +
+        '<button class="btn-skip-prospect" onclick="outreachSkip(\''+p.id+'\','+idx+')">Skip</button>';
+    }
+
+    return '<div class="outreach-card ' + statusClass + '" id="ocard-' + idx + '">' +
+      '<div class="outreach-card-head" onclick="outreachToggle(' + idx + ')">' +
+        '<span style="font-size:12px;color:var(--grey);font-family:\'Space Mono\',monospace;min-width:24px">#'+(idx+1)+'</span>' +
+        '<span class="outreach-domain">' + p.domain + '</span>' +
+        '<div class="outreach-meta">' +
+          '<span style="font-size:11px;color:var(--grey);font-family:\'Space Mono\',monospace">' + swInline + '</span>' +
+          (p.max_cvss ? '<span style="font-size:12px;font-weight:700;color:'+cvssColor+';font-family:\'Space Mono\',monospace">CVSS '+p.max_cvss+'</span>' : '') +
+          cveInline +
+          '<span style="font-size:10px;color:var(--grey)">' + (p.country||'') + '</span>' +
+          '<span class="outreach-status-pill ' + pillClass + '">' + statusLabel + '</span>' +
+          (p.edited ? '<span style="font-size:10px;color:var(--lime);font-family:\'Space Mono\',monospace">edited</span>' : '') +
+        '</div>' +
+        '<span style="font-size:12px;color:var(--grey)" id="ochev-'+idx+'">▼</span>' +
+      '</div>' +
+      '<div class="outreach-card-body" id="obody-' + idx + '">' +
+        '<div style="font-size:11px;color:var(--grey);font-family:\'Space Mono\',monospace;margin:10px 0 4px">✉ EMAIL DRAFT — edit freely before approving</div>' +
+        '<textarea class="outreach-email-editor" id="oemail-' + idx + '" ' +
+          'onblur="outreachSaveDraft(\'' + p.id + '\',' + idx + ')" ' +
+          'onkeydown="if((event.ctrlKey||event.metaKey)&&event.key===\'s\'){event.preventDefault();outreachSaveDraft(\''+p.id+'\','+idx+')}">' +
+          emailBody +
+        '</textarea>' +
+        '<div style="display:flex;align-items:center;margin-bottom:10px">' +
+          '<span style="font-size:11px;color:var(--grey);font-family:\'Space Mono\',monospace">Ctrl+S or click outside to save</span>' +
+          '<span class="outreach-saving" id="osaving-'+idx+'">✓ saved</span>' +
+        '</div>' +
+        (actionBtns ? '<div class="outreach-card-actions">' + actionBtns + '</div>' : '') +
+        (p.sent_at ? '<div style="font-size:11px;color:var(--grey);font-family:\'Space Mono\',monospace;margin-top:10px">Sent to '+p.sent_to+' on '+new Date(p.sent_at).toLocaleDateString()+'</div>' : '') +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+function outreachToggle(idx) {
+  var body = document.getElementById('obody-'+idx);
+  var chev = document.getElementById('ochev-'+idx);
+  if (!body) return;
+  var open = body.classList.toggle('open');
+  if (chev) chev.style.transform = open ? 'rotate(180deg)' : '';
+}
+
+async function outreachSaveDraft(id, idx) {
+  var ta = document.getElementById('oemail-'+idx);
+  if (!ta) return;
+  var sav = document.getElementById('osaving-'+idx);
+  try {
+    await api('/outreach/prospects/' + id + '/email', {
+      method: 'PATCH',
+      body: JSON.stringify({ email_body: ta.value })
+    });
+    if (sav) { sav.classList.add('show'); setTimeout(function(){ sav.classList.remove('show'); }, 1500); }
+    // Update local cache
+    if (outreachProspects[idx]) outreachProspects[idx].email_body = ta.value;
+  } catch(e) {
+    toast('Save failed: ' + e.message, true);
+  }
+}
+
+async function outreachApprove(id, idx) {
+  try {
+    await api('/outreach/prospects/' + id + '/approve', { method: 'POST' });
+    var card = document.getElementById('ocard-'+idx);
+    if (card) { card.className = 'outreach-card status-approved'; }
+    if (outreachProspects[idx]) outreachProspects[idx].status = 'approved';
+    toast('✓ Approved — will send when you click "Send Approved"');
+    outreachUpdateStats();
+  } catch(e) { toast('Error: ' + e.message, true); }
+}
+
+async function outreachUnapprove(id, idx) {
+  try {
+    await api('/outreach/prospects/' + id + '/approve', { method: 'POST' });
+    // Actually set back to pending
+    await fetch(API + '/outreach/prospects/' + id + '/unapprove', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + sessionToken }
+    });
+    outreachLoad();
+  } catch(e) { outreachLoad(); }
+}
+
+async function outreachSkip(id, idx) {
+  try {
+    await api('/outreach/prospects/' + id + '/skip', { method: 'POST' });
+    var card = document.getElementById('ocard-'+idx);
+    if (card) card.className = 'outreach-card status-skipped';
+    if (outreachProspects[idx]) outreachProspects[idx].status = 'skipped';
+    outreachUpdateStats();
+  } catch(e) { toast('Error: ' + e.message, true); }
+}
+
+async function outreachRegenEmail(id, idx) {
+  var ta = document.getElementById('oemail-'+idx);
+  if (ta) ta.value = 'Regenerating…';
+  try {
+    // Call backend intel endpoint to regenerate
+    var p = outreachProspects[idx];
+    var cves = Array.isArray(p.cves) ? p.cves : [];
+    var sw   = Array.isArray(p.software) ? p.software : [];
+    var prompt = 'Write a short professional cold outreach email (6-8 sentences) from SwarmHawk to the IT manager of ' + p.domain + '.\n' +
+      'Exposed software: ' + sw.map(function(s){ return s.product+' '+s.version; }).join(', ') + '\n' +
+      'CVEs: ' + cves.map(function(c){ return c.id+' CVSS '+c.cvss; }).join(', ') + '\n' +
+      'Start with Subject: line. Reference NIS2. Offer free report at swarmhawk.eu. Sign as SwarmHawk Team.';
+
+    var resp = await api('/intel', { method: 'POST', body: JSON.stringify({ prompt: prompt, max_tokens: 500 }) });
+    var text = resp.text || resp.content || '';
+    if (ta) ta.value = text;
+    await outreachSaveDraft(id, idx);
+  } catch(e) {
+    if (ta) ta.value = (outreachProspects[idx] && outreachProspects[idx].email_body) || '';
+    toast('Regen failed: ' + e.message, true);
+  }
+}
+
+async function outreachRunScan() {
+  var prog = document.getElementById('outreach-scan-progress');
+  if (prog) prog.style.display = 'block';
+  try {
+    await api('/outreach/run-scan', { method: 'POST' });
+    toast('✓ Scan started — check back in ~2 minutes');
+    // Poll for new pending items
+    var polls = 0;
+    var timer = setInterval(async function() {
+      polls++;
+      await outreachLoad();
+      if (polls > 24 || outreachProspects.length > 0) {
+        clearInterval(timer);
+        if (prog) prog.style.display = 'none';
+      }
+    }, 5000);
+  } catch(e) {
+    if (prog) prog.style.display = 'none';
+    toast('Scan error: ' + e.message, true);
+  }
+}
+
+async function outreachSendApproved() {
+  var btn = document.getElementById('outreach-send-btn');
+  if (btn) { btn.disabled = true; btn.textContent = '⟳ Sending…'; }
+  try {
+    await api('/outreach/send-approved', { method: 'POST' });
+    toast('✉ Emails queued — sending now via Resend');
+    setTimeout(function(){ outreachLoad(); }, 3000);
+  } catch(e) {
+    toast('Send error: ' + e.message, true);
+  }
+  finally {
+    if (btn) { btn.disabled = false; btn.textContent = '✉ Send Approved'; }
+  }
+}
+
+// Load outreach data when tab is opened
+var _outreachLoaded = false;
 
 // ── SCAN PROGRESS UI ────────────────────────────────────────────────────────
 var _scanProgressInterval = null;
