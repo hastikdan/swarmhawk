@@ -2625,7 +2625,7 @@ async function prospectLoadEmail(idx) {
     var emailText = '';
     if (!resp.ok) {
       // Use backend /intel proxy
-      var backendResp = await fetch(API_BASE + '/intel', {
+      var backendResp = await fetch(API + '/intel', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + (localStorage.getItem('sw_token')||'') },
         body: JSON.stringify({ prompt: prompt, max_tokens: 400 })
@@ -2735,7 +2735,7 @@ async function prospectRunScan() {
 async function prospectScanDomain(domain, country) {
   // Call backend scan endpoint (passive, fast) — falls back to header-only check
   try {
-    var resp = await fetch(API_BASE + '/scan/passive?domain=' + encodeURIComponent(domain), {
+    var resp = await fetch(API + '/scan/passive?domain=' + encodeURIComponent(domain), {
       method: 'GET',
       headers: { 'Authorization': 'Bearer ' + (localStorage.getItem('sw_token')||'') },
       signal: AbortSignal.timeout(12000)
