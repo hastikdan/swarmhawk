@@ -515,6 +515,50 @@ h1 span{color:var(--lime)}
 .scan-check-row.active{color:var(--lime)}
 .scan-check-icon{width:16px;text-align:center;flex-shrink:0}
 .scan-progress-eta{font-size:11px;color:var(--grey);font-family:'Space Mono',monospace;margin-top:16px;text-align:center}
+
+/* ── PROSPECTS TAB ── */
+.prospect-select{background:var(--card);border:1px solid rgba(255,255,255,.12);color:var(--white);font-family:'Space Mono',monospace;font-size:12px;padding:8px 12px;border-radius:6px;cursor:pointer}
+.prospect-stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+.prospect-stat{background:var(--card);border:1px solid rgba(255,255,255,.06);border-radius:10px;padding:16px 20px;text-align:center}
+.prospect-stat-val{display:block;font-size:28px;font-weight:700;font-family:'Space Mono',monospace;color:var(--white)}
+.prospect-stat-lbl{font-size:11px;color:var(--grey);text-transform:uppercase;letter-spacing:1px}
+.prospect-list{display:flex;flex-direction:column;gap:14px}
+.prospect-card{background:var(--card);border:1px solid rgba(255,255,255,.06);border-radius:12px;overflow:hidden;transition:border-color .2s}
+.prospect-card:hover{border-color:rgba(203,255,0,.25)}
+.prospect-card.priority-critical{border-left:3px solid #C0392B}
+.prospect-card.priority-high{border-left:3px solid #D4850A}
+.prospect-card.priority-medium{border-left:3px solid #2980B9}
+.prospect-card.priority-low{border-left:3px solid #555}
+.prospect-card-head{display:flex;align-items:center;gap:12px;padding:16px 20px;cursor:pointer;user-select:none}
+.prospect-domain{font-size:16px;font-weight:700;color:var(--white);font-family:'Space Mono',monospace}
+.prospect-badges{display:flex;gap:6px;flex-wrap:wrap;flex:1}
+.prospect-badge{font-size:10px;font-family:'Space Mono',monospace;padding:3px 8px;border-radius:4px;font-weight:600}
+.pbadge-critical{background:rgba(192,57,43,.2);color:#E74C3C;border:1px solid rgba(192,57,43,.3)}
+.pbadge-high{background:rgba(212,133,10,.2);color:#E67E22;border:1px solid rgba(212,133,10,.3)}
+.pbadge-medium{background:rgba(41,128,185,.2);color:#3498DB;border:1px solid rgba(41,128,185,.3)}
+.pbadge-sw{background:rgba(255,255,255,.06);color:var(--grey);border:1px solid rgba(255,255,255,.1)}
+.pbadge-country{background:rgba(203,255,0,.08);color:var(--lime);border:1px solid rgba(203,255,0,.15)}
+.prospect-cvss-pill{font-size:11px;font-family:'Space Mono',monospace;padding:4px 10px;border-radius:20px;font-weight:700;white-space:nowrap}
+.cvss-critical{background:#C0392B;color:#fff}
+.cvss-high{background:#D4850A;color:#fff}
+.cvss-medium{background:#2980B9;color:#fff}
+.prospect-card-body{display:none;padding:0 20px 20px}
+.prospect-card-body.open{display:block}
+.cve-table{width:100%;border-collapse:collapse;margin-bottom:16px}
+.cve-table th{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--grey);padding:6px 10px;text-align:left;border-bottom:1px solid rgba(255,255,255,.06)}
+.cve-table td{font-size:12px;font-family:'Space Mono',monospace;padding:7px 10px;border-bottom:1px solid rgba(255,255,255,.04)}
+.prospect-email-box{background:rgba(203,255,0,.04);border:1px solid rgba(203,255,0,.15);border-radius:8px;padding:14px 16px}
+.prospect-email-label{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--lime);font-family:'Space Mono',monospace;margin-bottom:8px}
+.prospect-email-text{font-size:13px;color:var(--white);line-height:1.6;white-space:pre-wrap}
+.prospect-email-actions{display:flex;gap:8px;margin-top:10px}
+.prospect-email-generating{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--grey);font-family:'Space Mono',monospace}
+.btn-copy-email{font-size:11px;padding:5px 12px;background:rgba(203,255,0,.1);color:var(--lime);border:1px solid rgba(203,255,0,.2);border-radius:6px;cursor:pointer;font-family:'Space Mono',monospace}
+.btn-copy-email:hover{background:rgba(203,255,0,.2)}
+.btn-add-domain-prospect{font-size:11px;padding:5px 12px;background:rgba(255,255,255,.06);color:var(--white);border:1px solid rgba(255,255,255,.12);border-radius:6px;cursor:pointer;font-family:'Space Mono',monospace}
+.btn-add-domain-prospect:hover{background:rgba(255,255,255,.1)}
+.prospect-chevron{font-size:12px;color:var(--grey);transition:transform .2s;margin-left:auto}
+.prospect-chevron.open{transform:rotate(180deg)}
+
 </style>
 </head>
 <body>
@@ -909,6 +953,78 @@ python3 swarmhawk_mcp.py --http</pre></div>
       <button class="modal-close" onclick="closeModal()">✕</button>
     </div>
     <div class="modal-body" id="modal-body"></div>
+
+    <!-- ── TAB: PROSPECTS ───────────────────────────────────── -->
+    <div class="db-page" id="db-prospects">
+      <div class="db-inner">
+
+        <div class="db-header">
+          <div>
+            <h2 class="db-title">🎯 Prospect Intelligence</h2>
+            <p style="color:var(--grey);font-size:13px;margin-top:4px">Most exposed domains by country — ready-to-send cold outreach targets</p>
+          </div>
+          <div style="display:flex;gap:10px;align-items:center">
+            <select id="prospect-country" class="prospect-select" onchange="prospectFilterCountry(this.value)">
+              <option value="all">All Countries</option>
+              <option value="CZ">🇨🇿 Czech Republic</option>
+              <option value="PL">🇵🇱 Poland</option>
+              <option value="SK">🇸🇰 Slovakia</option>
+              <option value="HU">🇭🇺 Hungary</option>
+              <option value="RO">🇷🇴 Romania</option>
+              <option value="AT">🇦🇹 Austria</option>
+              <option value="DE">🇩🇪 Germany</option>
+            </select>
+            <button class="btn-scan-all" onclick="prospectRunScan()">⟳ Run Live Scan</button>
+          </div>
+        </div>
+
+        <!-- Stats bar -->
+        <div class="prospect-stats-row" id="prospect-stats-row">
+          <div class="prospect-stat">
+            <span class="prospect-stat-val" id="pstat-total">—</span>
+            <span class="prospect-stat-lbl">Domains Scanned</span>
+          </div>
+          <div class="prospect-stat">
+            <span class="prospect-stat-val" id="pstat-cve" style="color:#C0392B">—</span>
+            <span class="prospect-stat-lbl">Have Live CVEs</span>
+          </div>
+          <div class="prospect-stat">
+            <span class="prospect-stat-val" id="pstat-critical" style="color:#C0392B">—</span>
+            <span class="prospect-stat-lbl">Critical (CVSS ≥9)</span>
+          </div>
+          <div class="prospect-stat">
+            <span class="prospect-stat-val" id="pstat-wp" style="color:#D4850A">—</span>
+            <span class="prospect-stat-lbl">WordPress Exposed</span>
+          </div>
+        </div>
+
+        <!-- Scan progress bar (prospects) -->
+        <div id="prospect-scan-progress" style="display:none;margin-bottom:20px">
+          <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--grey);font-family:'Space Mono',monospace;margin-bottom:6px">
+            <span id="prospect-scan-label">Scanning…</span>
+            <span id="prospect-scan-pct">0%</span>
+          </div>
+          <div style="background:rgba(255,255,255,.06);border-radius:4px;height:4px">
+            <div id="prospect-scan-bar" style="height:4px;background:var(--lime);border-radius:4px;width:0%;transition:width .3s ease"></div>
+          </div>
+        </div>
+
+        <!-- Prospect cards grid -->
+        <div id="prospect-list" class="prospect-list">
+          <div class="db-empty" style="padding:60px;text-align:center">
+            <div style="font-size:32px;margin-bottom:12px">🎯</div>
+            <div style="color:var(--white);font-size:15px;font-weight:600;margin-bottom:8px">Prospect Intelligence Ready</div>
+            <div style="color:var(--grey);font-size:13px;max-width:400px;margin:0 auto 20px">
+              Click <strong style="color:var(--lime)">Run Live Scan</strong> to detect the most exposed domains across CEE —
+              sorted by CVE severity with AI-generated cold email hooks.
+            </div>
+            <button class="btn-scan-all" onclick="prospectRunScan()">⟳ Run Live Scan Now</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -1511,6 +1627,7 @@ function renderReportPage(data, domain, isSample) {
       <button class="db-tab" onclick="dbShowTab('reports',this)">📋 Reports</button>
       <button class="db-tab" onclick="dbShowTab('threats',this)">⚠️ Threats</button>
       <button class="db-tab" onclick="dbShowTab('intel',this)">🧠 Intelligence</button>
+      <button class="db-tab" onclick="dbShowTab('prospects',this)">🎯 Prospects</button>
     </div>
     <div class="db-nav-right">
       <span id="db-user-name" style="font-size:13px;color:var(--grey)"></span>
@@ -2200,6 +2317,448 @@ async function dbLoadIntel(force) {
 
   btn.disabled = false;
   btn.textContent = '↻ Refresh Briefing';
+}
+
+
+
+// ═══════════════════════════════════════════════════════
+// PROSPECTS TAB
+// ═══════════════════════════════════════════════════════
+
+// Domain list per country — 100 per country (top SMEs)
+var PROSPECT_DOMAINS = {
+  CZ: [
+    // E-commerce / retail
+    "bonami.cz","datart.cz","kasa.cz","tsbohemia.cz","electroworld.cz","okay.cz","euronics.cz",
+    "sportisimo.cz","intersport.cz","hervis.cz","deichmann.cz","humanic.cz","fler.cz","kosik.cz",
+    "rohlik.cz","nakupnicentrum.cz","mall.cz","alza.cz","czc.cz","heureka.cz",
+    // Professional services
+    "ekonom.cz","epravo.cz","businessinfo.cz","fakturoid.cz","flexibee.cz","pohoda.cz","money.cz",
+    "helios.cz","vario.cz","abraflexi.cz",
+    // Health
+    "dr-max.cz","benu.cz","pilulka.cz","lekarna.cz","znamylekar.cz",
+    // Travel / real estate
+    "invia.cz","fischer.cz","cedok.cz","exim-tours.cz","sreality.cz","reality.cz","remaxczech.cz",
+    // Media
+    "denik.cz","blesk.cz","reflex.cz","tyden.cz","respekt.cz","zive.cz","lupa.cz","cnews.cz","root.cz",
+    // Food
+    "country-life.cz","delimano.cz","bageterie.cz",
+    // Education
+    "edux.cz","scio.cz","czechtourism.cz",
+    // Manufacturing
+    "linet.cz","zetor.cz",
+    // Hospitality
+    "hotelbristol.cz","booking.cz","orea.cz","clarionhotel.cz","marriott.cz",
+    // Misc SME
+    "prozeny.cz","maminka.cz","recepty.cz","toprecepty.cz","vareni.cz",
+    "sbazar.cz","sauto.cz","bazos.cz","startupjobs.cz","csfd.cz",
+    "portaldph.cz","dauc.cz","accountplus.cz","pravniradce.cz",
+    "zdravotniregistr.cz","lekarnaposleze.cz","pilulka.cz",
+    "realitycechy.cz","sreality.cz","bezrealitky.cz",
+    "chip.cz","digi.cz","svethardware.cz","diit.cz","pctuning.cz",
+    "e15.cz","ihned.cz","lidovky.cz","aktualne.cz",
+    "prozeny.cz","zena.cz","marianne.cz","elle.cz",
+    "mapy.cz","firmy.cz","najisto.cz","zivefirmy.cz",
+    "gopay.cz","comgate.cz","paygate.cz",
+    "wedos.cz","master.cz","ignum.cz","forpsi.cz","active24.cz",
+    "aionline.cz","digi.cz"
+  ],
+  PL: [
+    "allegro.pl","ceneo.pl","olx.pl","onet.pl","wp.pl","interia.pl","gazeta.pl",
+    "empik.com","media-expert.pl","euro.com.pl","neonet.pl","rtveuroagd.pl",
+    "morele.net","al.to","x-kom.pl","komputronik.pl","saturn.pl",
+    "eobuwie.pl","answear.com","modivo.pl","zara.pl","reserved.com",
+    "inpost.pl","dpd.pl","poczta-polska.pl",
+    "pracuj.pl","olx.pl","jooble.pl","gratka.pl",
+    "booking.pl","trivago.pl","nocowanie.pl","noclegi.pl",
+    "zdrowie.pl","abczdrowie.pl","medonet.pl","poradnikzdrowie.pl",
+    "tvn24.pl","polsat.pl","rmf.pl","tokfm.pl","wyborcza.pl",
+    "mbank.pl","pkobp.pl","pekao.pl","santander.pl","bnpparibas.pl",
+    "nfz.gov.pl","zus.pl","mf.gov.pl","gov.pl",
+    "agora.pl","ringier.pl","axel-springer.pl",
+    "wirtualnemedia.pl","press.pl","wirtualnapolska.pl",
+    "eduweb.pl","wsb.pl","kozminski.edu.pl","sgph.edu.pl",
+    "lidl.pl","biedronka.pl","auchan.pl","carrefour.pl","kaufland.pl",
+    "pepco.eu","smyk.com","toys-r-us.pl",
+    "meble.pl","agata.pl","black-red-white.pl","abm.pl",
+    "doz.pl","superpharm.pl","dbam-o-zdrowie.pl",
+    "itaka.pl","neckermann.pl","tui.pl","wezyr.pl",
+    "morizon.pl","otodom.pl","gratka.pl","domiporta.pl",
+    "faktura.pl","ifirma.pl","wfirma.pl","infakt.pl",
+    "nazwa.pl","home.pl","cyberfolks.pl","zenbox.pl"
+  ],
+  SK: [
+    "alza.sk","mall.sk","heureka.sk","bezrealitky.sk","sreality.sk",
+    "sme.sk","aktuality.sk","pravda.sk","dennikn.sk","pluska.sk",
+    "jobs.sk","profesia.sk","kariera.sk",
+    "csob.sk","vub.sk","slsp.sk","tatrabanka.sk","postovabanka.sk",
+    "23andme.sk","drmax.sk","benu.sk","pharmos.sk",
+    "365.bank","365bank.sk","365.sk",
+    "websupport.sk","forpsi.sk","active24.sk","wedos.sk","hostmaster.sk",
+    "nay.sk","datart.sk","okay.sk","elektrosvet.sk",
+    "ticketportal.sk","predpredaj.sk",
+    "azet.sk","topky.sk","cas.sk","noviny.sk",
+    "invia.sk","fischer.sk","cedok.sk","bubo.sk",
+    "lekaren.sk","lekarskepredpisy.sk","zdravie.sk",
+    "nehnutelnosti.sk","reality.sk","bazos.sk",
+    "financnasprava.sk","slovensko.sk","upvs.sk",
+    "csob.sk","prima-banka.sk","otp.sk"
+  ],
+  HU: [
+    "alza.hu","extreme-digital.hu","mediamarkt.hu","euronics.hu",
+    "origo.hu","index.hu","hvg.hu","444.hu","telex.hu","24.hu",
+    "apro.hu","jobline.hu","profession.hu","cvonline.hu",
+    "otp.hu","kh.hu","mkb.hu","unicredit.hu","erste.hu",
+    "drmax.hu","patika.hu","pharmacy.hu",
+    "booking.hu","szallas.hu","trivago.hu",
+    "ingatlan.com","duna-house.hu","otthon-centrum.hu",
+    "rtl.hu","tv2.hu","m1.hu",
+    "upc.hu","telekom.hu","vodafone.hu","digi.hu","yettel.hu",
+    "tesco.hu","aldi.hu","lidl.hu","spar.hu","penny.hu",
+    "weblapkeszites.hu","shopify.hu","shoptet.hu",
+    "gov.hu","magyarorszag.hu","nav.gov.hu",
+    "mta.hu","bme.hu","elte.hu","corvinus.hu"
+  ],
+  RO: [
+    "emag.ro","pcgarage.ro","altex.ro","flanco.ro","cel.ro",
+    "digi24.ro","antena3.ro","protv.ro","stirileprotv.ro","hotnews.ro",
+    "job.ro","ejobs.ro","bestjobs.ro","myjob.ro",
+    "bcr.ro","brd.ro","raiffeisen.ro","unicredit.ro","ing.ro",
+    "drmax.ro","farmeciste.ro","regiofarm.ro",
+    "imobiliare.ro","storia.ro","anuntul.ro","publi24.ro",
+    "booking.ro","vola.ro","tur.ro",
+    "gov.ro","anaf.ro","mfinante.gov.ro",
+    "orange.ro","vodafone.ro","telekom.ro","digi.ro","rcs-rds.ro",
+    "kaufland.ro","lidl.ro","auchan.ro","carrefour.ro","mega-image.ro",
+    "elefant.ro","libris.ro","books-express.ro",
+    "stiriagricole.ro","agro.ro","fermierul.ro",
+    "clinicahipocrat.ro","regina-maria.ro","medicover.ro"
+  ],
+  AT: [
+    "willhaben.at","immowelt.at","immonet.at","scout24.at",
+    "derstandard.at","diepresse.com","krone.at","kurier.at","oe24.at",
+    "karriere.at","stepstone.at","monster.at","jobwohnen.at",
+    "raiffeisen.at","erste.at","bawag.com","volksbank.at","easybank.at",
+    "apotheke.at","bipa.at","dm.at",
+    "booking.at","tiscover.at","lastminute.at",
+    "willhaben.at","immoscout24.at","immowelt.at",
+    "mediamarkt.at","saturn.at","amazon.at",
+    "penny.at","billa.at","spar.at","hofer.at","lidl.at",
+    "oebb.at","wienerlinien.at","postbus.at",
+    "parlament.gv.at","help.gv.at","ris.bka.gv.at"
+  ],
+  DE: [
+    "otto.de","zalando.de","idealo.de","check24.de","kaufland.de",
+    "spiegel.de","zeit.de","faz.net","sueddeutsche.de","welt.de",
+    "stepstone.de","xing.com","kununu.com","jobscout24.de",
+    "commerzbank.de","deutschebank.de","dkb.de","n26.com","ing.de",
+    "dm.de","rossmann.de","mueller.de",
+    "booking.de","expedia.de","hrs.de","hotel.de",
+    "immonet.de","immowelt.de","immoscout24.de",
+    "mediamarkt.de","saturn.de","cyberport.de","notebooksbilliger.de",
+    "aldi.de","lidl.de","rewe.de","edeka.de","netto.de",
+    "bahn.de","lufthansa.com","flixbus.de",
+    "bundesregierung.de","destatis.de","bmwi.de"
+  ]
+};
+
+var prospectAllData = {};     // { country: [ ...prospect objects ] }
+var prospectCurrentCountry = 'all';
+var prospectScanning = false;
+
+function prospectFilterCountry(val) {
+  prospectCurrentCountry = val;
+  prospectRender();
+}
+
+function prospectGetVisible() {
+  var all = [];
+  if (prospectCurrentCountry === 'all') {
+    Object.values(prospectAllData).forEach(function(arr){ all = all.concat(arr); });
+  } else {
+    all = prospectAllData[prospectCurrentCountry] || [];
+  }
+  // Sort: CVE hits first, then by max CVSS desc
+  return all.slice().sort(function(a,b){
+    if (b.cve_hits.length !== a.cve_hits.length) return b.cve_hits.length - a.cve_hits.length;
+    return (b.max_cvss||0) - (a.max_cvss||0);
+  }).slice(0, 100);
+}
+
+function prospectRender() {
+  var list = document.getElementById('prospect-list');
+  if (!list) return;
+  var items = prospectGetVisible();
+  var allItems = [];
+  Object.values(prospectAllData).forEach(function(arr){ allItems = allItems.concat(arr); });
+  var withCVE = allItems.filter(function(x){ return x.cve_hits && x.cve_hits.length > 0; });
+  var critical = withCVE.filter(function(x){ return x.max_cvss >= 9; });
+  var withWP = allItems.filter(function(x){ return x.software && x.software.some(function(s){ return s.product==='WordPress'; }); });
+
+  // Update stats
+  var el = function(id){ return document.getElementById(id); };
+  if (el('pstat-total')) el('pstat-total').textContent = allItems.length;
+  if (el('pstat-cve'))   el('pstat-cve').textContent   = withCVE.length;
+  if (el('pstat-critical')) el('pstat-critical').textContent = critical.length;
+  if (el('pstat-wp'))    el('pstat-wp').textContent    = withWP.length;
+
+  if (!items.length) {
+    list.innerHTML = '<div class="db-empty" style="padding:40px;text-align:center">No results for this filter.</div>';
+    return;
+  }
+
+  list.innerHTML = items.map(function(p, idx) {
+    var pr = p.priority || 'low';
+    var prLower = pr.toLowerCase();
+    var cvssScore = p.max_cvss || 0;
+    var cvssClass = cvssScore >= 9 ? 'cvss-critical' : cvssScore >= 7 ? 'cvss-high' : 'cvss-medium';
+    var priorityClass = cvssScore >= 9 ? 'priority-critical' : cvssScore >= 7 ? 'priority-high' : cvssScore >= 4 ? 'priority-medium' : 'priority-low';
+    var rank = idx + 1;
+
+    var swBadges = (p.software || []).slice(0,3).map(function(s){
+      return '<span class="prospect-badge pbadge-sw">'+s.product+' '+s.version+'</span>';
+    }).join('');
+
+    var cveBadge = p.cve_hits && p.cve_hits.length ?
+      '<span class="prospect-badge '+(cvssScore>=9?'pbadge-critical':cvssScore>=7?'pbadge-high':'pbadge-medium')+'">'+p.cve_hits.length+' CVE'+(p.cve_hits.length>1?'s':'')+'</span>' : '';
+
+    var countryFlag = {CZ:'🇨🇿',PL:'🇵🇱',SK:'🇸🇰',HU:'🇭🇺',RO:'🇷🇴',AT:'🇦🇹',DE:'🇩🇪'}[p.country] || '';
+
+    var cveRows = (p.cve_hits || []).map(function(h){
+      var sc = h.top_cvss >= 9 ? '#E74C3C' : h.top_cvss >= 7 ? '#E67E22' : '#3498DB';
+      return '<tr>'+
+        '<td style="color:'+sc+';font-weight:700">'+h.top_cve+'</td>'+
+        '<td><span class="prospect-cvss-pill '+(h.top_cvss>=9?'cvss-critical':h.top_cvss>=7?'cvss-high':'cvss-medium')+'">'+h.top_cvss+'</span></td>'+
+        '<td style="color:var(--white)">'+h.product+' '+h.version+'</td>'+
+        '<td><a href="https://nvd.nist.gov/vuln/detail/'+h.top_cve+'" target="_blank" style="color:var(--lime);font-size:10px">NVD →</a></td>'+
+      '</tr>';
+    }).join('');
+
+    var emailHtml = '<div class="prospect-email-generating"><div class="spinner" style="width:14px;height:14px;border-width:2px"></div>Generating email hook…</div>';
+
+    return '<div class="prospect-card '+priorityClass+'" id="pcard-'+idx+'">' +
+      '<div class="prospect-card-head" onclick="prospectToggle('+idx+')">' +
+        '<span style="font-size:13px;color:var(--grey);font-family:\'Space Mono\',monospace;min-width:28px">#'+rank+'</span>' +
+        '<span class="prospect-domain">'+p.domain+'</span>' +
+        '<div class="prospect-badges">'+
+          (countryFlag ? '<span class="prospect-badge pbadge-country">'+countryFlag+' '+p.country+'</span>' : '') +
+          cveBadge + swBadges +
+        '</div>' +
+        (cvssScore > 0 ? '<span class="prospect-cvss-pill '+cvssClass+'">CVSS '+cvssScore+'</span>' : '') +
+        '<span class="prospect-chevron" id="pchev-'+idx+'">▼</span>' +
+      '</div>' +
+      '<div class="prospect-card-body" id="pbody-'+idx+'">' +
+        (cveRows ? '<table class="cve-table"><thead><tr><th>CVE ID</th><th>CVSS</th><th>Software</th><th></th></tr></thead><tbody>'+cveRows+'</tbody></table>' : '') +
+        '<div class="prospect-email-box" id="pemail-'+idx+'">' +
+          '<div class="prospect-email-label">✉ Cold Email Hook</div>' +
+          '<div id="pemail-text-'+idx+'" class="prospect-email-text">' + emailHtml + '</div>' +
+          '<div class="prospect-email-actions" id="pemail-actions-'+idx+'" style="display:none">' +
+            '<button class="btn-copy-email" onclick="prospectCopyEmail('+idx+')">Copy Email</button>' +
+            '<button class="btn-add-domain-prospect" onclick="prospectAddDomain(\''+p.domain+'\')">+ Add to Dashboard</button>' +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+function prospectToggle(idx) {
+  var body = document.getElementById('pbody-'+idx);
+  var chev = document.getElementById('pchev-'+idx);
+  if (!body) return;
+  var isOpen = body.classList.contains('open');
+  body.classList.toggle('open', !isOpen);
+  if (chev) chev.classList.toggle('open', !isOpen);
+  if (!isOpen) prospectLoadEmail(idx);
+}
+
+var prospectEmailCache = {};
+
+async function prospectLoadEmail(idx) {
+  var items = prospectGetVisible();
+  var p = items[idx];
+  if (!p) return;
+
+  var textEl = document.getElementById('pemail-text-'+idx);
+  var actionsEl = document.getElementById('pemail-actions-'+idx);
+  if (!textEl) return;
+
+  // Use cache if available
+  if (prospectEmailCache[p.domain]) {
+    textEl.textContent = prospectEmailCache[p.domain];
+    if (actionsEl) actionsEl.style.display = 'flex';
+    return;
+  }
+
+  // Build context for Claude
+  var cveList = (p.cve_hits || []).map(function(h){
+    return h.top_cve + ' (CVSS ' + h.top_cvss + ', ' + h.product + ' ' + h.version + ')';
+  }).join(', ');
+
+  var swList = (p.software || []).map(function(s){ return s.product + ' ' + s.version; }).join(', ');
+
+  var prompt = 'Write a short, professional cold outreach email (5-7 sentences) from a cybersecurity company called SwarmHawk to the webmaster/IT manager of ' + p.domain + '.\n\n' +
+    'Our passive scan detected:\n' +
+    (cveList ? '- Live CVEs: ' + cveList + '\n' : '') +
+    (swList ? '- Exposed software: ' + swList + '\n' : '') +
+    '\nThe email should:\n' +
+    '1. Open with the specific CVE ID and CVSS score as proof of finding\n' +
+    '2. Briefly explain the risk in plain language (one sentence)\n' +
+    '3. Offer a free full report as CTA\n' +
+    '4. Be urgent but not alarmist — professional tone\n' +
+    '5. Sign off as "The SwarmHawk Team | swarmhawk.eu"\n\n' +
+    'Output ONLY the email body text. No subject line. No explanation. No markdown.';
+
+  try {
+    var resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-api-key': '', 'anthropic-version': '2023-06-01' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 400,
+        system: 'You write concise, professional cold outreach emails for a cybersecurity SaaS. Output only the email body.',
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+
+    // Try backend proxy first, then direct
+    var emailText = '';
+    if (!resp.ok) {
+      // Use backend /intel proxy
+      var backendResp = await fetch(API_BASE + '/intel', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + (localStorage.getItem('sw_token')||'') },
+        body: JSON.stringify({ prompt: prompt, max_tokens: 400 })
+      });
+      if (backendResp.ok) {
+        var bd = await backendResp.json();
+        emailText = bd.text || bd.content || '';
+      }
+    } else {
+      var data = await resp.json();
+      emailText = data.content && data.content[0] ? data.content[0].text : '';
+    }
+
+    if (emailText) {
+      prospectEmailCache[p.domain] = emailText;
+      textEl.textContent = emailText;
+      if (actionsEl) actionsEl.style.display = 'flex';
+    } else {
+      textEl.textContent = prospectFallbackEmail(p);
+      if (actionsEl) actionsEl.style.display = 'flex';
+    }
+  } catch(e) {
+    textEl.textContent = prospectFallbackEmail(p);
+    if (actionsEl) actionsEl.style.display = 'flex';
+  }
+}
+
+function prospectFallbackEmail(p) {
+  var topCve = p.cve_hits && p.cve_hits[0];
+  var sw = p.software && p.software[0];
+  return 'Dear ' + p.domain + ' team,\n\n' +
+    'Our automated security scanner detected ' +
+    (topCve ? topCve.top_cve + ' (CVSS ' + topCve.top_cvss + ') on your server running ' + topCve.product + ' ' + topCve.version : 'exposed software versions on your domain') +
+    '. This vulnerability is publicly known and could expose your business to data breaches or compliance penalties under NIS2.\n\n' +
+    'We have prepared a free full security report for ' + p.domain + ' which outlines the exact risks and remediation steps. Reply to this email or visit swarmhawk.eu to access it.\n\n' +
+    'The SwarmHawk Team | swarmhawk.eu';
+}
+
+function prospectCopyEmail(idx) {
+  var el = document.getElementById('pemail-text-'+idx);
+  if (!el) return;
+  navigator.clipboard.writeText(el.textContent).then(function(){
+    toast('Email copied to clipboard');
+  });
+}
+
+function prospectAddDomain(domain) {
+  // Switch to domains tab and pre-fill
+  dbShowTab('domains');
+  var bar = document.getElementById('db-add-bar');
+  if (bar) bar.style.display = 'block';
+  var input = document.getElementById('db-domain-input');
+  if (input) { input.value = domain; input.focus(); }
+  toast('Domain pre-filled — click Scan Domain to add');
+}
+
+// ── Live scanner ──────────────────────────────────────────────────────────────
+
+async function prospectRunScan() {
+  if (prospectScanning) return;
+  prospectScanning = true;
+  prospectAllData = {};
+  prospectEmailCache = {};
+
+  var progressWrap = document.getElementById('prospect-scan-progress');
+  var bar = document.getElementById('prospect-scan-bar');
+  var label = document.getElementById('prospect-scan-label');
+  var pct = document.getElementById('prospect-scan-pct');
+  if (progressWrap) progressWrap.style.display = 'block';
+
+  var list = document.getElementById('prospect-list');
+  if (list) list.innerHTML = '<div class="db-empty" style="padding:40px;text-align:center"><div class="spinner" style="width:28px;height:28px;border-width:2.5px;margin:0 auto 12px"></div>Scanning domains across CEE…</div>';
+
+  var countries = Object.keys(PROSPECT_DOMAINS);
+  var totalDomains = countries.reduce(function(s,c){ return s + PROSPECT_DOMAINS[c].length; }, 0);
+  var scanned = 0;
+
+  for (var ci = 0; ci < countries.length; ci++) {
+    var country = countries[ci];
+    var domains = PROSPECT_DOMAINS[country];
+    prospectAllData[country] = [];
+
+    // Scan in batches of 6 concurrently
+    var batchSize = 6;
+    for (var bi = 0; bi < domains.length; bi += batchSize) {
+      var batch = domains.slice(bi, bi + batchSize);
+      var results = await Promise.allSettled(batch.map(function(d){ return prospectScanDomain(d, country); }));
+      results.forEach(function(r){
+        scanned++;
+        if (r.status === 'fulfilled' && r.value) prospectAllData[country].push(r.value);
+      });
+
+      var p2 = Math.round((scanned / totalDomains) * 100);
+      if (bar) bar.style.width = p2 + '%';
+      if (pct) pct.textContent = p2 + '%';
+      if (label) label.textContent = 'Scanning ' + country + ' domains (' + scanned + '/' + totalDomains + ')…';
+
+      prospectRender();
+    }
+  }
+
+  if (progressWrap) progressWrap.style.display = 'none';
+  prospectScanning = false;
+  toast('✓ Prospect scan complete — ' + prospectGetVisible().length + ' targets found');
+}
+
+async function prospectScanDomain(domain, country) {
+  // Call backend scan endpoint (passive, fast) — falls back to header-only check
+  try {
+    var resp = await fetch(API_BASE + '/scan/passive?domain=' + encodeURIComponent(domain), {
+      method: 'GET',
+      headers: { 'Authorization': 'Bearer ' + (localStorage.getItem('sw_token')||'') },
+      signal: AbortSignal.timeout(12000)
+    });
+
+    if (resp.ok) {
+      var data = await resp.json();
+      if (data && (data.software || data.cve_hits)) {
+        return Object.assign({ domain: domain, country: country }, data);
+      }
+    }
+  } catch(e) {}
+
+  // Fallback: direct header probe via fetch (CORS-limited but catches some)
+  try {
+    var r2 = await fetch('https://' + domain, {
+      method: 'HEAD', mode: 'no-cors', signal: AbortSignal.timeout(6000)
+    });
+    // no-cors means we can't read headers — return minimal record to show domain is live
+    return { domain: domain, country: country, software: [], cve_hits: [], max_cvss: 0, priority: 'LOW', live: true };
+  } catch(e) {
+    return null; // domain unreachable
+  }
 }
 
 
