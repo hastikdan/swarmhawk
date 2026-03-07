@@ -1728,20 +1728,27 @@ function openReportPage(domain, isSample) {
     return;
   }
 
-  // Wake up Render (cold start can take 15-30s) then scan
+  // Wake up Render (cold start can take 50-70s on free tier) then scan
   (async function() {
     try {
-      // First ping /health — if it fails we know server is cold-starting
-      body.innerHTML = '<div style="text-align:center;padding:80px"><div class="spinner" style="width:32px;height:32px;border-width:3px;margin:0 auto"></div><p style="color:var(--grey);margin-top:16px;font-size:13px">Waking up scanner…</p></div>';
+      // Ping /health with generous retries — Render free tier can take 60s to wake
       var pingOk = false;
-      for (var i = 0; i < 3; i++) {
+      var attempt = 0;
+      var maxAttempts = 10;
+      while (attempt < maxAttempts) {
+        body.innerHTML = '<div style="text-align:center;padding:80px">'
+          + '<div class="spinner" style="width:32px;height:32px;border-width:3px;margin:0 auto"></div>'
+          + '<p style="color:var(--grey);margin-top:16px;font-size:13px">'
+          + (attempt === 0 ? 'Waking up scanner…' : 'Still starting up… (' + attempt + '/' + maxAttempts + ')')
+          + '</p></div>';
         try {
-          var ping = await fetch(API + '/health', {signal: AbortSignal.timeout(10000)});
+          var ping = await fetch(API + '/health', {signal: AbortSignal.timeout(8000)});
           if (ping.ok) { pingOk = true; break; }
-        } catch(e) { /* cold starting */ }
-        if (i < 2) await new Promise(function(r){ setTimeout(r, 5000); });
+        } catch(e) { /* cold starting, keep waiting */ }
+        attempt++;
+        if (attempt < maxAttempts) await new Promise(function(r){ setTimeout(r, 6000); });
       }
-      if (!pingOk) throw new Error('Server is not reachable. Check if Render backend is running.');
+      if (!pingOk) throw new Error('Scanner is unavailable right now. Please try again in a minute.');
 
       body.innerHTML = '<div style="text-align:center;padding:80px"><div class="spinner" style="width:32px;height:32px;border-width:3px;margin:0 auto"></div><p style="color:var(--grey);margin-top:16px;font-size:13px">Running security checks on ' + domain + '…</p></div>';
 
@@ -1749,7 +1756,7 @@ function openReportPage(domain, isSample) {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({domain: domain}),
-        signal: AbortSignal.timeout(60000)
+        signal: AbortSignal.timeout(120000)
       });
       var data;
       try { data = await res.json(); } catch(e) { data = {}; }
