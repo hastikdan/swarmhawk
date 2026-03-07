@@ -502,6 +502,19 @@ h1 span{color:var(--lime)}
 .cve-score{font-family:'Space Mono',monospace;font-weight:700;font-size:11px}
 .cve-sev{font-family:'Space Mono',monospace;font-size:10px;opacity:.8}
 .cve-desc{color:var(--grey);font-size:10px;line-height:1.4}
+
+.scan-progress-overlay{position:fixed;inset:0;z-index:10000;background:rgba(14,13,18,.95);display:flex;align-items:center;justify-content:center}
+.scan-progress-box{background:var(--card);border:1px solid rgba(203,255,0,.2);border-radius:12px;padding:40px;width:480px;max-width:90vw}
+.scan-progress-title{font-family:'Space Mono',monospace;font-size:13px;color:var(--lime);letter-spacing:2px;margin-bottom:8px}
+.scan-progress-domain{font-size:20px;font-weight:700;color:var(--white);margin-bottom:24px}
+.scan-progress-bar-wrap{background:rgba(255,255,255,.06);border-radius:4px;height:6px;margin-bottom:20px;overflow:hidden}
+.scan-progress-bar{height:6px;background:var(--lime);border-radius:4px;transition:width .4s ease;width:0%}
+.scan-progress-checks{display:flex;flex-direction:column;gap:6px;max-height:280px;overflow-y:auto}
+.scan-check-row{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--grey);font-family:'Space Mono',monospace}
+.scan-check-row.done{color:var(--white)}
+.scan-check-row.active{color:var(--lime)}
+.scan-check-icon{width:16px;text-align:center;flex-shrink:0}
+.scan-progress-eta{font-size:11px;color:var(--grey);font-family:'Space Mono',monospace;margin-top:16px;text-align:center}
 </style>
 </head>
 <body>
@@ -1886,14 +1899,19 @@ async function dbAddDomain() {
     await api('/domains', {method:'POST', body:JSON.stringify({domain:domain, country:'EU'})});
     input.value = '';
     document.getElementById('db-add-bar').style.display = 'none';
-    toast('✓ '+domain+' added — scanning now (~60s)');
+    showScanProgress(domain);
+    toast('✓ '+domain+' added — scanning now');
     await dbLoadAll();
     var polls = 0;
     var poll = setInterval(async function() {
       polls++;
       await dbLoadAll();
       var d = dbDomains.find(function(x){ return x.domain===domain && x.status!=='scanning'; });
-      if (d || polls > 24) { clearInterval(poll); if(d) toast('✓ '+domain+' scan complete'); }
+      if (d || polls > 24) {
+        clearInterval(poll);
+        hideScanProgress();
+        if (d) { toast('✓ '+domain+' scan complete'); dbShowTab('domains'); }
+      }
     }, 5000);
   } catch(e) {
     toast('Error: ' + e.message, true);
@@ -2181,6 +2199,77 @@ async function dbLoadIntel(force) {
 
   btn.disabled = false;
   btn.textContent = '↻ Refresh Briefing';
+}
+
+
+// ── SCAN PROGRESS UI ────────────────────────────────────────────────────────
+var _scanProgressInterval = null;
+
+var SCAN_CHECKS = [
+  'SSL/TLS Certificate', 'HTTPS Redirect', 'Security Headers', 'DNS & SPF',
+  'Breach Exposure', 'Typosquat Monitor', 'Response Time', 'URLhaus Feed',
+  'Spamhaus DBL', 'Google Safe Browsing', 'VirusTotal', 'Shodan Ports',
+  'CVE Fingerprint', 'Software Versions', 'Cookie Security', 'HTTP Methods',
+  'Email Security', 'AI Analysis'
+];
+
+function showScanProgress(domain) {
+  // Remove existing overlay if any
+  hideScanProgress();
+
+  var overlay = document.createElement('div');
+  overlay.id = 'scan-progress-overlay';
+  overlay.className = 'scan-progress-overlay';
+  overlay.innerHTML =
+    '<div class="scan-progress-box">' +
+      '<div class="scan-progress-title">⟳ SCANNING DOMAIN</div>' +
+      '<div class="scan-progress-domain">' + domain + '</div>' +
+      '<div class="scan-progress-bar-wrap"><div class="scan-progress-bar" id="spb"></div></div>' +
+      '<div class="scan-progress-checks" id="spc">' +
+        SCAN_CHECKS.map(function(c, i) {
+          return '<div class="scan-check-row" id="spc-'+i+'">' +
+            '<span class="scan-check-icon">○</span>' +
+            '<span>' + c + '</span></div>';
+        }).join('') +
+      '</div>' +
+      '<div class="scan-progress-eta" id="sp-eta">Estimated time: ~60 seconds</div>' +
+    '</div>';
+
+  document.body.appendChild(overlay);
+
+  // Animate checks sequentially (~60s total, ~3.3s per check)
+  var step = 0;
+  var total = SCAN_CHECKS.length;
+  var start = Date.now();
+
+  _scanProgressInterval = setInterval(function() {
+    if (step > 0) {
+      var prev = document.getElementById('spc-' + (step - 1));
+      if (prev) { prev.className = 'scan-check-row done'; prev.querySelector('.scan-check-icon').textContent = '✓'; }
+    }
+    if (step < total) {
+      var cur = document.getElementById('spc-' + step);
+      if (cur) { cur.className = 'scan-check-row active'; cur.querySelector('.scan-check-icon').textContent = '▶'; cur.scrollIntoView({block:'nearest'}); }
+      var pct = Math.round((step / total) * 100);
+      var bar = document.getElementById('spb');
+      if (bar) bar.style.width = pct + '%';
+      var elapsed = Math.round((Date.now() - start) / 1000);
+      var eta = Math.max(0, 60 - elapsed);
+      var etaEl = document.getElementById('sp-eta');
+      if (etaEl) etaEl.textContent = eta > 0 ? 'About ' + eta + 's remaining…' : 'Finalising…';
+      step++;
+    } else {
+      clearInterval(_scanProgressInterval);
+      var bar2 = document.getElementById('spb');
+      if (bar2) bar2.style.width = '100%';
+    }
+  }, 3300);
+}
+
+function hideScanProgress() {
+  clearInterval(_scanProgressInterval);
+  var el = document.getElementById('scan-progress-overlay');
+  if (el) el.remove();
 }
 
 </script>
