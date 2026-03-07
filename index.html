@@ -1249,7 +1249,7 @@ let domains = []; let pollTimer = null;
 window.addEventListener('DOMContentLoaded', () => {
   const p = new URLSearchParams(location.search);
   if (p.get('payment') === 'success') { document.getElementById('success-banner').style.display='block'; setTimeout(()=>document.getElementById('success-banner').style.display='none',6000); history.replaceState({},'',location.pathname); }
-  if (sessionToken && currentUser) activateScanner();
+  if (sessionToken && currentUser) { activateScanner(); refreshAdminAccess(); }
   checkMCPStatus();
 });
 
@@ -1843,7 +1843,7 @@ function renderReportPage(data, domain, isSample) {
       <button class="db-tab" onclick="dbShowTab('intel',this)">🧠 Intelligence</button>
       <button class="db-tab" onclick="dbShowTab('prospects',this)">🎯 Prospects</button>
       <button class="db-tab" onclick="dbShowTab('outreach',this)">📨 Outreach</button>
-      <button class="db-tab" id="admin-tab-btn" onclick="dbShowTab('admin',this)" style="display:none">⚙️ Admin</button>
+      <button class="db-tab" id="admin-tab-btn" onclick="dbShowTabAdmin('admin',this)" style="display:none">⚙️ Admin</button>
     </div>
     <div class="db-nav-right">
       <span id="db-user-name" style="font-size:13px;color:var(--grey)"></span>
@@ -3491,11 +3491,7 @@ function onAuthSuccess(data) {
   localStorage.setItem('sw_user', JSON.stringify(currentUser));
   closeAuthModals();
   activateScanner();
-  // Show admin tab if admin
-  if (currentUser.is_admin) {
-    var btn = document.getElementById('admin-tab-btn');
-    if (btn) btn.style.display = '';
-  }
+  refreshAdminAccess();  // fetch /me for authoritative is_admin flag
 }
 
 async function submitSignIn() {
@@ -3558,30 +3554,23 @@ async function submitSignUp() {
   }
 }
 
-// Patch activateScanner to check admin status after login
-var _origActivateScanner = activateScanner;
-activateScanner = function() {
-  _origActivateScanner();
-  // Check if current user is admin and show tab
-  var user = {};
-  try { user = JSON.parse(localStorage.getItem('sw_user') || '{}'); } catch(e) {}
-  if (user.is_admin) {
-    var btn = document.getElementById('admin-tab-btn');
-    if (btn) btn.style.display = '';
-  }
-  // Also fetch /me to get fresh is_admin flag
-  if (sessionToken) {
-    fetch(API + '/me', { headers: {'Authorization': 'Bearer ' + sessionToken} })
-      .then(function(r){ return r.json(); })
-      .then(function(u){
-        if (u.is_admin) {
-          var btn = document.getElementById('admin-tab-btn');
-          if (btn) btn.style.display = '';
-          currentUser = Object.assign(currentUser || {}, { is_admin: true });
-        }
-      }).catch(function(){});
-  }
-};
+// After login: fetch /me for fresh is_admin flag and wire up admin tab
+function refreshAdminAccess() {
+  if (!sessionToken) return;
+  fetch(API + '/me', { headers: {'Authorization': 'Bearer ' + sessionToken} })
+    .then(function(r){ return r.json(); })
+    .then(function(u){
+      var btn = document.getElementById('admin-tab-btn');
+      if (!btn) return;
+      if (u.is_admin) {
+        btn.style.display = '';
+        currentUser = Object.assign(currentUser || {}, { is_admin: true });
+        localStorage.setItem('sw_user', JSON.stringify(currentUser));
+      } else {
+        btn.style.display = 'none';
+      }
+    }).catch(function(){});
+}
 
 // ═══════════════════════════════════════════════════════════════════════
 // ADMIN PANEL
