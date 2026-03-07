@@ -1319,15 +1319,13 @@ async function handleGoogleLogin(response) {
       });
       if (res.ok) {
         const data = await res.json();
-        sessionToken = data.session_token;
-        currentUser = data.user || localUser;
-        localStorage.setItem('sw_token', sessionToken);
-        localStorage.setItem('sw_user', JSON.stringify(currentUser));
-        activateScanner();
+        // Use onAuthSuccess so modals close, admin tab shown, everything consistent
+        onAuthSuccess(data);
         return; // success — exit
       } else {
-        const errJson = await res.json().catch(()=>({detail: res.statusText}));
-        lastErr = errJson.detail || res.statusText;
+        let errJson = {};
+        try { errJson = await res.json(); } catch(_) {}
+        lastErr = errJson.detail || res.statusText || ('HTTP ' + res.status);
         console.warn('Backend auth attempt', attempt, 'failed:', res.status, lastErr);
       }
     } catch(e) {
