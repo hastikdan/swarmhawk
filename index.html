@@ -644,7 +644,13 @@ h1 span{color:var(--lime)}
 .admin-btn-sm{font-size:10px;padding:4px 10px;background:rgba(255,255,255,.06);color:var(--grey);border:1px solid rgba(255,255,255,.1);border-radius:4px;cursor:pointer;font-family:'Space Mono',monospace}
 .admin-page-nav{display:flex;gap:8px;align-items:center;margin-top:12px;font-size:12px;color:var(--grey);font-family:'Space Mono',monospace}
 
+.auth-google-btn{display:flex;align-items:center;justify-content:center;gap:9px;width:100%;padding:10px 16px;background:#fff;border:none;border-radius:8px;font-size:13px;font-weight:500;color:#3c4043;cursor:pointer;margin-bottom:14px;font-family:'DM Sans',sans-serif;transition:box-shadow .15s}
+.auth-google-btn:hover{box-shadow:0 2px 8px rgba(0,0,0,.25)}
+.auth-google-btn svg{flex-shrink:0}
+.auth-divider{display:flex;align-items:center;gap:10px;margin-bottom:14px;color:var(--grey);font-size:11px;font-family:'Space Mono',monospace}
+.auth-divider::before,.auth-divider::after{content:'';flex:1;height:1px;background:rgba(255,255,255,.08)}
 </style>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
 
@@ -2601,7 +2607,7 @@ async function dbRescanDomain(id, domain) {
 async function dbScanAll() {
   toast('Queuing all domains for re-scan...');
   for (var i = 0; i < dbDomains.length; i++) {
-    try { await api('/domains/'+dbDomains[i].id+'/rescan', {method:'POST'}); } catch(e) {}
+    try { await api('/domains/'+dbDomains[i].id+'/rescan', {method:'POST'}); } catch(e) { console.warn('Rescan failed for', dbDomains[i].domain, e.message); }
   }
   toast('All domains queued. Results in ~2 minutes.');
   setTimeout(dbLoadAll, 5000);
@@ -3267,7 +3273,7 @@ async function adminLoadProspects() {
           +'</tr>';
       }).join('');
     }
-  } catch(e) {}
+  } catch(e) { console.warn('adminLoadProspects:', e.message); }
 }
 
 function prospectAddDomain(domain) {
@@ -3390,7 +3396,7 @@ async function outreachUpdateStats() {
     el('ostat-pending',  count('pending'));
     el('ostat-approved', count('approved'));
     el('ostat-sent',     count('sent'));
-  } catch(e) {}
+  } catch(e) { console.warn('outreachUpdateStats:', e.message); }
 }
 
 function outreachSetFilter(f, btn) {
@@ -3507,14 +3513,9 @@ async function outreachApprove(id, idx) {
 
 async function outreachUnapprove(id, idx) {
   try {
-    await api('/outreach/prospects/' + id + '/approve', { method: 'POST' });
-    // Actually set back to pending
-    await fetch(API + '/outreach/prospects/' + id + '/unapprove', {
-      method: 'POST',
-      headers: { 'Authorization': 'Bearer ' + sessionToken }
-    });
+    await api('/outreach/prospects/' + id + '/unapprove', { method: 'POST' });
     outreachLoad();
-  } catch(e) { outreachLoad(); }
+  } catch(e) { toast('Error: ' + e.message, true); outreachLoad(); }
 }
 
 async function outreachSkip(id, idx) {
@@ -3970,6 +3971,11 @@ window.addEventListener('DOMContentLoaded', function() {
     <div class="auth-modal-title">SIGN IN</div>
     <div class="auth-modal-sub">Access your SwarmHawk dashboard</div>
     <div class="auth-error" id="signin-error"></div>
+    <button class="auth-google-btn" onclick="signInWithGoogle()">
+      <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+      Continue with Google
+    </button>
+    <div class="auth-divider">or sign in with email</div>
     <div class="auth-field">
       <label>Email</label>
       <input type="email" id="signin-email" placeholder="you@company.com" onkeydown="if(event.key==='Enter')submitSignIn()">
@@ -3990,6 +3996,11 @@ window.addEventListener('DOMContentLoaded', function() {
     <div class="auth-modal-title">CREATE ACCOUNT</div>
     <div class="auth-modal-sub">Free account — start monitoring your domain today</div>
     <div class="auth-error" id="signup-error"></div>
+    <button class="auth-google-btn" onclick="signInWithGoogle()">
+      <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+      Sign up with Google
+    </button>
+    <div class="auth-divider">or create account with email</div>
     <div class="auth-field">
       <label>Your Name</label>
       <input type="text" id="signup-name" placeholder="Jan Novák">
@@ -4064,6 +4075,39 @@ function onAuthSuccess(data) {
   closeAuthModals();
   activateScanner();
   refreshAdminAccess();  // fetch /me for authoritative is_admin flag
+}
+
+async function signInWithGoogle() {
+  if (typeof google === 'undefined' || !google.accounts) {
+    authError('signin-error', 'Google Sign-In not loaded yet. Please try again.');
+    authError('signup-error', 'Google Sign-In not loaded yet. Please try again.');
+    return;
+  }
+  google.accounts.id.initialize({
+    client_id: '396286675021-tqhadhbp3jqc1jrqo5krk3j5njdss0cg.apps.googleusercontent.com',
+    callback: async function(response) {
+      try {
+        var res = await fetch(API + '/auth/google', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ credential: response.credential })
+        });
+        var data;
+        try { data = await res.json(); } catch(_) { data = {}; }
+        if (!res.ok) {
+          authError('signin-error', data.detail || 'Google sign-in failed');
+          authError('signup-error', data.detail || 'Google sign-in failed');
+          return;
+        }
+        onAuthSuccess(data);
+      } catch(e) {
+        authError('signin-error', 'Could not reach server: ' + e.message);
+        authError('signup-error', 'Could not reach server: ' + e.message);
+      }
+    },
+    ux_mode: 'popup',
+  });
+  google.accounts.id.prompt();
 }
 
 async function submitSignIn() {
