@@ -1212,30 +1212,68 @@ python3 swarmhawk_mcp.py --http</pre></div>
         <div class="db-header">
           <div>
             <h2 class="db-title">⚙️ Admin Panel</h2>
-            <p style="color:var(--grey);font-size:13px;margin-top:4px">Platform overview — users, domains, revenue</p>
+            <p style="color:var(--grey);font-size:13px;margin-top:4px">Platform overview — users, domains, scans, risk</p>
           </div>
           <button class="btn-scan-all" onclick="adminLoad()">↻ Refresh</button>
         </div>
 
-        <!-- Stats grid -->
-        <div class="admin-stat-grid" id="admin-stat-grid">
+        <!-- Row 1: Core KPIs -->
+        <div class="admin-stat-grid" style="grid-template-columns:repeat(4,1fr)">
           <div class="admin-stat"><span class="admin-stat-val" id="astat-users">—</span><span class="admin-stat-lbl">Total Users</span><span class="admin-stat-sub" id="astat-users-7d"></span></div>
           <div class="admin-stat"><span class="admin-stat-val" id="astat-domains">—</span><span class="admin-stat-lbl">Total Domains</span><span class="admin-stat-sub" id="astat-domains-7d"></span></div>
-          <div class="admin-stat"><span class="admin-stat-val" id="astat-revenue" style="color:#2ECC71">—</span><span class="admin-stat-lbl">Revenue (EUR)</span><span class="admin-stat-sub" id="astat-sales"></span></div>
           <div class="admin-stat"><span class="admin-stat-val" id="astat-scans">—</span><span class="admin-stat-lbl">Total Scans</span><span class="admin-stat-sub" id="astat-scans-7d"></span></div>
+          <div class="admin-stat"><span class="admin-stat-val" id="astat-revenue" style="color:#2ECC71">—</span><span class="admin-stat-lbl">Revenue (EUR)</span><span class="admin-stat-sub" id="astat-sales"></span></div>
         </div>
 
-        <!-- Auth breakdown -->
+        <!-- Row 2: Risk KPIs -->
+        <div style="display:flex;gap:12px;margin-bottom:12px">
+          <div class="admin-stat" style="flex:1"><span class="admin-stat-val" id="astat-avg-risk" style="color:#D4850A">—</span><span class="admin-stat-lbl">Avg Risk Score</span><span class="admin-stat-sub">across all domains</span></div>
+          <div class="admin-stat" style="flex:1"><span class="admin-stat-val" id="astat-critical-d" style="color:#C0392B">—</span><span class="admin-stat-lbl">Critical Domains</span><span class="admin-stat-sub">score ≥ 70</span></div>
+          <div class="admin-stat" style="flex:1"><span class="admin-stat-val" id="astat-warning-d" style="color:#D4850A">—</span><span class="admin-stat-lbl">At-Risk Domains</span><span class="admin-stat-sub">score 30–69</span></div>
+          <div class="admin-stat" style="flex:1"><span class="admin-stat-val" id="astat-clean-d" style="color:#1A7A4A">—</span><span class="admin-stat-lbl">Clean Domains</span><span class="admin-stat-sub">score &lt; 30</span></div>
+        </div>
+
+        <!-- Row 3: User breakdown + scan activity -->
         <div style="display:flex;gap:12px;margin-bottom:24px">
-          <div class="admin-stat" style="flex:1"><span class="admin-stat-val" id="astat-google" style="color:#4285F4">—</span><span class="admin-stat-lbl">Google Users</span></div>
           <div class="admin-stat" style="flex:1"><span class="admin-stat-val" id="astat-email" style="color:var(--lime)">—</span><span class="admin-stat-lbl">Email Users</span></div>
-          <div class="admin-stat" style="flex:1"><span class="admin-stat-val" id="astat-paid">—</span><span class="admin-stat-lbl">Paid Domains</span></div>
-          <div class="admin-stat" style="flex:1"><span class="admin-stat-val" id="astat-new30" style="color:var(--lime)">—</span><span class="admin-stat-lbl">New (30d)</span></div>
+          <div class="admin-stat" style="flex:1"><span class="admin-stat-val" id="astat-new30" style="color:var(--lime)">—</span><span class="admin-stat-lbl">New Users (30d)</span></div>
+          <div class="admin-stat" style="flex:1"><span class="admin-stat-val" id="astat-scans-24h">—</span><span class="admin-stat-lbl">Scans (24h)</span></div>
+          <div class="admin-stat" style="flex:1"><span class="admin-stat-val" id="astat-paid">—</span><span class="admin-stat-lbl">Paid Sales</span></div>
+        </div>
+
+        <!-- Top risky + Recent scans side by side -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px">
+          <!-- Top risky domains -->
+          <div class="admin-section" style="margin-bottom:0">
+            <div class="admin-section-title">Top Risky Domains</div>
+            <div class="admin-table-wrap">
+              <table class="admin-table">
+                <thead><tr><th>Domain</th><th>Risk</th><th>Crit</th><th>Warn</th></tr></thead>
+                <tbody id="admin-risky-body"><tr><td colspan="4" style="text-align:center;padding:20px;color:var(--grey)">Loading…</td></tr></tbody>
+              </table>
+            </div>
+          </div>
+          <!-- Recent scan activity -->
+          <div class="admin-section" style="margin-bottom:0">
+            <div class="admin-section-title">Recent Scans</div>
+            <div class="admin-table-wrap">
+              <table class="admin-table">
+                <thead><tr><th>Domain</th><th>Risk</th><th>When</th></tr></thead>
+                <tbody id="admin-recent-body"><tr><td colspan="3" style="text-align:center;padding:20px;color:var(--grey)">Loading…</td></tr></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Check findings breakdown -->
+        <div class="admin-section">
+          <div class="admin-section-title">Check Findings Breakdown</div>
+          <div id="admin-checks-breakdown" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px;padding:4px 0"></div>
         </div>
 
         <!-- Users table -->
         <div class="admin-section">
-          <div class="admin-section-title">Users</div>
+          <div class="admin-section-title">All Users</div>
           <div class="admin-table-wrap">
             <table class="admin-table">
               <thead><tr><th>#</th><th>Name</th><th>Email</th><th>Auth</th><th>Domains</th><th>Paid</th><th>Joined</th><th>Last Login</th><th>Actions</th></tr></thead>
@@ -3612,24 +3650,98 @@ async function adminLoad() {
 async function adminLoadStats() {
   try {
     var data = await api('/admin/stats');
-    var el = function(id){ return document.getElementById(id); };
-    var set = function(id, v){ var e = el(id); if (e) e.textContent = v; };
+    var set = function(id, v){ var e = document.getElementById(id); if (e) e.textContent = v; };
 
-    set('astat-users',    data.users.total);
-    set('astat-users-7d', '+' + data.users.new_7d + ' this week');
-    set('astat-domains',  data.domains.total);
+    // Core KPIs
+    set('astat-users',      data.users.total);
+    set('astat-users-7d',   '+' + data.users.new_7d + ' this week');
+    set('astat-domains',    data.domains.total);
     set('astat-domains-7d', '+' + data.domains.new_7d + ' this week');
-    set('astat-revenue',  '€' + data.revenue.total_eur);
-    set('astat-sales',    data.revenue.total_sales + ' sales');
-    set('astat-scans',    data.scans.total);
-    set('astat-scans-7d', data.scans.last_7d + ' last 7d');
-    set('astat-google',   data.users.google);
-    set('astat-email',    data.users.email);
-    set('astat-paid',     data.revenue.total_sales);
-    set('astat-new30',    data.users.new_30d);
+    set('astat-scans',      data.scans.total);
+    set('astat-scans-7d',   data.scans.last_7d + ' last 7d');
+    set('astat-revenue',    '€' + data.revenue.total_eur);
+    set('astat-sales',      data.revenue.total_sales + ' sales');
+
+    // Risk KPIs
+    set('astat-avg-risk',   data.risk.avg_score);
+    set('astat-critical-d', data.risk.critical);
+    set('astat-warning-d',  data.risk.warning);
+    set('astat-clean-d',    data.risk.clean);
+
+    // User/activity row
+    set('astat-email',      data.users.email);
+    set('astat-new30',      data.users.new_30d);
+    set('astat-scans-24h',  data.scans.last_24h);
+    set('astat-paid',       data.revenue.total_sales);
+
+    // Top risky domains
+    var riskyBody = document.getElementById('admin-risky-body');
+    if (riskyBody) {
+      if (!data.top_risky || !data.top_risky.length) {
+        riskyBody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:16px;color:var(--grey)">No scanned domains</td></tr>';
+      } else {
+        riskyBody.innerHTML = data.top_risky.map(function(d) {
+          var c = d.risk_score >= 70 ? '#C0392B' : d.risk_score >= 30 ? '#D4850A' : '#1A7A4A';
+          return '<tr>'
+            + '<td style="font-family:Space Mono,monospace;font-size:11px;color:var(--white)">' + d.domain + '</td>'
+            + '<td><span style="font-family:Space Mono,monospace;font-weight:700;color:' + c + '">' + d.risk_score + '</span></td>'
+            + '<td style="color:#C0392B;font-family:Space Mono,monospace">' + (d.critical || 0) + '</td>'
+            + '<td style="color:#D4850A;font-family:Space Mono,monospace">' + (d.warnings || 0) + '</td>'
+            + '</tr>';
+        }).join('');
+      }
+    }
+
+    // Recent scans
+    var recentBody = document.getElementById('admin-recent-body');
+    if (recentBody) {
+      if (!data.recent_scans || !data.recent_scans.length) {
+        recentBody.innerHTML = '<tr><td colspan="3" style="text-align:center;padding:16px;color:var(--grey)">No scans yet</td></tr>';
+      } else {
+        recentBody.innerHTML = data.recent_scans.map(function(s) {
+          var c = s.risk_score >= 70 ? '#C0392B' : s.risk_score >= 30 ? '#D4850A' : '#1A7A4A';
+          var when = s.scanned_at ? new Date(s.scanned_at).toLocaleString('en-GB', {day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}) : '—';
+          return '<tr>'
+            + '<td style="font-family:Space Mono,monospace;font-size:11px;color:var(--white)">' + s.domain + '</td>'
+            + '<td><span style="font-family:Space Mono,monospace;font-weight:700;color:' + c + '">' + s.risk_score + '</span></td>'
+            + '<td style="color:var(--grey);font-size:11px">' + when + '</td>'
+            + '</tr>';
+        }).join('');
+      }
+    }
+
+    // Check breakdown pills
+    var breakdownEl = document.getElementById('admin-checks-breakdown');
+    if (breakdownEl && data.check_breakdown) {
+      var CHECK_LABELS = {
+        ssl:'SSL/TLS', headers:'Headers', dns:'DNS', http_redirect:'HTTPS Redirect',
+        breach:'Breach', typosquat:'Typosquat', response_time:'Response Time',
+        email_security:'Email Sec', whois:'WHOIS', urlhaus:'URLhaus',
+        spamhaus:'Spamhaus', safebrowsing:'Safe Browsing', virustotal:'VirusTotal',
+        cve:'CVE Scan', sast:'SAST', sca:'SCA', dast:'DAST', iac:'IaC'
+      };
+      var html = '';
+      Object.keys(data.check_breakdown).sort().forEach(function(name) {
+        var c = data.check_breakdown[name];
+        var total = (c.critical||0) + (c.warning||0) + (c.ok||0) + (c.error||0);
+        if (!total) return;
+        var worstColor = (c.critical||0) > 0 ? '#C0392B' : (c.warning||0) > 0 ? '#D4850A' : '#1A7A4A';
+        var label = CHECK_LABELS[name] || name.replace(/_/g,' ').toUpperCase();
+        html += '<div style="background:var(--card);border:1px solid rgba(255,255,255,.06);border-radius:8px;padding:10px 12px">'
+          + '<div style="font-family:Space Mono,monospace;font-size:10px;color:var(--lime);margin-bottom:6px;text-transform:uppercase">' + label + '</div>'
+          + '<div style="display:flex;gap:6px;flex-wrap:wrap">'
+          + ((c.critical||0) > 0 ? '<span style="background:rgba(192,57,43,.15);color:#C0392B;border-radius:4px;padding:2px 7px;font-size:10px;font-family:Space Mono,monospace">' + c.critical + ' crit</span>' : '')
+          + ((c.warning||0)  > 0 ? '<span style="background:rgba(212,133,10,.15);color:#D4850A;border-radius:4px;padding:2px 7px;font-size:10px;font-family:Space Mono,monospace">' + c.warning + ' warn</span>' : '')
+          + ((c.ok||0)      > 0 ? '<span style="background:rgba(26,122,74,.12);color:#2ECC71;border-radius:4px;padding:2px 7px;font-size:10px;font-family:Space Mono,monospace">' + c.ok + ' ok</span>' : '')
+          + ((c.error||0)   > 0 ? '<span style="background:rgba(107,114,128,.1);color:var(--grey);border-radius:4px;padding:2px 7px;font-size:10px;font-family:Space Mono,monospace">' + c.error + ' err</span>' : '')
+          + '</div></div>';
+      });
+      breakdownEl.innerHTML = html || '<div style="color:var(--grey);font-size:13px">No scan data yet</div>';
+    }
+
   } catch(e) {
     console.error('Admin stats error:', e);
-    toast('Admin: ' + e.message, true);
+    toast('Admin stats: ' + e.message, true);
   }
 }
 
