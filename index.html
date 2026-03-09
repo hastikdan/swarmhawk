@@ -6,7 +6,6 @@
 <title>SwarmHawk — Cyber Intelligence Platform</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-<script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
 :root{--black:#0E0D12;--lime:#CBFF00;--navy:#0D1B3E;--white:#fff;--grey:#6B7280;--red:#C0392B;--amber:#D4850A;--green:#1A7A4A;--card:#111318;--border:rgba(255,255,255,.06)}
 *{box-sizing:border-box;margin:0;padding:0}
@@ -663,7 +662,6 @@ h1 span{color:var(--lime)}
   <button class="nav-sample-btn" onclick="showSampleReport()">Sample Report →</button>
   <div class="nav-right" id="nav-right">
     <div id="nav-signin" style="display:flex;align-items:center;gap:8px">
-      <div id="g_id_onload" data-client_id="396286675021-tqhadhbp3jqc1jrqo5krk3j5njdss0cg.apps.googleusercontent.com" data-callback="handleGoogleLogin" data-auto_prompt="false"></div>
       <button class="nav-sample-btn" onclick="showSignIn()" style="margin-left:0">Sign In</button>
       <button class="nav-search-btn" onclick="showSignUp()" style="border-radius:6px">New User →</button>
     </div>
@@ -1301,49 +1299,6 @@ function showNavPage(page, btn) {
 }
 function showPage(page) { showNavPage(page, null); }
 
-async function handleGoogleLogin(response) {
-  // Decode Google JWT locally for immediate user info
-  const parts = response.credential.split('.');
-  const payload = JSON.parse(atob(parts[1].replace(/-/g,'+').replace(/_/g,'/')));
-  const localUser = { name: payload.name, email: payload.email, avatar: payload.picture };
-
-  // Show name immediately while backend wakes up
-  toast('Signing in as ' + (payload.name || payload.email) + '…');
-
-  // Retry backend up to 3 times (handles Render cold start ~10-15s)
-  var lastErr = '';
-  for (var attempt = 1; attempt <= 3; attempt++) {
-    try {
-      if (attempt > 1) {
-        toast('Connecting to server… (attempt ' + attempt + '/3)');
-        await new Promise(function(r){ setTimeout(r, 4000); }); // wait 4s between retries
-      }
-      const res = await fetch(API+'/auth/google', {
-        method: 'POST',
-        headers: {'Content-Type':'application/json'},
-        body: JSON.stringify({credential: response.credential})
-      });
-      if (res.ok) {
-        const data = await res.json();
-        // Use onAuthSuccess so modals close, admin tab shown, everything consistent
-        onAuthSuccess(data);
-        return; // success — exit
-      } else {
-        let errJson = {};
-        try { errJson = await res.json(); } catch(_) {}
-        lastErr = errJson.detail || res.statusText || ('HTTP ' + res.status);
-        console.warn('Backend auth attempt', attempt, 'failed:', res.status, lastErr);
-      }
-    } catch(e) {
-      lastErr = e.message;
-      console.warn('Backend auth attempt', attempt, 'error:', e.message);
-    }
-  }
-
-  // All 3 attempts failed — tell user clearly instead of silently breaking
-  toast('Could not reach server (' + lastErr + '). Try again in a moment.', true);
-}
-
 function showApp() { activateScanner(); }
 function logout() { clearInterval(pollTimer); localStorage.removeItem('sw_token'); localStorage.removeItem('sw_user'); location.reload(); }
 
@@ -1842,9 +1797,9 @@ function renderReportPage(data, domain, isSample) {
   html += '<div class="report-locked">';
   html += '<h3>Get this report for your domain every month</h3>';
   html += '<p>18 checks &middot; AI threat analysis &middot; Breach alerts &middot; NIS2 compliance evidence &middot; &euro;50/year</p>';
-  html += '<div id="g_id_onload_report" data-client_id="396286675021-tqhadhbp3jqc1jrqo5krk3j5njdss0cg.apps.googleusercontent.com" data-callback="handleGoogleLogin" data-auto_prompt="false"></div>';
   html += '<div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:16px">';
-  html += '<div class="g_id_signin" data-type="standard" data-size="large" data-theme="filled_black" data-text="continue_with" data-shape="rectangular"></div>';
+  html += '<button class="auth-btn-primary" style="width:auto;padding:12px 32px" onclick="showSignUp()">Create Free Account →</button>';
+  html += '<button class="btn-sm" onclick="showSignIn()">Sign In</button>';
   html += '</div></div>';
 
   document.getElementById('rp-body').innerHTML = html;
@@ -3412,11 +3367,6 @@ window.addEventListener('DOMContentLoaded', function() {
     <div class="auth-modal-title">SIGN IN</div>
     <div class="auth-modal-sub">Access your SwarmHawk dashboard</div>
     <div class="auth-error" id="signin-error"></div>
-    <div class="auth-google-row">
-      <div id="g_id_onload_signin" data-client_id="396286675021-tqhadhbp3jqc1jrqo5krk3j5njdss0cg.apps.googleusercontent.com" data-callback="handleGoogleLogin" data-auto_prompt="false"></div>
-      <div class="g_id_signin" data-type="standard" data-size="large" data-theme="filled_black" data-text="sign_in_with" data-shape="rectangular"></div>
-    </div>
-    <div class="auth-divider">or</div>
     <div class="auth-field">
       <label>Email</label>
       <input type="email" id="signin-email" placeholder="you@company.com" onkeydown="if(event.key==='Enter')submitSignIn()">
@@ -3437,11 +3387,6 @@ window.addEventListener('DOMContentLoaded', function() {
     <div class="auth-modal-title">CREATE ACCOUNT</div>
     <div class="auth-modal-sub">Free account — start monitoring your domain today</div>
     <div class="auth-error" id="signup-error"></div>
-    <div class="auth-google-row">
-      <div id="g_id_onload_signup" data-client_id="396286675021-tqhadhbp3jqc1jrqo5krk3j5njdss0cg.apps.googleusercontent.com" data-callback="handleGoogleLogin" data-auto_prompt="false"></div>
-      <div class="g_id_signin" data-type="standard" data-size="large" data-theme="filled_black" data-text="continue_with" data-shape="rectangular"></div>
-    </div>
-    <div class="auth-divider">or create with email</div>
     <div class="auth-field">
       <label>Your Name</label>
       <input type="text" id="signup-name" placeholder="Jan Novák">
