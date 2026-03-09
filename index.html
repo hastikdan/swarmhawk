@@ -797,7 +797,7 @@ python3 swarmhawk_mcp.py --http</pre></div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:start">
         <div>
           <h2>SWARMHAWK DASHBOARD</h2>
-          <p style="color:var(--grey);font-size:14px;line-height:1.7;margin:16px 0 24px">18 automated security checks, AI threat analysis, and monthly PDF reports delivered to your inbox — across 25 European countries. No technical knowledge required.</p>
+          <p style="color:var(--grey);font-size:14px;line-height:1.7;margin:16px 0 24px">22 automated security checks — including SAST, SCA, DAST, and IaC scanning — with AI threat analysis and monthly PDF reports. No technical knowledge required.</p>
           <div class="feature-pills" style="margin-bottom:0">
             <span class="pill">€50/domain/year</span>
             <span class="pill">Monthly AI reports</span>
@@ -813,19 +813,21 @@ python3 swarmhawk_mcp.py --http</pre></div>
             <div class="check-row"><span class="check-chip ok">✓ DNS Configuration</span><span class="check-desc">SPF, DMARC, DNSSEC</span></div>
             <div class="check-row"><span class="check-chip warn">⚠ Typosquat Monitor</span><span class="check-desc">Lookalike domain detection</span></div>
             <div class="check-row"><span class="check-chip ok">✓ Breach Exposure</span><span class="check-desc">HaveIBeenPwned 12B+ accounts</span></div>
-            <div class="check-row"><span class="check-chip ok">✓ Shodan Port Scan</span><span class="check-desc">Open ports &amp; CVEs</span></div>
             <div class="check-row"><span class="check-chip ok">✓ VirusTotal</span><span class="check-desc">94 antivirus engines</span></div>
             <div class="check-row"><span class="check-chip ok">✓ Google Safe Browsing</span><span class="check-desc">Phishing &amp; malware flags</span></div>
-          </div>
-          <div class="checks-col">
             <div class="check-row"><span class="check-chip ok">✓ Spamhaus DBL</span><span class="check-desc">Domain block list</span></div>
             <div class="check-row"><span class="check-chip ok">✓ URLhaus</span><span class="check-desc">Malicious URL database</span></div>
-            <div class="check-row"><span class="check-chip ok">✓ Tech Fingerprint</span><span class="check-desc">CMS, framework, jQuery version</span></div>
-            <div class="check-row"><span class="check-chip ok">✓ HTTP Methods</span><span class="check-desc">Dangerous methods exposed</span></div>
-            <div class="check-row"><span class="check-chip ok">✓ Cookie Security</span><span class="check-desc">Secure, HttpOnly, SameSite</span></div>
-            <div class="check-row"><span class="check-chip ok">✓ Content Policy</span><span class="check-desc">Mixed content &amp; CSP</span></div>
-            <div class="check-row"><span class="check-chip ok">✓ Subdomain Scan</span><span class="check-desc">Exposed subdomains &amp; takeover</span></div>
             <div class="check-row"><span class="check-chip ok">✓ Email Security</span><span class="check-desc">SPF, DKIM, DMARC policy</span></div>
+          </div>
+          <div class="checks-col">
+            <div class="check-row"><span class="check-chip ok">✓ CVE Scan</span><span class="check-desc">NIST NVD — real CVEs per version</span></div>
+            <div class="check-row"><span class="check-chip ok">✓ SAST Exposure</span><span class="check-desc">.git, .env, backups, debug pages</span></div>
+            <div class="check-row"><span class="check-chip ok">✓ SCA Analysis</span><span class="check-desc">Exposed deps + NVD CVE lookup</span></div>
+            <div class="check-row"><span class="check-chip ok">✓ DAST Probing</span><span class="check-desc">Admin panels, APIs, open redirects</span></div>
+            <div class="check-row"><span class="check-chip ok">✓ IaC Security</span><span class="check-desc">Terraform, K8s, CloudFormation</span></div>
+            <div class="check-row"><span class="check-chip ok">✓ WHOIS / RDAP</span><span class="check-desc">Domain age, expiry, registrar</span></div>
+            <div class="check-row"><span class="check-chip ok">✓ Tech Fingerprint</span><span class="check-desc">CMS, framework, server versions</span></div>
+            <div class="check-row"><span class="check-chip ok">✓ Response Time</span><span class="check-desc">Availability &amp; latency baseline</span></div>
             <div class="check-row"><span class="check-chip ok">✓ AI Threat Analysis</span><span class="check-desc">Plain-language findings + fixes</span></div>
           </div>
         </div>
@@ -910,7 +912,7 @@ python3 swarmhawk_mcp.py --http</pre></div>
     <div class="section-inner">
       <div class="section-label-tag">📡 Data Sources &amp; Technical Specs</div>
       <h2 style="font-family:Space Mono,monospace;font-size:28px;color:var(--white);margin-bottom:8px">What powers <span style="color:var(--lime)">SwarmHawk</span></h2>
-      <p style="color:var(--grey);font-size:15px;margin-bottom:40px;max-width:700px">18 checks drawing from 12 independent threat intelligence sources, updated in real-time. Every scan queries live APIs — no cached or stale data.</p>
+      <p style="color:var(--grey);font-size:15px;margin-bottom:40px;max-width:700px">22 checks drawing from 16 independent sources — threat intelligence, SAST, SCA, DAST, and IaC scanning. Every scan queries live data — no cached results.</p>
 
       <div class="ds-grid">
         <div class="ds-card">
@@ -1004,16 +1006,48 @@ python3 swarmhawk_mcp.py --http</pre></div>
         <div class="ds-card">
           <div class="ds-icon">🏷️</div>
           <div class="ds-content">
-            <h4>Tech Fingerprinting</h4>
-            <p>Identifies CMS (WordPress, Drupal, Joomla), frameworks (React, Vue, Angular), server software, CDN, and jQuery versions. Maps detected versions to CVE database for vulnerability scoring. Source: HTTP headers + HTML parsing.</p>
-            <div class="ds-tags"><span class="ds-tag">CMS</span><span class="ds-tag">CVE</span><span class="ds-tag">jQuery</span></div>
+            <h4>Tech Fingerprinting + CVE</h4>
+            <p>Identifies CMS (WordPress, Drupal, Joomla), server software, and library versions from HTTP headers and HTML. Maps detected versions to NIST NVD for real CVE lookups with CVSS scores. Source: HTTP headers + NVD API.</p>
+            <div class="ds-tags"><span class="ds-tag">CMS</span><span class="ds-tag">NVD</span><span class="ds-tag">CVSS</span></div>
+          </div>
+        </div>
+        <div class="ds-card">
+          <div class="ds-icon">🔎</div>
+          <div class="ds-content">
+            <h4>SAST — Source Code Exposure</h4>
+            <p>Probes for publicly accessible source code artifacts: exposed .git repositories (containing full commit history), .env files with credentials, PHP info pages, SQL dump files, and JavaScript source maps. Source: direct HTTP probing of target domain.</p>
+            <div class="ds-tags"><span class="ds-tag">.git</span><span class="ds-tag">.env</span><span class="ds-tag">backups</span><span class="ds-tag">source maps</span></div>
+          </div>
+        </div>
+        <div class="ds-card">
+          <div class="ds-icon">📦</div>
+          <div class="ds-content">
+            <h4>SCA — Dependency CVE Analysis</h4>
+            <p>Detects exposed dependency manifests (package.json, requirements.txt, composer.json, Gemfile.lock, go.mod, pom.xml). Parses declared package versions and queries NIST NVD for known CVEs with CVSS scoring. Source: target domain + NVD API.</p>
+            <div class="ds-tags"><span class="ds-tag">npm</span><span class="ds-tag">pip</span><span class="ds-tag">composer</span><span class="ds-tag">NVD CVE</span></div>
+          </div>
+        </div>
+        <div class="ds-card">
+          <div class="ds-icon">⚡</div>
+          <div class="ds-content">
+            <h4>DAST — Dynamic App Testing</h4>
+            <p>Actively probes the running application for exposed admin panels (phpMyAdmin, Adminer), API documentation (Swagger/OpenAPI, GraphQL), Spring Boot actuators, Prometheus metrics, open redirects, and verbose error pages leaking stack traces. Source: direct HTTP probing.</p>
+            <div class="ds-tags"><span class="ds-tag">admin panels</span><span class="ds-tag">Swagger</span><span class="ds-tag">open redirect</span><span class="ds-tag">actuators</span></div>
+          </div>
+        </div>
+        <div class="ds-card">
+          <div class="ds-icon">🏗️</div>
+          <div class="ds-content">
+            <h4>IaC — Infrastructure Config Exposure</h4>
+            <p>Scans for exposed infrastructure-as-code files: Terraform state files (which contain all resource secrets and credentials), Kubernetes configs and secrets, CloudFormation templates, Ansible playbooks, Helm values, and CI/CD pipeline files. Source: direct HTTP probing of target domain.</p>
+            <div class="ds-tags"><span class="ds-tag">Terraform</span><span class="ds-tag">Kubernetes</span><span class="ds-tag">CloudFormation</span><span class="ds-tag">Ansible</span></div>
           </div>
         </div>
       </div>
 
       <div class="ds-footer">
-        <div class="ds-stat"><span class="ds-stat-val">12</span><span class="ds-stat-lbl">Intelligence Sources</span></div>
-        <div class="ds-stat"><span class="ds-stat-val">18</span><span class="ds-stat-lbl">Security Checks</span></div>
+        <div class="ds-stat"><span class="ds-stat-val">16</span><span class="ds-stat-lbl">Intelligence Sources</span></div>
+        <div class="ds-stat"><span class="ds-stat-val">22</span><span class="ds-stat-lbl">Security Checks</span></div>
         <div class="ds-stat"><span class="ds-stat-val">94</span><span class="ds-stat-lbl">AV Engines</span></div>
         <div class="ds-stat"><span class="ds-stat-val">12B+</span><span class="ds-stat-lbl">Breached Accounts</span></div>
         <div class="ds-stat"><span class="ds-stat-val">25</span><span class="ds-stat-lbl">EU Countries</span></div>
@@ -1515,8 +1549,26 @@ function renderReport(data,domainId,domainName) {
   if(others.length){
     const order={critical:0,warning:1,ok:2,error:3};
     html+=`<div class="checks-wrap"><div class="section-label">Security Checks</div><table class="checks-table"><thead><tr><th style="width:85px">Status</th><th style="width:130px">Check</th><th>Finding</th></tr></thead><tbody>`;
+    const CHECK_LABELS = {
+      ssl:'SSL/TLS', headers:'Security Headers', dns:'DNS', http_redirect:'HTTPS Redirect',
+      breach:'Breach Exposure', typosquat:'Typosquat', response_time:'Response Time',
+      email_security:'Email Security', whois:'WHOIS / RDAP',
+      urlhaus:'URLhaus', spamhaus:'Spamhaus DBL', safebrowsing:'Safe Browsing',
+      virustotal:'VirusTotal', cve:'CVE Scan',
+      sast:'SAST — Source Exposure', sca:'SCA — Dependency CVEs',
+      dast:'DAST — App Testing', iac:'IaC — Config Exposure',
+    };
+    const CHECK_ICONS = {
+      ssl:'🔒', headers:'🛡️', dns:'🌐', http_redirect:'↩️', breach:'💀',
+      typosquat:'🎭', response_time:'⏱️', email_security:'📧', whois:'📋',
+      urlhaus:'🦟', spamhaus:'🚨', safebrowsing:'🌍', virustotal:'🔍', cve:'🏷️',
+      sast:'🔎', sca:'📦', dast:'⚡', iac:'🏗️',
+    };
     [...others].sort((a,b)=>(order[a.status]??9)-(order[b.status]??9)).forEach(c=>{
-      html+=`<tr class="row-${c.status}"><td><span class="status-pill pill-${c.status==='ok'?'ok':c.status==='warning'?'warning':c.status==='critical'?'critical':'error'}">${c.status.toUpperCase()}</span></td><td><div class="check-name">${c.check.replace(/_/g,' ')}</div></td><td><div class="check-name">${c.title||''}</div>${c.detail?`<div class="check-detail">${c.detail}</div>`:''}${renderCVEs(c)}</td></tr>`;
+      const pill=c.status==='ok'?'ok':c.status==='warning'?'warning':c.status==='critical'?'critical':'error';
+      const icon=CHECK_ICONS[c.check]||'';
+      const label=(CHECK_LABELS[c.check]||c.check.replace(/_/g,' ')).toUpperCase();
+      html+=`<tr class="row-${c.status}"><td><span class="status-pill pill-${pill}">${c.status.toUpperCase()}</span></td><td><div class="check-name">${icon} ${label}</div></td><td><div class="check-name">${c.title||''}</div>${c.detail?`<div class="check-detail">${c.detail.replace(/\n/g,'<br>')}</div>`:''}${renderCVEs(c)}</td></tr>`;
     });
     html+='</tbody></table></div>';
   }
