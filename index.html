@@ -1567,41 +1567,93 @@ async function openReport(domainId,domainName,paid) {
   document.getElementById('modal-body').innerHTML=`<div style="text-align:center;padding:48px"><div class="spinner"></div><div style="margin-top:14px;color:var(--grey);font-size:13px">Loading report…</div></div>`;
   try {
     const data=await api(`/domains/${domainId}/report`);
-    if(data.status==='scanning'){document.getElementById('modal-body').innerHTML=`<div style="text-align:center;padding:48px;color:var(--grey)"><div class="spinner"></div><div style="margin-top:14px;font-size:13px">Scan in progress — check back in a minute</div></div>`;return;}
+    if(data.status==='scanning'||data.status==='pending'){document.getElementById('modal-body').innerHTML=`<div style="text-align:center;padding:48px;color:var(--grey)"><div class="spinner"></div><div style="margin-top:14px;font-size:13px">Scan in progress — check back in a minute</div></div>`;return;}
+    if(!data.checks&&!data.risk_score){document.getElementById('modal-body').innerHTML=`<div style="padding:24px;color:var(--grey);text-align:center">No scan data available yet. A scan may still be running — try again in a moment.</div>`;return;}
     renderReport(data,domainId,domainName);
   } catch(e){document.getElementById('modal-body').innerHTML=`<div style="padding:24px;color:var(--red)">Error: ${e.message}</div>`;}
 }
 
+const CHECK_LABELS = {
+  ssl:'SSL/TLS', headers:'Security Headers', dns:'DNS', http_redirect:'HTTPS Redirect',
+  breach:'Breach Exposure', typosquat:'Typosquat', response_time:'Response Time',
+  email_security:'Email Security', whois:'WHOIS / RDAP',
+  urlhaus:'URLhaus Malware', spamhaus:'Spamhaus DBL', safebrowsing:'Safe Browsing',
+  virustotal:'VirusTotal', cve:'CVE Scan',
+  sast:'SAST — Source Exposure', sca:'SCA — Dependency CVEs',
+  dast:'DAST — App Testing', iac:'IaC — Config Exposure',
+};
+const CHECK_ICONS = {
+  ssl:'🔒', headers:'🛡️', dns:'🌐', http_redirect:'↩️', breach:'💀',
+  typosquat:'🎭', response_time:'⏱️', email_security:'📧', whois:'📋',
+  urlhaus:'🦟', spamhaus:'🚨', safebrowsing:'🌍', virustotal:'🔍', cve:'🏷️',
+  sast:'🔎', sca:'📦', dast:'⚡', iac:'🏗️',
+};
+const CHECK_RECOMMENDATIONS = {
+  ssl:'Renew or reissue the SSL/TLS certificate and enforce HTTPS site-wide.',
+  headers:'Add missing security headers: Content-Security-Policy, X-Frame-Options, Strict-Transport-Security.',
+  dns:'Review DNS records for misconfigurations — dangling CNAMEs, open zone transfers, or missing CAA records.',
+  http_redirect:'Enforce a 301 HTTPS redirect from all HTTP URLs to prevent plaintext interception.',
+  breach:'Force a password reset for all affected accounts and notify impacted users of the breach.',
+  typosquat:'Register the top typosquat variants (≈ €10/domain) and set up brand monitoring alerts.',
+  email_security:'Enable SPF, DKIM, and DMARC records to authenticate email and prevent spoofing/phishing.',
+  whois:'Enable domain privacy protection or verify that exposed registrant data is intentional.',
+  urlhaus:'Submit a removal request at urlhaus.abuse.ch and investigate the reported malicious URLs.',
+  spamhaus:'Request Spamhaus DBL delisting at spamhaus.org/removal and review mail server configuration.',
+  safebrowsing:'Submit the site for Google Safe Browsing review and remove any malicious content or scripts.',
+  virustotal:'Investigate the VirusTotal detections, clean infected files, and request a rescan once resolved.',
+  cve:'Update or patch the vulnerable software versions identified — prioritise CVSS ≥ 7 findings.',
+  sast:'Immediately remove or restrict access to exposed source code, backup files, and config files.',
+  sca:'Upgrade vulnerable dependencies to their latest patched versions (see CVE details in the checks table).',
+  dast:'Restrict or password-protect admin panels, API documentation, and monitoring endpoints.',
+  iac:'Remove or block public access to exposed Terraform state, Kubernetes configs, and CI/CD pipeline files.',
+};
+
+function buildRecommendations(checks) {
+  const failing = checks.filter(c=>c.status==='critical'||c.status==='warning');
+  if (!failing.length) return '';
+  const crits = failing.filter(c=>c.status==='critical');
+  const warns = failing.filter(c=>c.status==='warning');
+  let html = `<div style="margin-bottom:20px"><div class="section-label">Recommendations</div>`;
+  if (crits.length) {
+    html += `<div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--red);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">Critical Actions</div><ul style="margin:0 0 14px;padding-left:18px;list-style:disc">`;
+    crits.forEach(c=>{
+      const rec=CHECK_RECOMMENDATIONS[c.check]||(c.title||'Review and remediate this finding.');
+      html+=`<li style="color:var(--white);font-size:12px;line-height:1.7;margin-bottom:4px"><span style="color:var(--red);font-weight:700">${CHECK_ICONS[c.check]||'•'} ${(CHECK_LABELS[c.check]||c.check).toUpperCase()}:</span> ${rec}</li>`;
+    });
+    html+='</ul>';
+  }
+  if (warns.length) {
+    html += `<div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--amber);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">Warnings to Address</div><ul style="margin:0;padding-left:18px;list-style:disc">`;
+    warns.forEach(c=>{
+      const rec=CHECK_RECOMMENDATIONS[c.check]||(c.title||'Review and address this finding.');
+      html+=`<li style="color:var(--white);font-size:12px;line-height:1.7;margin-bottom:4px"><span style="color:var(--amber);font-weight:700">${CHECK_ICONS[c.check]||'•'} ${(CHECK_LABELS[c.check]||c.check).toUpperCase()}:</span> ${rec}</li>`;
+    });
+    html+='</ul>';
+  }
+  html+='</div>';
+  return html;
+}
+
 function renderReport(data,domainId,domainName) {
   const checks=data.checks||[]; const ai=checks.find(c=>c.check==='ai_summary'); const others=checks.filter(c=>c.check!=='ai_summary');
-  const rc=data.risk_score>=60?'#C0392B':data.risk_score>=30?'#D4850A':'#1A7A4A';
-  const rl=data.risk_score>=60?'HIGH RISK':data.risk_score>=30?'MEDIUM RISK':'LOW RISK';
+  const criticalCount=others.filter(c=>c.status==='critical').length;
+  const warningCount=others.filter(c=>c.status==='warning').length;
   const passed=Math.max(0,others.filter(c=>c.status==='ok').length);
+  const score=data.risk_score||0;
+  const rc=score>=60?'#C0392B':score>=30?'#D4850A':'#1A7A4A';
+  const rl=score>=60?'HIGH RISK':score>=30?'MEDIUM RISK':'LOW RISK';
+  const dateStr=data.scanned_at?new Date(data.scanned_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}):'—';
   let html=`<div class="report-summary">
-    <div class="summary-card"><div class="summary-val" style="color:${rc}">${data.risk_score}</div><div class="summary-lbl">Risk Score</div><div style="font-size:10px;color:${rc};margin-top:2px;font-weight:700">${rl}</div></div>
-    <div class="summary-card"><div class="summary-val" style="color:var(--red)">${data.critical||0}</div><div class="summary-lbl">Critical</div></div>
-    <div class="summary-card"><div class="summary-val" style="color:var(--amber)">${data.warnings||0}</div><div class="summary-lbl">Warnings</div></div>
+    <div class="summary-card"><div class="summary-val" style="color:${rc}">${score}</div><div class="summary-lbl">Risk Score</div><div style="font-size:10px;color:${rc};margin-top:2px;font-weight:700">${rl}</div></div>
+    <div class="summary-card"><div class="summary-val" style="color:var(--red)">${criticalCount}</div><div class="summary-lbl">Critical</div></div>
+    <div class="summary-card"><div class="summary-val" style="color:var(--amber)">${warningCount}</div><div class="summary-lbl">Warnings</div></div>
     <div class="summary-card"><div class="summary-val" style="color:var(--green)">${passed}</div><div class="summary-lbl">Passed</div></div>
   </div>`;
-  if(ai&&ai.detail){html+=`<div class="ai-section"><div class="ai-label">AI Threat Analysis</div><div>${renderAI(ai.detail)}</div></div>`;}
+  if(dateStr!=='—'){html+=`<div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--grey);margin-bottom:16px">Scanned ${dateStr} &middot; ${others.length} checks run</div>`;}
+  // 1. Security Checks table
   if(others.length){
     const order={critical:0,warning:1,ok:2,error:3};
-    html+=`<div class="checks-wrap"><div class="section-label">Security Checks</div><table class="checks-table"><thead><tr><th style="width:85px">Status</th><th style="width:130px">Check</th><th>Finding</th></tr></thead><tbody>`;
-    const CHECK_LABELS = {
-      ssl:'SSL/TLS', headers:'Security Headers', dns:'DNS', http_redirect:'HTTPS Redirect',
-      breach:'Breach Exposure', typosquat:'Typosquat', response_time:'Response Time',
-      email_security:'Email Security', whois:'WHOIS / RDAP',
-      urlhaus:'URLhaus', spamhaus:'Spamhaus DBL', safebrowsing:'Safe Browsing',
-      virustotal:'VirusTotal', cve:'CVE Scan',
-      sast:'SAST — Source Exposure', sca:'SCA — Dependency CVEs',
-      dast:'DAST — App Testing', iac:'IaC — Config Exposure',
-    };
-    const CHECK_ICONS = {
-      ssl:'🔒', headers:'🛡️', dns:'🌐', http_redirect:'↩️', breach:'💀',
-      typosquat:'🎭', response_time:'⏱️', email_security:'📧', whois:'📋',
-      urlhaus:'🦟', spamhaus:'🚨', safebrowsing:'🌍', virustotal:'🔍', cve:'🏷️',
-      sast:'🔎', sca:'📦', dast:'⚡', iac:'🏗️',
-    };
+    html+=`<div class="checks-wrap"><div class="section-label">Security Checks</div><table class="checks-table"><thead><tr><th style="width:85px">Status</th><th style="width:140px">Check</th><th>Finding</th></tr></thead><tbody>`;
     [...others].sort((a,b)=>(order[a.status]??9)-(order[b.status]??9)).forEach(c=>{
       const pill=c.status==='ok'?'ok':c.status==='warning'?'warning':c.status==='critical'?'critical':'error';
       const icon=CHECK_ICONS[c.check]||'';
@@ -1610,7 +1662,11 @@ function renderReport(data,domainId,domainName) {
     });
     html+='</tbody></table></div>';
   }
-  if(data.locked_count>0){html+=`<div class="locked-banner"><h3>🔒 ${data.locked_count} checks locked</h3><p>Subscribe for €50/year to unlock all 17 checks, AI threat analysis, and monthly reports.</p><button class="btn-unlock" onclick="closeModal();checkout('${domainId}','${domainName}')">Unlock Full Report — €50/year →</button></div>`;}
+  // 2. Recommendations
+  html+=buildRecommendations(others);
+  // 3. AI Intelligence Report
+  if(ai&&ai.detail){html+=`<div class="ai-section"><div class="ai-label">🧠 Intelligence Report</div><div>${renderAI(ai.detail)}</div></div>`;}
+  if(data.locked_count>0){html+=`<div class="locked-banner"><h3>🔒 ${data.locked_count} checks locked</h3><p>Subscribe for €50/year to unlock all checks, AI threat analysis, and monthly reports.</p><button class="btn-unlock" onclick="closeModal();checkout('${domainId}','${domainName}')">Unlock Full Report — €50/year →</button></div>`;}
   const defaultEmail=currentUser?.email||'';
   html+=`<div class="email-report-bar" style="margin-top:20px"><span class="email-report-label">📧 EMAIL REPORT</span><input class="email-input" id="email-to" type="email" value="${defaultEmail}" placeholder="recipient@company.com"><button class="btn-send-email" id="btn-send-email" onclick="sendReportEmail('${domainId}')">SEND PDF REPORT</button></div>`;
   document.getElementById('modal-body').innerHTML=html;
@@ -1832,6 +1888,8 @@ function renderReportPage(data, domain, isSample) {
   var rc = score >= 60 ? '#C0392B' : score >= 30 ? '#D4850A' : '#1A7A4A';
   var rl = score >= 60 ? 'HIGH RISK' : score >= 30 ? 'MEDIUM RISK' : 'LOW RISK';
   var pillClass = score >= 60 ? 'critical' : score >= 30 ? 'warning' : 'ok';
+  var critCount = others.filter(function(c){ return c.status === 'critical'; }).length;
+  var warnCount = others.filter(function(c){ return c.status === 'warning'; }).length;
   var passed = others.filter(function(c){ return c.status === 'ok'; }).length;
   var dateStr = data.scanned_at ? new Date(data.scanned_at).toLocaleDateString('en-GB', {day:'numeric',month:'long',year:'numeric'}) : 'today';
 
@@ -1846,12 +1904,12 @@ function renderReportPage(data, domain, isSample) {
   html += '<span class="big-score">' + score + '</span><span class="big-label">RISK</span></div>';
   html += '<div class="report-hero-meta">';
   html += '<h2>' + domain + '</h2>';
-  html += '<p>Scanned ' + dateStr + ' &middot; 18 checks &middot; 25 EU countries</p>';
+  html += '<p>Scanned ' + dateStr + ' &middot; ' + others.length + ' checks &middot; 25 EU countries</p>';
   html += '<div class="report-stat-row">';
-  html += '<div class="rstat"><div class="rstat-val" style="color:#C0392B">' + (data.critical||0) + '</div><div class="rstat-lbl">Critical</div></div>';
-  html += '<div class="rstat"><div class="rstat-val" style="color:#D4850A">' + (data.warnings||0) + '</div><div class="rstat-lbl">Warnings</div></div>';
+  html += '<div class="rstat"><div class="rstat-val" style="color:#C0392B">' + critCount + '</div><div class="rstat-lbl">Critical</div></div>';
+  html += '<div class="rstat"><div class="rstat-val" style="color:#D4850A">' + warnCount + '</div><div class="rstat-lbl">Warnings</div></div>';
   html += '<div class="rstat"><div class="rstat-val" style="color:#1A7A4A">' + passed + '</div><div class="rstat-lbl">Passed</div></div>';
-  html += '<div class="rstat"><div class="rstat-val">18</div><div class="rstat-lbl">Checks</div></div>';
+  html += '<div class="rstat"><div class="rstat-val">' + others.length + '</div><div class="rstat-lbl">Checks</div></div>';
   html += '</div></div></div>';
 
   // CTA
@@ -1860,33 +1918,38 @@ function renderReportPage(data, domain, isSample) {
     html += '<button class="btn-unlock" onclick="closeReportPage()">Scan My Domain &rarr;</button></div>';
   }
 
-  // AI Analysis
-  if (ai && ai.detail) {
-    html += '<div class="report-ai-box"><div class="report-ai-label">AI Threat Analysis</div>';
-    html += renderAI(ai.detail);
-    html += '</div>';
-  }
-
-  // Checks table
-  html += '<div class="report-section-title">All Security Checks</div>';
-  html += '<table class="report-checks-table"><thead><tr><th style="width:90px">Status</th><th style="width:130px">Check</th><th>Finding</th></tr></thead><tbody>';
+  // 1. Checks table
+  html += '<div class="report-section-title">Security Checks</div>';
+  html += '<table class="report-checks-table"><thead><tr><th style="width:90px">Status</th><th style="width:150px">Check</th><th>Finding</th></tr></thead><tbody>';
   for (var j = 0; j < others.length; j++) {
     var c = others[j];
     var pc = c.status === 'ok' ? 'ok' : c.status === 'warning' ? 'warning' : c.status === 'critical' ? 'critical' : 'error';
+    var icon = CHECK_ICONS[c.check] || '';
+    var label = (CHECK_LABELS[c.check] || c.check.replace(/_/g,' ')).toUpperCase();
     html += '<tr class="row-' + c.status + '">';
     html += '<td><span class="status-pill pill-' + pc + '">' + c.status.toUpperCase() + '</span></td>';
-    html += '<td style="font-family:Space Mono,monospace;font-size:11px;color:var(--white)">' + c.check.replace(/_/g,' ') + '</td>';
-    html += '<td><div style="color:var(--white);font-size:12px;margin-bottom:2px">' + (c.title||'') + '</div>';
-    if (c.detail) html += '<div style="color:var(--grey);font-size:11px;line-height:1.5">' + c.detail + '</div>';
+    html += '<td style="font-family:Space Mono,monospace;font-size:11px;color:var(--white)">' + icon + ' ' + label + '</td>';
+    html += '<td><div style="color:var(--white);font-size:12px;margin-bottom:2px;font-weight:600">' + (c.title||'') + '</div>';
+    if (c.detail) html += '<div style="color:var(--grey);font-size:11px;line-height:1.6;margin-top:4px">' + c.detail.replace(/\n/g,'<br>') + '</div>';
     html += renderCVEs(c);
     html += '</td></tr>';
   }
   html += '</tbody></table>';
 
+  // 2. Recommendations
+  html += buildRecommendations(others);
+
+  // 3. AI Intelligence Report
+  if (ai && ai.detail) {
+    html += '<div class="report-ai-box"><div class="report-ai-label">🧠 Intelligence Report</div>';
+    html += renderAI(ai.detail);
+    html += '</div>';
+  }
+
   // Bottom CTA
   html += '<div class="report-locked">';
   html += '<h3>Get this report for your domain every month</h3>';
-  html += '<p>18 checks &middot; AI threat analysis &middot; Breach alerts &middot; NIS2 compliance evidence &middot; &euro;50/year</p>';
+  html += '<p>' + others.length + ' checks &middot; AI threat analysis &middot; Breach alerts &middot; NIS2 compliance evidence &middot; &euro;50/year</p>';
   html += '<div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:16px">';
   html += '<button class="auth-btn-primary" style="width:auto;padding:12px 32px" onclick="showSignUp()">Create Free Account →</button>';
   html += '<button class="btn-sm" onclick="showSignIn()">Sign In</button>';
