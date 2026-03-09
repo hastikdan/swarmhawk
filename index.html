@@ -1303,6 +1303,62 @@ python3 swarmhawk_mcp.py --http</pre></div>
           </div>
         </div>
 
+        <!-- Prospect Intelligence section -->
+        <div class="admin-section">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+            <div>
+              <div class="admin-section-title" style="margin-bottom:2px">🎯 Prospect Intelligence</div>
+              <div style="font-size:12px;color:var(--grey)">Scan CEE company domains for CVEs → auto-generate cold outreach emails</div>
+            </div>
+            <div style="display:flex;gap:8px">
+              <button class="btn-scan-all" onclick="dbShowTab('prospects',document.getElementById('prospects-tab-btn'))">Open Scanner →</button>
+              <button class="btn-scan-all" onclick="dbShowTab('outreach',document.getElementById('outreach-tab-btn'))">Open Outreach →</button>
+            </div>
+          </div>
+
+          <!-- Prospect KPIs (live from scan) -->
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px">
+            <div class="admin-stat"><span class="admin-stat-val" id="aprospect-total">—</span><span class="admin-stat-lbl">Domains in List</span></div>
+            <div class="admin-stat"><span class="admin-stat-val" id="aprospect-cve" style="color:#C0392B">—</span><span class="admin-stat-lbl">Have Live CVEs</span></div>
+            <div class="admin-stat"><span class="admin-stat-val" id="aprospect-critical" style="color:#C0392B">—</span><span class="admin-stat-lbl">CVSS ≥ 9 Critical</span></div>
+            <div class="admin-stat"><span class="admin-stat-val" id="aprospect-outreach">—</span><span class="admin-stat-lbl">Outreach Pending</span></div>
+          </div>
+
+          <!-- How it works -->
+          <div style="background:rgba(203,255,0,.03);border:1px solid rgba(203,255,0,.1);border-radius:8px;padding:16px 20px;margin-bottom:16px">
+            <div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--lime);letter-spacing:2px;text-transform:uppercase;margin-bottom:12px">How Prospect Intelligence Works</div>
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px">
+              <div>
+                <div style="font-size:13px;font-weight:700;color:var(--white);margin-bottom:4px">1. Passive CVE Scan</div>
+                <div style="font-size:12px;color:var(--grey);line-height:1.6">Connects to each domain, fingerprints server headers, detects software + version. Queries NVD for matching HIGH/CRITICAL CVEs.</div>
+              </div>
+              <div>
+                <div style="font-size:13px;font-weight:700;color:var(--white);margin-bottom:4px">2. Prospect Ranking</div>
+                <div style="font-size:12px;color:var(--grey);line-height:1.6">Domains ranked by max CVSS score. CVSS ≥ 9 = Critical, ≥ 7 = High priority. Country filter across CZ, PL, SK, HU, RO, AT, DE.</div>
+              </div>
+              <div>
+                <div style="font-size:13px;font-weight:700;color:var(--white);margin-bottom:4px">3. AI Email Draft</div>
+                <div style="font-size:12px;color:var(--grey);line-height:1.6">Claude AI generates a personalised cold email per prospect, referencing the exact CVE ID, CVSS score, and affected software version.</div>
+              </div>
+              <div>
+                <div style="font-size:13px;font-weight:700;color:var(--white);margin-bottom:4px">4. Outreach Workflow</div>
+                <div style="font-size:12px;color:var(--grey);line-height:1.6">Review → Approve → Send via Outreach tab. Tracks sent / pending / skipped status per prospect in the backend.</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Outreach pipeline stats -->
+          <div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--lime);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px">Outreach Pipeline</div>
+          <div class="admin-table-wrap">
+            <table class="admin-table">
+              <thead><tr><th>Status</th><th>Count</th><th>Action</th></tr></thead>
+              <tbody id="admin-prospect-pipeline">
+                <tr><td colspan="3" style="text-align:center;padding:16px;color:var(--grey)">Run a prospect scan first, then approve emails in the Outreach tab.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
       </div>
     </div>
 
@@ -1973,8 +2029,8 @@ function renderReportPage(data, domain, isSample) {
       <button class="db-tab" onclick="dbShowTab('reports',this)">📋 Reports</button>
       <button class="db-tab" onclick="dbShowTab('threats',this)">⚠️ Threats</button>
       <button class="db-tab" onclick="dbShowTab('intel',this)">🧠 Intelligence</button>
-      <button class="db-tab" onclick="dbShowTab('prospects',this)">🎯 Prospects</button>
-      <button class="db-tab" onclick="dbShowTab('outreach',this)">📨 Outreach</button>
+      <button class="db-tab" id="prospects-tab-btn" onclick="dbShowTab('prospects',this)" style="display:none">🎯 Prospects</button>
+      <button class="db-tab" id="outreach-tab-btn" onclick="dbShowTab('outreach',this)" style="display:none">📨 Outreach</button>
       <button class="db-tab" id="admin-tab-btn" onclick="dbShowTabAdmin('admin',this)" style="display:none">⚙️ Admin</button>
     </div>
     <div class="db-nav-right">
@@ -2862,16 +2918,22 @@ function prospectRender() {
 
     var emailSection = cveHits.length
       ? '<div class="prospect-email-box" id="pemail-'+idx+'">'
-          +'<div class="prospect-email-label">✉ Cold Email Hook</div>'
+          +'<div class="prospect-email-label">✉ Cold Outreach Email</div>'
           +'<div id="pemail-text-'+idx+'" class="prospect-email-text">'
             +'<div class="prospect-email-generating"><div class="spinner" style="width:14px;height:14px;border-width:2px"></div> Generating…</div>'
           +'</div>'
           +'<div class="prospect-email-actions" id="pemail-actions-'+idx+'" style="display:none">'
-            +'<button class="btn-copy-email" onclick="prospectCopyEmail('+idx+')">Copy Email</button>'
+            +'<button class="btn-copy-email" onclick="prospectCopyEmail('+idx+')">📋 Copy Email</button>'
+            +'<button class="btn-regen-email" onclick="prospectRegenEmail('+idx+')" style="background:rgba(255,255,255,.06);color:var(--white);border:1px solid rgba(255,255,255,.15);padding:7px 14px;border-radius:6px;font-size:12px;font-family:Space Mono,monospace;cursor:pointer">↻ Re-draft</button>'
             +'<button class="btn-add-domain-prospect" onclick="prospectAddDomain(\'' + p.domain + '\')">+ Add to Dashboard</button>'
           +'</div>'
         +'</div>'
       : '<div style="padding:8px 0"><button class="btn-add-domain-prospect" onclick="prospectAddDomain(\'' + p.domain + '\')">+ Add to Dashboard</button></div>';
+
+    var actionBar = '<div style="display:flex;gap:8px;align-items:center" onclick="event.stopPropagation()">'
+      +'<button class="btn-add-domain-prospect" style="font-size:11px;padding:4px 10px;border-color:rgba(203,255,0,.2);color:var(--lime)" onclick="prospectViewReport(\''+p.domain+'\')" title="Run a full security scan and view report">🔍 See Report</button>'
+      +(cveHits.length?'<button class="btn-add-domain-prospect" style="font-size:11px;padding:4px 10px" onclick="prospectOpenOffer('+idx+')" title="View and copy the AI-generated cold email">✉ Send Offer</button>':'')
+    +'</div>';
 
     return '<div class="prospect-card '+priorityClass+'" id="pcard-'+idx+'">'
       +'<div class="prospect-card-head" onclick="prospectToggle('+idx+')">'
@@ -2879,6 +2941,7 @@ function prospectRender() {
         +'<span class="prospect-domain">'+p.domain+'</span>'
         +'<div class="prospect-badges">'+(countryFlag?'<span class="prospect-badge pbadge-country">'+countryFlag+' '+p.country+'</span>':'')+cveBadge+statusBadge+swBadges+'</div>'
         +(cvssScore>0?'<span class="prospect-cvss-pill '+cvssClass+'">CVSS '+cvssScore+'</span>':'')
+        +actionBar
         +'<span class="prospect-chevron" id="pchev-'+idx+'">▼</span>'
       +'</div>'
       +'<div class="prospect-card-body" id="pbody-'+idx+'">'
@@ -2995,8 +3058,77 @@ function prospectCopyEmail(idx) {
   var el = document.getElementById('pemail-text-'+idx);
   if (!el) return;
   navigator.clipboard.writeText(el.textContent).then(function(){
-    toast('Email copied to clipboard');
+    toast('✓ Email copied to clipboard');
   });
+}
+
+function prospectViewReport(domain) {
+  // Open the full report page (public scan — no auth required)
+  openReportPage(domain, false);
+}
+
+function prospectOpenOffer(idx) {
+  // Expand card and scroll to email section
+  var body = document.getElementById('pbody-'+idx);
+  var chev = document.getElementById('pchev-'+idx);
+  if (!body) return;
+  body.classList.add('open');
+  if (chev) chev.classList.add('open');
+  prospectLoadEmail(idx);
+  setTimeout(function() {
+    var emailBox = document.getElementById('pemail-'+idx);
+    if (emailBox) emailBox.scrollIntoView({behavior:'smooth', block:'center'});
+  }, 200);
+}
+
+async function prospectRegenEmail(idx) {
+  var items = prospectGetVisible();
+  var p = items[idx];
+  if (!p) return;
+  delete prospectEmailCache[p.domain];
+  var textEl = document.getElementById('pemail-text-'+idx);
+  var actionsEl = document.getElementById('pemail-actions-'+idx);
+  if (textEl) textEl.innerHTML = '<div class="prospect-email-generating"><div class="spinner" style="width:14px;height:14px;border-width:2px"></div> Re-generating…</div>';
+  if (actionsEl) actionsEl.style.display = 'none';
+  await prospectLoadEmail(idx);
+}
+
+async function adminLoadProspects() {
+  // Count total domains in the list
+  var totalInList = Object.values(PROSPECT_DOMAINS).reduce(function(s,a){ return s + a.length; }, 0);
+  var set = function(id, v){ var e = document.getElementById(id); if (e) e.textContent = v; };
+  set('aprospect-total', totalInList);
+
+  // Live scan stats (if a scan has been run)
+  var allScanned = [];
+  Object.values(prospectAllData).forEach(function(arr){ allScanned = allScanned.concat(arr); });
+  if (allScanned.length) {
+    var withCVE = allScanned.filter(function(x){ return x.cve_hits && x.cve_hits.length > 0; });
+    var critical = withCVE.filter(function(x){ return x.max_cvss >= 9; });
+    set('aprospect-cve', withCVE.length + ' / ' + allScanned.length);
+    set('aprospect-critical', critical.length);
+  }
+
+  // Outreach pipeline stats
+  try {
+    var data = await api('/outreach/prospects?status=all');
+    var rows = data.prospects || [];
+    var count = function(s){ return rows.filter(function(r){ return r.status===s; }).length; };
+    set('aprospect-outreach', count('pending'));
+    var pipeline = document.getElementById('admin-prospect-pipeline');
+    if (pipeline && rows.length) {
+      var statuses = ['pending','approved','sent','skipped'];
+      var labels   = {pending:'⏳ Pending review', approved:'✓ Approved to send', sent:'✉ Sent', skipped:'— Skipped'};
+      pipeline.innerHTML = statuses.map(function(s) {
+        var n = count(s);
+        return '<tr>'
+          +'<td style="color:var(--white)">' + labels[s] + '</td>'
+          +'<td style="font-family:Space Mono,monospace;font-weight:700;color:' + (s==='sent'?'#2ECC71':s==='approved'?'var(--lime)':s==='pending'?'#D4850A':'var(--grey)') + '">' + n + '</td>'
+          +'<td><button class="admin-btn-sm" onclick="dbShowTab(\'outreach\',document.getElementById(\'outreach-tab-btn\'))">Open Outreach →</button></td>'
+          +'</tr>';
+      }).join('');
+    }
+  } catch(e) {}
 }
 
 function prospectAddDomain(domain) {
@@ -3677,14 +3809,20 @@ function refreshAdminAccess() {
   fetch(API + '/me', { headers: {'Authorization': 'Bearer ' + sessionToken} })
     .then(function(r){ return r.json(); })
     .then(function(u){
-      var btn = document.getElementById('admin-tab-btn');
-      if (!btn) return;
+      var adminBtn = document.getElementById('admin-tab-btn');
+      var prospectsBtn = document.getElementById('prospects-tab-btn');
+      var outreachBtn = document.getElementById('outreach-tab-btn');
+      if (!adminBtn) return;
       if (u.is_admin) {
-        btn.style.display = '';
+        adminBtn.style.display = '';
+        if (prospectsBtn) prospectsBtn.style.display = '';
+        if (outreachBtn) outreachBtn.style.display = '';
         currentUser = Object.assign(currentUser || {}, { is_admin: true });
         localStorage.setItem('sw_user', JSON.stringify(currentUser));
       } else {
-        btn.style.display = 'none';
+        adminBtn.style.display = 'none';
+        if (prospectsBtn) prospectsBtn.style.display = 'none';
+        if (outreachBtn) outreachBtn.style.display = 'none';
       }
     }).catch(function(){});
 }
@@ -3708,6 +3846,7 @@ async function adminLoad() {
   adminLoadStats();
   adminLoadUsers(1);
   adminLoadDomains(1);
+  adminLoadProspects();
 }
 
 async function adminLoadStats() {
