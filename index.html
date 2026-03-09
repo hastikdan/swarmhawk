@@ -2233,7 +2233,7 @@ async function dbAddDomain() {
     toast('Error: ' + e.message, true);
     console.error('dbAddDomain error:', e);
   }
-  finally { btn.disabled = false; btn.textContent = 'Scan Domain'; }
+  finally { btn.disabled = false; btn.textContent = 'Add →'; }
 }
 
 async function dbRescanDomain(id, domain) {
@@ -2857,7 +2857,7 @@ function prospectAddDomain(domain) {
   if (bar) bar.style.display = 'block';
   var input = document.getElementById('db-domain-input');
   if (input) { input.value = domain; input.focus(); }
-  toast('Domain pre-filled — click Scan Domain to add');
+  toast('Domain pre-filled — press Enter or click Add →');
 }
 
 // ── Live scanner ──────────────────────────────────────────────────────────────
