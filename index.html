@@ -115,7 +115,7 @@ h1 span{color:var(--lime)}
 .status-badge.offline{background:rgba(192,57,43,.1);border-color:rgba(192,57,43,.3);color:#e74c3c}
 
 /* MODAL */
-.modal-overlay{position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.88);backdrop-filter:blur(6px);display:flex;align-items:flex-start;justify-content:center;padding:24px 16px;overflow-y:auto}
+.modal-overlay{position:fixed;inset:0;z-index:10001;background:rgba(0,0,0,.88);backdrop-filter:blur(6px);display:flex;align-items:flex-start;justify-content:center;padding:24px 16px;overflow-y:auto}
 .modal{background:var(--card);border:1px solid rgba(203,255,0,.15);border-radius:12px;width:100%;max-width:800px;overflow:hidden;animation:slideUp .25s ease}
 @keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
 .modal-header{background:var(--black);padding:18px 24px;display:flex;align-items:center;gap:14px;border-bottom:1px solid rgba(203,255,0,.1)}
@@ -2389,7 +2389,7 @@ function dbRenderDomainsTable(filter) {
     var pc = s >= 60 ? 'critical' : s >= 30 ? 'warning' : 'ok';
     var rl = s >= 60 ? 'HIGH' : s >= 30 ? 'MED' : 'LOW';
     var ts = d.scanned_at ? new Date(d.scanned_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : 'Never';
-    var status = d.status === 'scanning' ? '<span style="color:var(--lime);font-size:11px;font-family:Space Mono,monospace">⟳ SCANNING</span>' :
+    var status = (d.status === 'scanning' || d.status === 'pending') ? '<span style="color:var(--lime);font-size:11px;font-family:Space Mono,monospace">⟳ SCANNING</span>' :
       '<span class="status-pill pill-'+pc+'">'+rl+'</span>';
     return '<tr>' +
       '<td class="domain-cell">'+d.domain+'</td>' +
