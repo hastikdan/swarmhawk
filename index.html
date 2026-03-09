@@ -2319,6 +2319,13 @@ function renderReportPage(data, domain, isSample) {
             <div id="acct-meta" style="font-size:13px;color:var(--grey);line-height:2">Loading…</div>
           </div>
 
+          <!-- Billing card -->
+          <div style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:24px">
+            <div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--lime);letter-spacing:2px;text-transform:uppercase;margin-bottom:16px">Subscription & Billing</div>
+            <div id="acct-billing-info" style="font-size:13px;color:var(--grey);line-height:2;margin-bottom:14px">Loading…</div>
+            <button id="acct-billing-btn" onclick="acctOpenBillingPortal()" style="background:transparent;border:1px solid rgba(203,255,0,.3);color:var(--lime);font-family:'Space Mono',monospace;font-size:11px;padding:9px 16px;border-radius:6px;cursor:pointer">Manage Billing →</button>
+          </div>
+
           <!-- Danger zone card -->
           <div style="background:var(--card);border:1px solid rgba(192,57,43,.3);border-radius:10px;padding:24px">
             <div style="font-family:'Space Mono',monospace;font-size:10px;color:#C0392B;letter-spacing:2px;text-transform:uppercase;margin-bottom:12px">Danger Zone</div>
@@ -2494,11 +2501,20 @@ function dbRenderDomainsTable(filter) {
     var ts = d.scanned_at ? new Date(d.scanned_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : 'Never';
     var status = (d.status === 'scanning' || d.status === 'pending') ? '<span style="color:var(--lime);font-size:11px;font-family:Space Mono,monospace">⟳ SCANNING</span>' :
       '<span class="status-pill pill-'+pc+'">'+rl+'</span>';
+    // Next scan date for annual subscribers
+    var nextScan = '<span style="color:#555">—</span>';
+    if (d.paid && d.scanned_at) {
+      var nextDate = new Date(d.scanned_at);
+      nextDate.setDate(nextDate.getDate() + 30);
+      nextScan = '<span style="color:var(--lime);font-family:Space Mono,monospace;font-size:11px">'
+        + nextDate.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) + '</span>';
+    }
     return '<tr>' +
       '<td class="domain-cell">'+d.domain+'</td>' +
       '<td><span class="db-stat-val" style="color:'+c+';font-size:18px">'+s+'</span></td>' +
       '<td>'+status+'</td>' +
       '<td>'+ts+'</td>' +
+      '<td>'+nextScan+'</td>' +
       '<td style="font-size:11px;color:var(--grey)">'+(d.country||'EU')+'</td>' +
       '<td style="display:flex;gap:6px;flex-wrap:wrap">' +
         '<button class="db-btn-sm" onclick="dbOpenDomainReport(\''+d.id+'\',\''+d.domain+'\')">View Report</button>' +
@@ -2508,7 +2524,7 @@ function dbRenderDomainsTable(filter) {
   }).join('');
 
   el.innerHTML = '<table class="db-table"><thead><tr>' +
-    '<th>Domain</th><th>Risk Score</th><th>Status</th><th>Last Scan</th><th>Country</th><th>Actions</th>' +
+    '<th>Domain</th><th>Risk Score</th><th>Status</th><th>Last Scan</th><th>Next Scan</th><th>Country</th><th>Actions</th>' +
     '</tr></thead><tbody>'+rows+'</tbody></table>';
 }
 
@@ -2558,7 +2574,11 @@ async function dbAddDomain() {
     }, 5000);
   } catch(e) {
     hideScanProgress();
-    toast('Error: ' + e.message, true);
+    if (e.message && e.message.includes('403')) {
+      document.getElementById('free-limit-modal').style.display = 'flex';
+    } else {
+      toast('Error: ' + e.message, true);
+    }
     console.error('dbAddDomain error:', e);
   }
   finally { btn.disabled = false; btn.textContent = 'Add →'; }
@@ -3670,9 +3690,36 @@ async function dbLoadAccount() {
     var pwFields = document.getElementById('acct-pw-fields');
     if (pwNotice) pwNotice.style.display = isGoogle ? 'block' : 'none';
     if (pwFields) pwFields.style.display  = isGoogle ? 'none'  : 'flex';
+
+    // Billing info — derive from domains list
+    var billingEl = document.getElementById('acct-billing-info');
+    if (billingEl) {
+      var paidDomains  = dbDomains.filter(function(d){ return d.paid; });
+      var annualDomains = paidDomains.filter(function(d){ return d.subscription_active || d.paid; });
+      if (annualDomains.length) {
+        billingEl.innerHTML =
+          '<div><span style="color:var(--grey)">Plan: </span><span style="color:var(--lime);font-weight:700">Annual ($50/year)</span></div>' +
+          '<div><span style="color:var(--grey)">Active domains: </span><span style="color:var(--white)">' + annualDomains.length + '</span></div>' +
+          '<div style="font-size:11px;color:#555;margin-top:4px">Use "Manage Billing" to cancel, update card, or view invoices.</div>';
+      } else {
+        billingEl.innerHTML = '<div style="color:var(--grey)">No active subscription.<br><span style="font-size:12px">Upgrade a domain to Annual for monthly scans + PDF reports.</span></div>';
+      }
+    }
   } catch(e) {
     var infoEl = document.getElementById('acct-info');
     if (infoEl) infoEl.textContent = 'Failed to load account info';
+  }
+}
+
+async function acctOpenBillingPortal() {
+  var btn = document.getElementById('acct-billing-btn');
+  if (btn) { btn.disabled=true; btn.textContent='Opening…'; }
+  try {
+    var data = await api('/billing-portal');
+    window.location.href = data.url;
+  } catch(e) {
+    toast('Billing portal: ' + e.message, true);
+    if (btn) { btn.disabled=false; btn.textContent='Manage Billing →'; }
   }
 }
 
@@ -3852,6 +3899,20 @@ window.addEventListener('DOMContentLoaded', function() {
   renderTopDomains('CZ');
 });
 </script>
+
+<!-- ── FREE LIMIT MODAL ────────────────────────────────── -->
+<div id="free-limit-modal" style="display:none;position:fixed;inset:0;z-index:20001;background:rgba(0,0,0,.85);backdrop-filter:blur(4px);align-items:center;justify-content:center;padding:24px" onclick="if(event.target===this)this.style.display='none'">
+  <div style="background:#13121A;border:1px solid rgba(203,255,0,.2);border-radius:14px;padding:36px;max-width:440px;width:100%;text-align:center">
+    <div style="font-size:36px;margin-bottom:12px">🔒</div>
+    <div style="font-family:'Space Mono',monospace;font-size:14px;color:var(--lime);margin-bottom:10px">Free Tier Limit</div>
+    <p style="color:var(--grey);font-size:13px;line-height:1.7;margin-bottom:20px">
+      Free accounts are limited to <strong style="color:var(--white)">1 domain</strong>.<br>
+      Upgrade to <strong style="color:var(--white)">Annual ($50/year)</strong> to monitor unlimited domains with monthly PDF reports.
+    </p>
+    <button onclick="document.getElementById('free-limit-modal').style.display='none';var d=dbDomains[0];if(d)checkout(d.id,d.domain);" style="width:100%;background:var(--lime);color:var(--black);font-family:'Space Mono',monospace;font-weight:700;font-size:13px;padding:12px;border:none;border-radius:8px;cursor:pointer;margin-bottom:10px">Upgrade — $50/year →</button>
+    <button onclick="document.getElementById('free-limit-modal').style.display='none'" style="background:none;border:none;color:var(--grey);font-size:13px;cursor:pointer">Maybe later</button>
+  </div>
+</div>
 
 <!-- ── PRICING / UPGRADE MODAL ─────────────────────────── -->
 <div id="pricing-modal" style="display:none;position:fixed;inset:0;z-index:20000;background:rgba(0,0,0,.85);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;padding:24px" onclick="if(event.target===this)closePricingModal()">
