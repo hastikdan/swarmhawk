@@ -1755,7 +1755,14 @@ function renderAI(text) {
   const flush=()=>{if(body.length){html+=`<div class="ai-sec-body">${body.filter(l=>l.trim()).join('<br>')}</div>`;body=[];}};
   text.split('\n').forEach(line=>{
     const t=line.trim(); if(!t){body.push('');return;}
-    if(/^\d+\.\s+[A-Z]/.test(t)){flush();html+=`<div class="ai-sec-head">${t}</div>`;}
+    // Section header: starts with N. and the remainder is a short title (≤40 chars, no sentence period)
+    const secMatch=t.match(/^(\d+)\.\s+(.+)$/);
+    if(secMatch){
+      const title=secMatch[2];
+      const isHeader=title.length<=45&&!/\w\.\s+\w/.test(title)&&!/[,;]/.test(title);
+      if(isHeader){flush();html+=`<div class="ai-sec-head">${t}</div>`;}
+      else{body.push('&nbsp;&nbsp;▸ '+title);}
+    }
     else if(t.startsWith('-')||t.startsWith('•')){body.push('&nbsp;&nbsp;▸ '+t.replace(/^[-•]\s*/,''));}
     else{body.push(t);}
   });
@@ -1868,7 +1875,7 @@ function getSampleData() {
       {check:'safebrowsing', status:'ok', title:'Clean on Google Safe Browsing', detail:'Not flagged as phishing or malware site.', score_impact:0},
       {check:'urlhaus', status:'ok', title:'Clean on URLhaus', detail:'No malicious URLs associated with this domain.', score_impact:0},
       {check:'shodan', status:'warning', title:'Port 8080 exposed', detail:'Ports: 80, 443, 8080 open. Host: Akamai Technologies (France). Verify port 8080 has no admin panel.', score_impact:5},
-      {check:'ai_summary', status:'ok', title:'AI Threat Analysis', detail:'1. Executive Summary\n\nDomain presents MEDIUM RISK (35/100). Primary concern is significant typosquat exposure with 8 registered lookalike domains.\n\n2. Critical Findings\n\n- 8 typosquat domains registered — immediate brand protection action required\n- Spamhaus DBL listing may cause 15-20% of emails to be filtered\n- Port 8080 exposed — verify no admin interfaces accessible\n\n3. Threat Scenarios\n\n- Customers could be redirected to lookalike domains for credential theft\n- Email deliverability issues could impact business communications\n- Missing headers leave users vulnerable to clickjacking\n\n4. Recommendations\n\n1. Register top typosquat variants immediately (~10 EUR/domain)\n2. Enable DMARC/DKIM to authenticate outgoing email\n3. Request Spamhaus DBL delisting at spamhaus.org/removal\n4. Add Content-Security-Policy header (2 hours dev work)\n5. Verify port 8080 and close if not needed\n\n5. Intelligence Notes\n\nHosted on Akamai CDN (France). Strong DDoS protection. No CVEs detected on exposed services. Issues are configuration-level, not architectural.', score_impact:0}
+      {check:'ai_summary', status:'ok', title:'AI Threat Analysis', detail:'1. Executive Summary\n\nDomain presents MEDIUM RISK (35/100). Primary concern is significant typosquat exposure with 8 registered lookalike domains. Several quick-win remediations available that would drop risk score below 20.\n\n2. Critical Findings\n\n- 8 typosquat domains registered — immediate brand protection action required\n- Spamhaus DBL listing may cause 15–20% of outbound emails to be filtered\n- Port 8080 exposed — verify no admin interface is accessible\n\n3. Threat Scenarios\n\n- Customers could be redirected to lookalike domains for credential theft or phishing\n- Email deliverability issues may impact transactional and marketing communications\n- Missing security headers leave users vulnerable to clickjacking and script injection\n\n4. Recommendations\n\n- Register the top typosquat variants immediately (approx. €10/domain) to cut off brand abuse vectors\n- Enable DMARC with p=quarantine and add DKIM signing to authenticate all outbound email\n- Request Spamhaus DBL delisting at spamhaus.org/removal — include mail server logs as evidence\n- Add Content-Security-Policy and X-Frame-Options headers (estimated 2 hours of dev work)\n- Verify port 8080 usage and firewall it if no service depends on external access\n\n5. Intelligence Notes\n\nHosted on Akamai CDN (France) — strong DDoS mitigation in place. No CVEs detected on exposed services. Issues are configuration-level, not architectural. Remediation priority: email security → typosquats → headers → port exposure.', score_impact:0}
     ]
   };
 }
