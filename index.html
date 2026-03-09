@@ -1347,12 +1347,13 @@ const CHECK_LABELS = {
   virustotal:'VirusTotal', cve:'CVE Scan',
   sast:'SAST — Source Exposure', sca:'SCA — Dependency CVEs',
   dast:'DAST — App Testing', iac:'IaC — Config Exposure',
+  ip_intel:'IP Intelligence',
 };
 const CHECK_ICONS = {
   ssl:'🔒', headers:'🛡️', dns:'🌐', http_redirect:'↩️', breach:'💀',
   typosquat:'🎭', response_time:'⏱️', email_security:'📧', whois:'📋',
   urlhaus:'🦟', spamhaus:'🚨', safebrowsing:'🌍', virustotal:'🔍', cve:'🏷️',
-  sast:'🔎', sca:'📦', dast:'⚡', iac:'🏗️',
+  sast:'🔎', sca:'📦', dast:'⚡', iac:'🏗️', ip_intel:'🌐',
 };
 const CHECK_RECOMMENDATIONS = {
   ssl:'Renew or reissue the SSL/TLS certificate and enforce HTTPS site-wide.',
@@ -1372,6 +1373,7 @@ const CHECK_RECOMMENDATIONS = {
   sca:'Upgrade vulnerable dependencies to their latest patched versions (see CVE details in the checks table).',
   dast:'Restrict or password-protect admin panels, API documentation, and monitoring endpoints.',
   iac:'Remove or block public access to exposed Terraform state, Kubernetes configs, and CI/CD pipeline files.',
+  ip_intel:'Investigate the flagged IP addresses — check AbuseIPDB, request delisting from blocklists, and consider migrating to a reputable hosting provider.',
 };
 
 function buildRecommendations(checks) {
@@ -3932,7 +3934,7 @@ async function adminLoadStats() {
         breach:'Breach', typosquat:'Typosquat', response_time:'Response Time',
         email_security:'Email Sec', whois:'WHOIS', urlhaus:'URLhaus',
         spamhaus:'Spamhaus', safebrowsing:'Safe Browsing', virustotal:'VirusTotal',
-        cve:'CVE Scan', sast:'SAST', sca:'SCA', dast:'DAST', iac:'IaC'
+        cve:'CVE Scan', sast:'SAST', sca:'SCA', dast:'DAST', iac:'IaC', ip_intel:'IP Intel'
       };
       var html = '';
       Object.keys(data.check_breakdown).sort().forEach(function(name) {
