@@ -1161,6 +1161,8 @@ window.addEventListener('DOMContentLoaded', () => {
   const p = new URLSearchParams(location.search);
   if (p.get('payment') === 'success') { document.getElementById('success-banner').style.display='block'; setTimeout(()=>document.getElementById('success-banner').style.display='none',6000); history.replaceState({},'',location.pathname); }
   if (sessionToken && currentUser) { activateScanner(); refreshAdminAccess(); }
+  var scanParam = p.get('scan');
+  if (scanParam) { history.replaceState({},'',location.pathname); setTimeout(function(){ openReportPage(scanParam, false); }, 400); }
   // Handle email verification redirect
   if (new URLSearchParams(window.location.search).get('confirmed') === '1' ||
       new URLSearchParams(window.location.search).get('verified') === '1') {
