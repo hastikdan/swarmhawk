@@ -1570,16 +1570,18 @@ var _pricingDomainId   = null;
 var _pricingDomainName = null;
 
 function checkout(domainId, domainName) {
-  // Open the pricing modal to let user choose plan
+  if (!sessionToken) { showSignIn(); return; }
   _pricingDomainId   = domainId;
   _pricingDomainName = domainName;
   var lbl = document.getElementById('pricing-domain-label');
   if (lbl) lbl.textContent = domainName || '';
-  // Reset buttons
+  // Reset all buttons
   var b1 = document.getElementById('btn-checkout-onetime');
   var b2 = document.getElementById('btn-checkout-annual');
+  var b3 = document.getElementById('btn-checkout-msp');
   if (b1) { b1.disabled=false; b1.textContent='Buy Report — $10 →'; }
-  if (b2) { b2.disabled=false; b2.textContent='Subscribe — $50/year →'; }
+  if (b2) { b2.disabled=false; b2.textContent='Subscribe — $50/yr →'; }
+  if (b3) { b3.disabled=false; b3.textContent='Get MSP Plan — $200/yr →'; }
   document.getElementById('pricing-modal').style.display = 'flex';
 }
 
@@ -1588,9 +1590,11 @@ function closePricingModal() {
 }
 
 async function startCheckout(plan) {
-  if (plan !== 'msp' && !_pricingDomainId) return;
+  if (!sessionToken) { closePricingModal(); showSignIn(); return; }
+  if (plan !== 'msp' && !_pricingDomainId) { toast('No domain selected', true); return; }
   var btnMap = {annual:'btn-checkout-annual', one_time:'btn-checkout-onetime', msp:'btn-checkout-msp'};
-  var btn = document.getElementById(btnMap[plan] || 'btn-checkout-onetime');
+  var labels  = {annual:'Subscribe — $50/yr →', one_time:'Buy Report — $10 →', msp:'Get MSP Plan — $200/yr →'};
+  var btn = document.getElementById(btnMap[plan]);
   if (btn) { btn.disabled=true; btn.textContent='Redirecting to Stripe…'; }
   try {
     var endpoint = plan === 'msp' ? '/checkout/msp' : '/checkout';
@@ -1598,11 +1602,11 @@ async function startCheckout(plan) {
       ? { domain_ids: _pricingDomainId ? [_pricingDomainId] : [] }
       : { domain_id: _pricingDomainId, domain: _pricingDomainName, plan };
     var data = await api(endpoint, { method:'POST', body: JSON.stringify(payload) });
-    window.location.href = data.url || data.checkout_url;
+    if (!data.url) throw new Error('No checkout URL returned');
+    window.location.href = data.url;
   } catch(e) {
-    toast('Checkout error: ' + e.message, true);
-    var labels = {annual:'Subscribe — $50/yr →', one_time:'Buy Report — $10 →', msp:'Get MSP Plan — $200/yr →'};
-    if (btn) { btn.disabled=false; btn.textContent = labels[plan] || 'Try again'; }
+    toast('Checkout failed: ' + e.message, true);
+    if (btn) { btn.disabled=false; btn.textContent = labels[plan]; }
   }
 }
 
