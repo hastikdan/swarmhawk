@@ -49,7 +49,7 @@ h1 span{color:var(--lime)}
 .domain-input{flex:1;background:var(--card);border:1px solid rgba(203,255,0,.2);color:var(--white);font-family:'Space Mono',monospace;font-size:14px;padding:12px 16px;border-radius:6px;outline:none;transition:border-color .2s}
 .domain-input:focus{border-color:var(--lime)}
 .domain-input::placeholder{color:#444}
-.country-select{background:var(--card);border:1px solid rgba(203,255,0,.2);color:var(--white);font-size:14px;padding:12px 14px;border-radius:6px;outline:none;cursor:pointer;min-width:90px}
+.country-select{background:var(--card);border:1px solid rgba(203,255,0,.2);color:var(--white);font-size:13px;padding:9px 12px;border-radius:6px;outline:none;cursor:pointer;min-width:200px}
 .btn-add{background:var(--lime);color:var(--black);font-family:'Space Mono',monospace;font-size:13px;font-weight:700;padding:12px 22px;border:none;border-radius:6px;cursor:pointer;transition:all .2s;white-space:nowrap}
 .btn-add:hover{background:#d4ff1a;transform:translateY(-1px)}
 .btn-add:disabled{opacity:.5;cursor:not-allowed;transform:none}
@@ -846,16 +846,44 @@ python3 swarmhawk_mcp.py --http</pre></div>
             <div class="report-section-title" style="margin:0 0 4px">Top Domains by Country</div>
             <div style="font-size:11px;color:var(--grey)">Ranked by web traffic · Source: SimilarWeb / Tranco Top 1M · Updated monthly</div>
           </div>
-          <div class="country-tabs" id="country-tabs">
-            <button class="ctab active" onclick="switchCountry('CZ',this)">🇨🇿 CZ</button>
-            <button class="ctab" onclick="switchCountry('PL',this)">🇵🇱 PL</button>
-            <button class="ctab" onclick="switchCountry('HU',this)">🇭🇺 HU</button>
-            <button class="ctab" onclick="switchCountry('SK',this)">🇸🇰 SK</button>
-            <button class="ctab" onclick="switchCountry('RO',this)">🇷🇴 RO</button>
-            <button class="ctab" onclick="switchCountry('DE',this)">🇩🇪 DE</button>
-            <button class="ctab" onclick="switchCountry('AT',this)">🇦🇹 AT</button>
-            <button class="ctab" onclick="switchCountry('GB',this)">🇬🇧 GB</button>
-          </div>
+          <select id="country-select" class="country-select" onchange="switchCountry(this.value)">
+            <option value="US">🇺🇸 United States</option>
+            <option value="GB">🇬🇧 United Kingdom</option>
+            <option value="DE">🇩🇪 Germany</option>
+            <option value="FR">🇫🇷 France</option>
+            <option value="NL">🇳🇱 Netherlands</option>
+            <option value="SE">🇸🇪 Sweden</option>
+            <option value="NO">🇳🇴 Norway</option>
+            <option value="DK">🇩🇰 Denmark</option>
+            <option value="FI">🇫🇮 Finland</option>
+            <option value="CH">🇨🇭 Switzerland</option>
+            <option value="BE">🇧🇪 Belgium</option>
+            <option value="AT">🇦🇹 Austria</option>
+            <option value="IT">🇮🇹 Italy</option>
+            <option value="ES">🇪🇸 Spain</option>
+            <option value="PT">🇵🇹 Portugal</option>
+            <option value="GR">🇬🇷 Greece</option>
+            <option value="IE">🇮🇪 Ireland</option>
+            <option value="CZ" selected>🇨🇿 Czech Republic</option>
+            <option value="PL">🇵🇱 Poland</option>
+            <option value="SK">🇸🇰 Slovakia</option>
+            <option value="HU">🇭🇺 Hungary</option>
+            <option value="RO">🇷🇴 Romania</option>
+            <option value="BG">🇧🇬 Bulgaria</option>
+            <option value="HR">🇭🇷 Croatia</option>
+            <option value="UA">🇺🇦 Ukraine</option>
+            <option value="TR">🇹🇷 Turkey</option>
+            <option value="IL">🇮🇱 Israel</option>
+            <option value="AE">🇦🇪 UAE</option>
+            <option value="SG">🇸🇬 Singapore</option>
+            <option value="AU">🇦🇺 Australia</option>
+            <option value="CA">🇨🇦 Canada</option>
+            <option value="JP">🇯🇵 Japan</option>
+            <option value="KR">🇰🇷 South Korea</option>
+            <option value="IN">🇮🇳 India</option>
+            <option value="BR">🇧🇷 Brazil</option>
+            <option value="ZA">🇿🇦 South Africa</option>
+          </select>
         </div>
         <div id="top-domains-grid" class="top-domains-grid"></div>
       </div>
@@ -4114,6 +4142,258 @@ var TOP_DOMAINS = {
     {d:'tesco.com',t:'Retail',s:22},{d:'sainsburys.co.uk',t:'Retail',s:37},{d:'marks-and-spencer.com',t:'Retail',s:29},
     {d:'nationalgrid.com',t:'Energy',s:35},{d:'bp.com',t:'Energy',s:24},{d:'ba.com',t:'Aviation',s:31},
     {d:'easyjet.com',t:'Aviation',s:28},{d:'royalmail.com',t:'Logistics',s:41}
+  ],
+  US: [
+    {d:'jpmorgan.com',t:'Banking',s:16},{d:'bankofamerica.com',t:'Banking',s:21},{d:'wellsfargo.com',t:'Banking',s:29},
+    {d:'att.com',t:'Telecom',s:24},{d:'verizon.com',t:'Telecom',s:31},{d:'amazon.com',t:'E-commerce',s:12},
+    {d:'walmart.com',t:'Retail',s:19},{d:'cnn.com',t:'Media',s:27},{d:'nytimes.com',t:'Media',s:22},
+    {d:'irs.gov',t:'Gov',s:18},{d:'cdc.gov',t:'Healthcare',s:24},{d:'united.com',t:'Aviation',s:33},
+    {d:'delta.com',t:'Aviation',s:28},{d:'fedex.com',t:'Logistics',s:21},{d:'ups.com',t:'Logistics',s:19},
+    {d:'aetna.com',t:'Insurance',s:35},{d:'cigna.com',t:'Insurance',s:29},{d:'exxonmobil.com',t:'Energy',s:26},
+    {d:'chevron.com',t:'Energy',s:31},{d:'apple.com',t:'Tech',s:14}
+  ],
+  CA: [
+    {d:'rbc.com',t:'Banking',s:19},{d:'td.com',t:'Banking',s:24},{d:'scotiabank.com',t:'Banking',s:28},
+    {d:'rogers.com',t:'Telecom',s:33},{d:'bell.ca',t:'Telecom',s:27},{d:'shopify.com',t:'E-commerce',s:18},
+    {d:'cbc.ca',t:'Media',s:22},{d:'globeandmail.com',t:'Media',s:31},{d:'canada.ca',t:'Gov',s:15},
+    {d:'cra-arc.gc.ca',t:'Gov',s:21},{d:'sunlife.com',t:'Insurance',s:29},{d:'manulife.com',t:'Insurance',s:35},
+    {d:'aircanada.com',t:'Aviation',s:26},{d:'westjet.com',t:'Aviation',s:33},{d:'loblaw.ca',t:'Retail',s:38},
+    {d:'canadiantire.ca',t:'Retail',s:44},{d:'enbridge.com',t:'Energy',s:28},{d:'suncor.com',t:'Energy',s:31},
+    {d:'hydroquebec.com',t:'Energy',s:25},{d:'cp.ca',t:'Transport',s:41}
+  ],
+  AU: [
+    {d:'commbank.com.au',t:'Banking',s:22},{d:'anz.com.au',t:'Banking',s:27},{d:'westpac.com.au',t:'Banking',s:31},
+    {d:'telstra.com.au',t:'Telecom',s:28},{d:'optus.com.au',t:'Telecom',s:35},{d:'amazon.com.au',t:'E-commerce',s:16},
+    {d:'abc.net.au',t:'Media',s:19},{d:'news.com.au',t:'Media',s:29},{d:'australia.gov.au',t:'Gov',s:17},
+    {d:'ato.gov.au',t:'Gov',s:22},{d:'health.gov.au',t:'Healthcare',s:31},{d:'qantas.com',t:'Aviation',s:24},
+    {d:'jetstar.com',t:'Aviation',s:38},{d:'woolworths.com.au',t:'Retail',s:25},{d:'coles.com.au',t:'Retail',s:33},
+    {d:'agl.com.au',t:'Energy',s:41},{d:'origin.com.au',t:'Energy',s:29},{d:'medibank.com.au',t:'Insurance',s:35},
+    {d:'nib.com.au',t:'Insurance',s:44},{d:'auspost.com.au',t:'Logistics',s:27}
+  ],
+  FR: [
+    {d:'bnpparibas.fr',t:'Banking',s:21},{d:'creditagricole.fr',t:'Banking',s:28},{d:'societegenerale.fr',t:'Banking',s:33},
+    {d:'orange.fr',t:'Telecom',s:24},{d:'sfr.fr',t:'Telecom',s:31},{d:'amazon.fr',t:'E-commerce',s:15},
+    {d:'fnac.com',t:'Retail',s:29},{d:'lemonde.fr',t:'Media',s:22},{d:'lefigaro.fr',t:'Media',s:35},
+    {d:'service-public.fr',t:'Gov',s:19},{d:'impots.gouv.fr',t:'Gov',s:25},{d:'ameli.fr',t:'Healthcare',s:28},
+    {d:'axa.fr',t:'Insurance',s:31},{d:'maif.fr',t:'Insurance',s:38},{d:'airfrance.com',t:'Aviation',s:26},
+    {d:'edf.fr',t:'Energy',s:22},{d:'totalenergies.com',t:'Energy',s:29},{d:'sncf.com',t:'Transport',s:44},
+    {d:'carrefour.fr',t:'Retail',s:33},{d:'leclerc.fr',t:'Retail',s:27}
+  ],
+  NL: [
+    {d:'ing.nl',t:'Banking',s:19},{d:'rabobank.nl',t:'Banking',s:25},{d:'abnamro.nl',t:'Banking',s:31},
+    {d:'kpn.com',t:'Telecom',s:28},{d:'t-mobile.nl',t:'Telecom',s:35},{d:'bol.com',t:'E-commerce',s:17},
+    {d:'nos.nl',t:'Media',s:22},{d:'nu.nl',t:'Media',s:29},{d:'rijksoverheid.nl',t:'Gov',s:16},
+    {d:'belastingdienst.nl',t:'Gov',s:23},{d:'uwv.nl',t:'Gov',s:31},{d:'aegon.com',t:'Insurance',s:27},
+    {d:'nn.nl',t:'Insurance',s:34},{d:'klm.com',t:'Aviation',s:24},{d:'schiphol.nl',t:'Aviation',s:38},
+    {d:'ah.nl',t:'Retail',s:29},{d:'jumbo.com',t:'Retail',s:41},{d:'postnl.nl',t:'Logistics',s:22},
+    {d:'asml.com',t:'Tech',s:18},{d:'philips.com',t:'Tech',s:25}
+  ],
+  SE: [
+    {d:'swedbank.se',t:'Banking',s:24},{d:'seb.se',t:'Banking',s:31},{d:'handelsbanken.se',t:'Banking',s:19},
+    {d:'telia.se',t:'Telecom',s:27},{d:'tre.se',t:'Telecom',s:38},{d:'klarna.com',t:'Fintech',s:21},
+    {d:'expressen.se',t:'Media',s:29},{d:'svt.se',t:'Media',s:22},{d:'government.se',t:'Gov',s:18},
+    {d:'skatteverket.se',t:'Gov',s:25},{d:'skandia.se',t:'Insurance',s:33},{d:'folksam.se',t:'Insurance',s:41},
+    {d:'sas.se',t:'Aviation',s:28},{d:'ikea.com',t:'Retail',s:19},{d:'hm.com',t:'Fashion',s:24},
+    {d:'ica.se',t:'Retail',s:31},{d:'vattenfall.se',t:'Energy',s:22},{d:'postnord.se',t:'Logistics',s:37},
+    {d:'spotify.com',t:'Tech',s:16},{d:'ericsson.com',t:'Tech',s:28}
+  ],
+  NO: [
+    {d:'dnb.no',t:'Banking',s:22},{d:'nordea.no',t:'Banking',s:28},{d:'sparebank1.no',t:'Banking',s:35},
+    {d:'telenor.no',t:'Telecom',s:25},{d:'telia.no',t:'Telecom',s:33},{d:'finn.no',t:'Marketplace',s:19},
+    {d:'nrk.no',t:'Media',s:21},{d:'vg.no',t:'Media',s:31},{d:'regjeringen.no',t:'Gov',s:17},
+    {d:'skatteetaten.no',t:'Gov',s:24},{d:'gjensidige.no',t:'Insurance',s:29},{d:'storebrand.no',t:'Insurance',s:38},
+    {d:'norwegian.com',t:'Aviation',s:33},{d:'sas.no',t:'Aviation',s:27},{d:'rema1000.no',t:'Retail',s:44},
+    {d:'equinor.com',t:'Energy',s:21},{d:'statkraft.no',t:'Energy',s:29},{d:'posten.no',t:'Logistics',s:35},
+    {d:'aker.com',t:'Industry',s:26},{d:'tomra.com',t:'Tech',s:31}
+  ],
+  DK: [
+    {d:'danske-bank.dk',t:'Banking',s:19},{d:'nordea.dk',t:'Banking',s:25},{d:'jyskebank.dk',t:'Banking',s:32},
+    {d:'tdc.dk',t:'Telecom',s:28},{d:'telenor.dk',t:'Telecom',s:35},{d:'tv2.dk',t:'Media',s:22},
+    {d:'dr.dk',t:'Media',s:17},{d:'borsen.dk',t:'Finance',s:31},{d:'borger.dk',t:'Gov',s:16},
+    {d:'skat.dk',t:'Gov',s:23},{d:'tryg.dk',t:'Insurance',s:29},{d:'topdanmark.dk',t:'Insurance',s:37},
+    {d:'maersk.com',t:'Logistics',s:21},{d:'sas.dk',t:'Aviation',s:26},{d:'novo-nordisk.com',t:'Healthcare',s:18},
+    {d:'orsted.com',t:'Energy',s:24},{d:'vestas.com',t:'Energy',s:31},{d:'dst.dk',t:'Gov',s:19},
+    {d:'fakta.dk',t:'Retail',s:38},{d:'coop.dk',t:'Retail',s:29}
+  ],
+  FI: [
+    {d:'op.fi',t:'Banking',s:21},{d:'nordea.fi',t:'Banking',s:27},{d:'aktia.fi',t:'Banking',s:34},
+    {d:'elisa.fi',t:'Telecom',s:25},{d:'dna.fi',t:'Telecom',s:33},{d:'telia.fi',t:'Telecom',s:29},
+    {d:'yle.fi',t:'Media',s:18},{d:'hs.fi',t:'Media',s:26},{d:'suomi.fi',t:'Gov',s:15},
+    {d:'vero.fi',t:'Gov',s:22},{d:'mandatum.fi',t:'Insurance',s:31},{d:'if.fi',t:'Insurance',s:38},
+    {d:'finnair.com',t:'Aviation',s:24},{d:'kesko.fi',t:'Retail',s:29},{d:'s-kaupat.fi',t:'Retail',s:35},
+    {d:'fortum.com',t:'Energy',s:22},{d:'neste.com',t:'Energy',s:28},{d:'posti.fi',t:'Logistics',s:41},
+    {d:'nokia.com',t:'Tech',s:19},{d:'kone.com',t:'Industry',s:25}
+  ],
+  CH: [
+    {d:'ubs.com',t:'Banking',s:18},{d:'credit-suisse.com',t:'Banking',s:25},{d:'raiffeisen.ch',t:'Banking',s:31},
+    {d:'swisscom.ch',t:'Telecom',s:24},{d:'sunrise.ch',t:'Telecom',s:32},{d:'digitec.ch',t:'E-commerce',s:19},
+    {d:'srf.ch',t:'Media',s:21},{d:'nzz.ch',t:'Media',s:28},{d:'admin.ch',t:'Gov',s:16},
+    {d:'estv.admin.ch',t:'Gov',s:22},{d:'zurich.com',t:'Insurance',s:27},{d:'swisslife.ch',t:'Insurance',s:35},
+    {d:'swiss.com',t:'Aviation',s:24},{d:'migros.ch',t:'Retail',s:29},{d:'coop.ch',t:'Retail',s:37},
+    {d:'abb.com',t:'Industry',s:21},{d:'novartis.com',t:'Healthcare',s:18},{d:'roche.com',t:'Healthcare',s:22},
+    {d:'nestle.com',t:'Food',s:19},{d:'post.ch',t:'Logistics',s:31}
+  ],
+  BE: [
+    {d:'kbc.be',t:'Banking',s:22},{d:'belfius.be',t:'Banking',s:29},{d:'ing.be',t:'Banking',s:35},
+    {d:'proximus.be',t:'Telecom',s:27},{d:'telenet.be',t:'Telecom',s:33},{d:'coolblue.be',t:'E-commerce',s:19},
+    {d:'rtbf.be',t:'Media',s:24},{d:'vrt.be',t:'Media',s:31},{d:'belgium.be',t:'Gov',s:17},
+    {d:'minfin.belgium.be',t:'Gov',s:23},{d:'axa.be',t:'Insurance',s:28},{d:'ageas.com',t:'Insurance',s:37},
+    {d:'brusselsairlines.com',t:'Aviation',s:22},{d:'colruyt.be',t:'Retail',s:31},{d:'delhaize.be',t:'Retail',s:44},
+    {d:'engie.be',t:'Energy',s:26},{d:'bpost.be',t:'Logistics',s:19},{d:'solvay.com',t:'Industry',s:28},
+    {d:'ucb.com',t:'Healthcare',s:33},{d:'bekaert.com',t:'Industry',s:41}
+  ],
+  IT: [
+    {d:'intesasanpaolo.com',t:'Banking',s:24},{d:'unicredit.it',t:'Banking',s:31},{d:'bancamediolanum.it',t:'Banking',s:37},
+    {d:'tim.it',t:'Telecom',s:27},{d:'vodafone.it',t:'Telecom',s:34},{d:'amazon.it',t:'E-commerce',s:16},
+    {d:'rai.it',t:'Media',s:22},{d:'corriere.it',t:'Media',s:29},{d:'governo.it',t:'Gov',s:19},
+    {d:'agenziaentrate.gov.it',t:'Gov',s:25},{d:'generali.com',t:'Insurance',s:28},{d:'allianz.it',t:'Insurance',s:35},
+    {d:'ita-airways.com',t:'Aviation',s:31},{d:'trenitalia.com',t:'Transport',s:44},{d:'eni.com',t:'Energy',s:22},
+    {d:'enel.com',t:'Energy',s:27},{d:'poste.it',t:'Logistics',s:33},{d:'ferrero.com',t:'Food',s:19},
+    {d:'luxottica.com',t:'Retail',s:28},{d:'ferrari.com',t:'Auto',s:21}
+  ],
+  ES: [
+    {d:'santander.com',t:'Banking',s:21},{d:'bbva.es',t:'Banking',s:27},{d:'caixabank.es',t:'Banking',s:33},
+    {d:'movistar.es',t:'Telecom',s:25},{d:'orange.es',t:'Telecom',s:31},{d:'amazon.es',t:'E-commerce',s:16},
+    {d:'elcorteingles.es',t:'Retail',s:29},{d:'elpais.com',t:'Media',s:22},{d:'elmundo.es',t:'Media',s:35},
+    {d:'lamoncloa.gob.es',t:'Gov',s:18},{d:'agenciatributaria.gob.es',t:'Gov',s:24},{d:'iberia.com',t:'Aviation',s:28},
+    {d:'vueling.com',t:'Aviation',s:35},{d:'mapfre.com',t:'Insurance',s:31},{d:'mutua.es',t:'Insurance',s:39},
+    {d:'endesa.com',t:'Energy',s:22},{d:'repsol.com',t:'Energy',s:29},{d:'renfe.com',t:'Transport',s:44},
+    {d:'mercadona.es',t:'Retail',s:27},{d:'correos.es',t:'Logistics',s:33}
+  ],
+  PT: [
+    {d:'cgd.pt',t:'Banking',s:25},{d:'millenniumbcp.pt',t:'Banking',s:31},{d:'santander.pt',t:'Banking',s:38},
+    {d:'meo.pt',t:'Telecom',s:27},{d:'nos.pt',t:'Telecom',s:34},{d:'worten.pt',t:'E-commerce',s:22},
+    {d:'rtp.pt',t:'Media',s:19},{d:'publico.pt',t:'Media',s:28},{d:'portugal.gov.pt',t:'Gov',s:16},
+    {d:'at.gov.pt',t:'Gov',s:23},{d:'fidelidade.pt',t:'Insurance',s:29},{d:'ageas.pt',t:'Insurance',s:37},
+    {d:'tap.pt',t:'Aviation',s:31},{d:'continente.pt',t:'Retail',s:25},{d:'pingo-doce.pt',t:'Retail',s:33},
+    {d:'edp.pt',t:'Energy',s:21},{d:'galp.pt',t:'Energy',s:28},{d:'ctt.pt',t:'Logistics',s:44},
+    {d:'jeronimo-martins.com',t:'Retail',s:19},{d:'efacec.com',t:'Industry',s:35}
+  ],
+  GR: [
+    {d:'nbg.gr',t:'Banking',s:29},{d:'piraeusbank.gr',t:'Banking',s:35},{d:'alpha.gr',t:'Banking',s:41},
+    {d:'cosmote.gr',t:'Telecom',s:27},{d:'wind.gr',t:'Telecom',s:34},{d:'skroutz.gr',t:'E-commerce',s:22},
+    {d:'ert.gr',t:'Media',s:24},{d:'naftemporiki.gr',t:'Media',s:31},{d:'primeminister.gr',t:'Gov',s:19},
+    {d:'aade.gr',t:'Gov',s:26},{d:'eurolife.gr',t:'Insurance',s:33},{d:'ethniki.gr',t:'Insurance',s:41},
+    {d:'aegeanair.com',t:'Aviation',s:28},{d:'olympic-air.com',t:'Aviation',s:37},{d:'mymarket.gr',t:'Retail',s:24},
+    {d:'ppc.gr',t:'Energy',s:31},{d:'desfa.gr',t:'Energy',s:22},{d:'opap.gr',t:'Entertainment',s:44},
+    {d:'elta.gr',t:'Logistics',s:29},{d:'moh.gov.gr',t:'Healthcare',s:35}
+  ],
+  IE: [
+    {d:'aib.ie',t:'Banking',s:21},{d:'bankofireland.ie',t:'Banking',s:27},{d:'permanenttsb.ie',t:'Banking',s:34},
+    {d:'three.ie',t:'Telecom',s:29},{d:'vodafone.ie',t:'Telecom',s:35},{d:'currys.ie',t:'E-commerce',s:22},
+    {d:'rte.ie',t:'Media',s:18},{d:'irishtimes.com',t:'Media',s:26},{d:'gov.ie',t:'Gov',s:15},
+    {d:'revenue.ie',t:'Gov',s:22},{d:'aviva.ie',t:'Insurance',s:31},{d:'zurich.ie',t:'Insurance',s:38},
+    {d:'aerlingus.com',t:'Aviation',s:27},{d:'ryanair.com',t:'Aviation',s:24},{d:'dunnes-stores.com',t:'Retail',s:33},
+    {d:'eir.ie',t:'Telecom',s:41},{d:'esb.ie',t:'Energy',s:25},{d:'irishlife.ie',t:'Insurance',s:29},
+    {d:'transdev.ie',t:'Transport',s:37},{d:'anpost.ie',t:'Logistics',s:31}
+  ],
+  BG: [
+    {d:'dskbank.bg',t:'Banking',s:35},{d:'unicreditbulbank.bg',t:'Banking',s:29},{d:'ubbonline.com',t:'Banking',s:44},
+    {d:'mtel.bg',t:'Telecom',s:31},{d:'vivacom.bg',t:'Telecom',s:38},{d:'emag.bg',t:'E-commerce',s:25},
+    {d:'bnt.bg',t:'Media',s:22},{d:'24chasa.bg',t:'Media',s:33},{d:'government.bg',t:'Gov',s:19},
+    {d:'nra.bg',t:'Gov',s:27},{d:'bulstrad.bg',t:'Insurance',s:41},{d:'allianz.bg',t:'Insurance',s:35},
+    {d:'wizz.com',t:'Aviation',s:28},{d:'kaufland.bg',t:'Retail',s:33},{d:'lidl.bg',t:'Retail',s:27},
+    {d:'cez.bg',t:'Energy',s:44},{d:'enel.bg',t:'Energy',s:31},{d:'speedy.bg',t:'Logistics',s:38},
+    {d:'sofia.bg',t:'Gov',s:29},{d:'technopolis.bg',t:'E-commerce',s:22}
+  ],
+  HR: [
+    {d:'zaba.hr',t:'Banking',s:28},{d:'pbz.hr',t:'Banking',s:35},{d:'erste.hr',t:'Banking',s:41},
+    {d:'hrt.hr',t:'Media',s:22},{d:'index.hr',t:'Media',s:31},{d:'gov.hr',t:'Gov',s:18},
+    {d:'porezna-uprava.gov.hr',t:'Gov',s:25},{d:'croatia.hr',t:'Tourism',s:19},{d:'hzzo.hr',t:'Healthcare',s:33},
+    {d:'allianz.hr',t:'Insurance',s:29},{d:'jadrolinija.hr',t:'Transport',s:44},{d:'hep.hr',t:'Energy',s:27},
+    {d:'konzum.hr',t:'Retail',s:38},{d:'lidl.hr',t:'Retail',s:31},{d:'plodine.hr',t:'Retail',s:41},
+    {d:'hns-cff.hr',t:'Sports',s:35},{d:'ina.hr',t:'Energy',s:22},{d:'hpb.hr',t:'Banking',s:33},
+    {d:'airflight.hr',t:'Aviation',s:28},{d:'hrvatska-posta.hr',t:'Logistics',s:37}
+  ],
+  UA: [
+    {d:'privatbank.ua',t:'Banking',s:44},{d:'monobank.ua',t:'Banking',s:29},{d:'oschadbank.ua',t:'Banking',s:38},
+    {d:'kyivstar.ua',t:'Telecom',s:35},{d:'lifecell.ua',t:'Telecom',s:41},{d:'rozetka.ua',t:'E-commerce',s:27},
+    {d:'prom.ua',t:'Marketplace',s:33},{d:'pravda.com.ua',t:'Media',s:22},{d:'ukrinform.ua',t:'Media',s:31},
+    {d:'gov.ua',t:'Gov',s:19},{d:'kmu.gov.ua',t:'Gov',s:25},{d:'energoatom.ua',t:'Energy',s:52},
+    {d:'naftogaz.ua',t:'Energy',s:48},{d:'ukrposhta.ua',t:'Logistics',s:37},{d:'nova-poshta.ua',t:'Logistics',s:29},
+    {d:'moz.gov.ua',t:'Healthcare',s:33},{d:'epicentrk.ua',t:'Retail',s:41},{d:'foxtrot.ua',t:'Retail',s:35},
+    {d:'allo.ua',t:'E-commerce',s:44},{d:'metro.ua',t:'Retail',s:28}
+  ],
+  TR: [
+    {d:'isbank.com.tr',t:'Banking',s:31},{d:'akbank.com',t:'Banking',s:27},{d:'garantibbva.com.tr',t:'Banking',s:35},
+    {d:'turkcell.com.tr',t:'Telecom',s:29},{d:'turk.net',t:'Telecom',s:41},{d:'trendyol.com',t:'E-commerce',s:22},
+    {d:'hepsiburada.com',t:'E-commerce',s:28},{d:'sabah.com.tr',t:'Media',s:33},{d:'hurriyet.com.tr',t:'Media',s:39},
+    {d:'e-devlet.gov.tr',t:'Gov',s:18},{d:'gib.gov.tr',t:'Gov',s:25},{d:'thyao.com.tr',t:'Aviation',s:26},
+    {d:'pegasusairlines.com',t:'Aviation',s:33},{d:'migros.com.tr',t:'Retail',s:29},{d:'bim.com.tr',t:'Retail',s:38},
+    {d:'aksigorta.com.tr',t:'Insurance',s:31},{d:'enerjisa.com.tr',t:'Energy',s:24},{d:'arcelik.com',t:'Industry',s:28},
+    {d:'koc.com.tr',t:'Industry',s:22},{d:'ptt.gov.tr',t:'Logistics',s:44}
+  ],
+  IL: [
+    {d:'bankhapoalim.co.il',t:'Banking',s:27},{d:'bankleumi.co.il',t:'Banking',s:33},{d:'mizrahi-tefahot.co.il',t:'Banking',s:39},
+    {d:'bezeq.co.il',t:'Telecom',s:29},{d:'partner.co.il',t:'Telecom',s:36},{d:'amazon.co.il',t:'E-commerce',s:18},
+    {d:'ksp.co.il',t:'E-commerce',s:29},{d:'ynet.co.il',t:'Media',s:22},{d:'haaretz.co.il',t:'Media',s:28},
+    {d:'gov.il',t:'Gov',s:16},{d:'misim.gov.il',t:'Gov',s:23},{d:'idf.il',t:'Defence',s:19},
+    {d:'elbit.co.il',t:'Defence',s:25},{d:'iai.co.il',t:'Defence',s:31},{d:'elal.co.il',t:'Aviation',s:35},
+    {d:'clalit.org.il',t:'Healthcare',s:27},{d:'shufersal.co.il',t:'Retail',s:33},{d:'rami-levy.co.il',t:'Retail',s:41},
+    {d:'teva.co.il',t:'Healthcare',s:22},{d:'orbotech.com',t:'Tech',s:28}
+  ],
+  AE: [
+    {d:'emiratesnbd.com',t:'Banking',s:25},{d:'adcb.com',t:'Banking',s:31},{d:'fab.ae',t:'Banking',s:37},
+    {d:'du.ae',t:'Telecom',s:28},{d:'etisalat.ae',t:'Telecom',s:22},{d:'noon.com',t:'E-commerce',s:19},
+    {d:'namshi.com',t:'Fashion',s:27},{d:'khaleejtimes.com',t:'Media',s:33},{d:'gulfnews.com',t:'Media',s:28},
+    {d:'government.ae',t:'Gov',s:16},{d:'mof.gov.ae',t:'Gov',s:22},{d:'emirates.com',t:'Aviation',s:18},
+    {d:'etihad.com',t:'Aviation',s:24},{d:'dewa.gov.ae',t:'Energy',s:29},{d:'adnoc.ae',t:'Energy',s:33},
+    {d:'empost.ae',t:'Logistics',s:41},{d:'carrefouruae.com',t:'Retail',s:25},{d:'majidulfuttaim.com',t:'Retail',s:31},
+    {d:'abudhabi.ae',t:'Gov',s:19},{d:'dubaipolice.gov.ae',t:'Gov',s:27}
+  ],
+  SG: [
+    {d:'dbs.com.sg',t:'Banking',s:19},{d:'ocbc.com.sg',t:'Banking',s:25},{d:'uob.com.sg',t:'Banking',s:31},
+    {d:'singtel.com',t:'Telecom',s:22},{d:'starhub.com',t:'Telecom',s:28},{d:'lazada.com.sg',t:'E-commerce',s:17},
+    {d:'shopee.sg',t:'E-commerce',s:24},{d:'channelnewsasia.com',t:'Media',s:21},{d:'straitstimes.com',t:'Media',s:27},
+    {d:'gov.sg',t:'Gov',s:14},{d:'iras.gov.sg',t:'Gov',s:19},{d:'singaporeair.com',t:'Aviation',s:22},
+    {d:'ntuc.org.sg',t:'Labour',s:29},{d:'cpf.gov.sg',t:'Gov',s:18},{d:'singhealth.com.sg',t:'Healthcare',s:25},
+    {d:'fairprice.com.sg',t:'Retail',s:31},{d:'capitaland.com',t:'Real Estate',s:24},{d:'sea.com',t:'Tech',s:19},
+    {d:'grab.com',t:'Tech',s:22},{d:'garena.com',t:'Tech',s:28}
+  ],
+  JP: [
+    {d:'mizuho-fg.co.jp',t:'Banking',s:22},{d:'smfg.co.jp',t:'Banking',s:27},{d:'mufg.jp',t:'Banking',s:31},
+    {d:'ntt.co.jp',t:'Telecom',s:19},{d:'softbank.jp',t:'Telecom',s:25},{d:'amazon.co.jp',t:'E-commerce',s:14},
+    {d:'rakuten.co.jp',t:'E-commerce',s:21},{d:'nhk.or.jp',t:'Media',s:18},{d:'asahi.com',t:'Media',s:26},
+    {d:'e-gov.go.jp',t:'Gov',s:16},{d:'nta.go.jp',t:'Gov',s:22},{d:'ana.co.jp',t:'Aviation',s:27},
+    {d:'jal.com',t:'Aviation',s:24},{d:'toyota.com',t:'Auto',s:19},{d:'sony.com',t:'Tech',s:22},
+    {d:'panasonic.com',t:'Tech',s:28},{d:'hitachi.com',t:'Industry',s:31},{d:'7andi.com',t:'Retail',s:25},
+    {d:'aeon.info',t:'Retail',s:33},{d:'japanpost.jp',t:'Logistics',s:28}
+  ],
+  KR: [
+    {d:'kbstar.com',t:'Banking',s:24},{d:'shinhan.com',t:'Banking',s:29},{d:'hanabank.com',t:'Banking',s:35},
+    {d:'kt.com',t:'Telecom',s:21},{d:'sktelecom.com',t:'Telecom',s:27},{d:'coupang.com',t:'E-commerce',s:18},
+    {d:'gmarket.co.kr',t:'E-commerce',s:25},{d:'kbs.co.kr',t:'Media',s:19},{d:'chosun.com',t:'Media',s:28},
+    {d:'korea.go.kr',t:'Gov',s:15},{d:'nts.go.kr',t:'Gov',s:21},{d:'koreanair.com',t:'Aviation',s:24},
+    {d:'asiana.com',t:'Aviation',s:31},{d:'samsung.com',t:'Tech',s:17},{d:'lg.com',t:'Tech',s:22},
+    {d:'hyundai.com',t:'Auto',s:25},{d:'posco.co.kr',t:'Industry',s:29},{d:'emart.com',t:'Retail',s:33},
+    {d:'lotte.com',t:'Retail',s:38},{d:'korail.com',t:'Transport',s:41}
+  ],
+  IN: [
+    {d:'sbi.co.in',t:'Banking',s:35},{d:'hdfcbank.com',t:'Banking',s:28},{d:'icicibank.com',t:'Banking',s:33},
+    {d:'jio.com',t:'Telecom',s:22},{d:'airtel.in',t:'Telecom',s:27},{d:'flipkart.com',t:'E-commerce',s:19},
+    {d:'amazon.in',t:'E-commerce',s:16},{d:'ndtv.com',t:'Media',s:29},{d:'hindustantimes.com',t:'Media',s:35},
+    {d:'india.gov.in',t:'Gov',s:18},{d:'incometax.gov.in',t:'Gov',s:24},{d:'airindia.in',t:'Aviation',s:31},
+    {d:'indigo.in',t:'Aviation',s:27},{d:'relianceindustries.com',t:'Industry',s:22},{d:'tata.com',t:'Industry',s:19},
+    {d:'infosys.com',t:'Tech',s:24},{d:'wipro.com',t:'Tech',s:28},{d:'bajajfinserv.in',t:'Finance',s:33},
+    {d:'lic.gov.in',t:'Insurance',s:41},{d:'irctc.co.in',t:'Transport',s:38}
+  ],
+  BR: [
+    {d:'bb.com.br',t:'Banking',s:31},{d:'itau.com.br',t:'Banking',s:27},{d:'bradesco.com.br',t:'Banking',s:35},
+    {d:'tim.com.br',t:'Telecom',s:29},{d:'vivo.com.br',t:'Telecom',s:33},{d:'mercadolivre.com.br',t:'E-commerce',s:21},
+    {d:'americanas.com.br',t:'E-commerce',s:28},{d:'globo.com',t:'Media',s:19},{d:'uol.com.br',t:'Portal',s:25},
+    {d:'gov.br',t:'Gov',s:16},{d:'receita.fazenda.gov.br',t:'Gov',s:22},{d:'latam.com',t:'Aviation',s:27},
+    {d:'gol.com.br',t:'Aviation',s:33},{d:'petrobras.com.br',t:'Energy',s:25},{d:'eletrobras.com',t:'Energy',s:31},
+    {d:'correios.com.br',t:'Logistics',s:44},{d:'porto-seguro.com.br',t:'Insurance',s:29},{d:'magazine-luiza.com.br',t:'Retail',s:37},
+    {d:'assai.com.br',t:'Retail',s:41},{d:'embraer.com',t:'Aviation',s:22}
+  ],
+  ZA: [
+    {d:'standardbank.co.za',t:'Banking',s:28},{d:'fnb.co.za',t:'Banking',s:35},{d:'absa.co.za',t:'Banking',s:41},
+    {d:'vodacom.co.za',t:'Telecom',s:27},{d:'mtn.co.za',t:'Telecom',s:33},{d:'takealot.com',t:'E-commerce',s:24},
+    {d:'bidorbuy.co.za',t:'E-commerce',s:31},{d:'news24.com',t:'Media',s:22},{d:'timeslive.co.za',t:'Media',s:29},
+    {d:'gov.za',t:'Gov',s:19},{d:'sars.gov.za',t:'Gov',s:25},{d:'flysaa.com',t:'Aviation',s:37},
+    {d:'comair.co.za',t:'Aviation',s:44},{d:'sasol.com',t:'Energy',s:29},{d:'eskom.co.za',t:'Energy',s:52},
+    {d:'woolworths.co.za',t:'Retail',s:33},{d:'dischem.co.za',t:'Healthcare',s:28},{d:'medihelp.co.za',t:'Insurance',s:38},
+    {d:'oldmutual.com',t:'Insurance',s:31},{d:'telkom.co.za',t:'Telecom',s:41}
   ]
 };
 
@@ -4121,9 +4401,7 @@ function scoreColor(s) {
   return s >= 60 ? '#C0392B' : s >= 30 ? '#D4850A' : '#1A7A4A';
 }
 
-function switchCountry(code, btn) {
-  document.querySelectorAll('.ctab').forEach(function(t){ t.classList.remove('active'); });
-  btn.classList.add('active');
+function switchCountry(code) {
   renderTopDomains(code);
 }
 
@@ -4146,7 +4424,8 @@ function renderTopDomains(code) {
 }
 
 window.addEventListener('DOMContentLoaded', function() {
-  renderTopDomains('CZ');
+  var sel = document.getElementById('country-select');
+  renderTopDomains(sel ? sel.value : 'CZ');
 });
 </script>
 
