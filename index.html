@@ -1897,8 +1897,7 @@ function renderReportPage(data, domain, isSample) {
       <button class="db-tab" onclick="dbShowTab('domains',this)">🌐 Domains</button>
       <button class="db-tab" onclick="dbShowTab('threats',this)">⚡ Threats & Intel</button>
       <button class="db-tab" onclick="dbShowTab('account',this);dbLoadAccount()">👤 Account</button>
-      <button class="db-tab" id="prospects-tab-btn" onclick="dbShowTab('prospects',this)" style="display:none">🎯 Prospects</button>
-      <button class="db-tab" id="outreach-tab-btn" onclick="dbShowTab('outreach',this)" style="display:none">📨 Outreach</button>
+      <button class="db-tab" id="marketing-tab-btn" onclick="dbShowTab('marketing',this)" style="display:none">📣 Marketing</button>
       <button class="db-tab" id="admin-tab-btn" onclick="dbShowTabAdmin('admin',this)" style="display:none">⚙️ Admin</button>
     </div>
     <div class="db-nav-right">
@@ -2080,16 +2079,15 @@ function renderReportPage(data, domain, isSample) {
       </div>
     </div>
 
-    <!-- ── TAB: PROSPECTS ───────────────────────────────────── -->
-    <div class="db-page" id="db-prospects">
+    <div class="db-page" id="db-marketing">
       <div class="db-inner">
 
         <div class="db-header">
           <div>
-            <h2 class="db-title">🎯 Prospect Intelligence</h2>
-            <p style="color:var(--grey);font-size:13px;margin-top:4px">Most exposed domains by country — ready-to-send cold outreach targets</p>
+            <h2 class="db-title">📣 Marketing Intelligence</h2>
+            <p style="color:var(--grey);font-size:13px;margin-top:4px">Daily 08:00 scan · Most threatened domains · AI-drafted outreach</p>
           </div>
-          <div style="display:flex;gap:10px;align-items:center">
+          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
             <select id="prospect-country" class="prospect-select" onchange="prospectFilterCountry(this.value)">
               <option value="all">All Countries</option>
               <option value="CZ">🇨🇿 Czech Republic</option>
@@ -2100,8 +2098,14 @@ function renderReportPage(data, domain, isSample) {
               <option value="AT">🇦🇹 Austria</option>
               <option value="DE">🇩🇪 Germany</option>
             </select>
-            <button class="btn-scan-all" onclick="prospectRunScan()">⟳ Run Live Scan</button>
+            <button class="btn-scan-all" onclick="prospectRunScan()">⟳ Run Now</button>
+            <button class="btn-send-all" onclick="outreachSendApproved()" id="outreach-send-btn">✉ Send Approved</button>
           </div>
+        </div>
+
+        <!-- ── SECTION 1: THREAT DISCOVERY ── -->
+        <div style="font-family:'Space Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--grey);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid rgba(255,255,255,.06)">
+          ▸ Threat Discovery — Top CVE-Exposed Domains
         </div>
 
         <!-- Stats bar -->
@@ -2126,60 +2130,41 @@ function renderReportPage(data, domain, isSample) {
 
         <!-- Scan progress bar (prospects) -->
         <div id="prospect-scan-progress" style="display:none;margin-bottom:20px">
-          <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--grey);font-family:'Space Mono',monospace;margin-bottom:6px">
+          <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--grey);font-family:'Space Mono',monospace;margin-bottom:5px">
             <span id="prospect-scan-label">Scanning…</span>
             <span id="prospect-scan-pct">0%</span>
           </div>
-          <div style="background:rgba(255,255,255,.06);border-radius:4px;height:4px">
+          <div style="background:rgba(255,255,255,.06);border-radius:3px;height:4px">
             <div id="prospect-scan-bar" style="height:4px;background:var(--lime);border-radius:4px;width:0%;transition:width .3s ease"></div>
           </div>
         </div>
 
         <!-- Schedule toolbar (appears when domains are checked) -->
-        <div id="prospect-schedule-bar" style="display:none;background:rgba(203,255,0,.06);border:1px solid rgba(203,255,0,.2);border-radius:10px;padding:12px 18px;margin-bottom:16px;display:none;align-items:center;gap:12px;flex-wrap:wrap">
+        <div id="prospect-schedule-bar" style="display:none;background:rgba(203,255,0,.06);border:1px solid rgba(203,255,0,.2);border-radius:10px;padding:12px 18px;margin-bottom:16px;align-items:center;gap:12px;flex-wrap:wrap">
           <span style="font-family:'Space Mono',monospace;font-size:12px;color:var(--lime)" id="prospect-sel-label">0 selected</span>
           <div style="flex:1;min-width:160px">
             <label style="font-size:10px;color:var(--grey);font-family:'Space Mono',monospace;text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:3px">Outreach Date</label>
             <input type="date" id="prospect-schedule-date" style="background:var(--card);border:1px solid rgba(255,255,255,.15);color:var(--white);font-family:'Space Mono',monospace;font-size:12px;padding:6px 10px;border-radius:6px;outline:none;cursor:pointer">
           </div>
-          <button class="btn-scan-all" onclick="prospectScheduleSelected()" style="white-space:nowrap">📅 Schedule for Outreach</button>
+          <button class="btn-scan-all" onclick="prospectScheduleSelected()" style="white-space:nowrap">📅 Approve for Outreach</button>
           <button onclick="prospectClearSelection()" style="background:transparent;border:1px solid rgba(255,255,255,.1);color:var(--grey);font-family:'Space Mono',monospace;font-size:11px;padding:7px 14px;border-radius:6px;cursor:pointer">✕ Clear</button>
         </div>
 
         <!-- Prospect cards grid -->
         <div id="prospect-list" class="prospect-list">
           <div class="db-empty" style="padding:60px;text-align:center">
-            <div style="font-size:32px;margin-bottom:12px">🎯</div>
-            <div style="color:var(--white);font-size:15px;font-weight:600;margin-bottom:8px">Prospect Intelligence Ready</div>
-            <div style="color:var(--grey);font-size:13px;max-width:400px;margin:0 auto 20px">
-              Click <strong style="color:var(--lime)">Run Live Scan</strong> to detect the most exposed domains across CEE —
-              sorted by CVE severity with AI-generated cold email hooks.
+            <div style="font-size:32px;margin-bottom:12px">📣</div>
+            <div style="color:var(--white);font-size:15px;font-weight:600;margin-bottom:8px">Marketing Intelligence Ready</div>
+            <div style="color:var(--grey);font-size:13px;max-width:420px;margin:0 auto 20px">
+              Daily scan runs at <strong style="color:var(--lime)">08:00</strong> automatically. Click <strong style="color:var(--lime)">Run Now</strong> to scan immediately — domains ranked by CVE severity with AI cold-email drafts. Tick domains to approve for outreach.
             </div>
-            <button class="btn-scan-all" onclick="prospectRunScan()">⟳ Run Live Scan Now</button>
+            <button class="btn-scan-all" onclick="prospectRunScan()">⟳ Run Now</button>
           </div>
         </div>
 
-      </div>
-    </div>
-
-
-    <!-- ── TAB: OUTREACH ────────────────────────────────────── -->
-    <div class="db-page" id="db-outreach">
-      <div class="db-inner">
-
-        <div class="db-header">
-          <div>
-            <h2 class="db-title">📨 Outreach</h2>
-            <p style="color:var(--grey);font-size:13px;margin-top:4px">
-              Review AI-drafted cold emails, edit, approve, then send in one click
-            </p>
-          </div>
-          <div style="display:flex;gap:10px">
-            <button class="btn-run-scan" onclick="outreachRunScan()">⟳ Run Scan Now</button>
-            <button class="btn-send-all" onclick="outreachSendApproved()" id="outreach-send-btn">
-              ✉ Send Approved
-            </button>
-          </div>
+        <!-- ── SECTION 2: OUTREACH QUEUE ── -->
+        <div style="font-family:'Space Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--grey);margin:28px 0 12px;padding-bottom:8px;border-bottom:1px solid rgba(255,255,255,.06)">
+          ▸ Outreach Queue — Approved &amp; Sent Emails
         </div>
 
         <!-- Filters + stats -->
@@ -2196,7 +2181,7 @@ function renderReportPage(data, domain, isSample) {
           </div>
         </div>
 
-        <!-- Scan progress -->
+        <!-- Outreach scan progress -->
         <div id="outreach-scan-progress" style="display:none;margin-bottom:16px">
           <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--grey);font-family:'Space Mono',monospace;margin-bottom:5px">
             <span id="outreach-scan-label">Running daily scan…</span>
@@ -2207,16 +2192,14 @@ function renderReportPage(data, domain, isSample) {
           </div>
         </div>
 
-        <!-- Cards list -->
+        <!-- Outreach cards list -->
         <div id="outreach-list" class="outreach-list">
           <div class="outreach-empty">
             <div style="font-size:28px;margin-bottom:10px">📨</div>
             <div style="color:var(--white);font-weight:600;margin-bottom:6px">No outreach queue yet</div>
             <div style="font-size:13px;max-width:360px;margin:0 auto 18px">
-              Click <strong style="color:var(--lime)">Run Scan Now</strong> to detect
-              vulnerable domains — AI drafts the email, you review and approve.
+              Tick domains above and click <strong style="color:var(--lime)">Approve for Outreach</strong> — AI drafts the email, you review and send.
             </div>
-            <button class="btn-send-all" onclick="outreachRunScan()">⟳ Run Scan Now</button>
           </div>
         </div>
 
@@ -2329,8 +2312,7 @@ function renderReportPage(data, domain, isSample) {
               <div style="font-size:12px;color:var(--grey)">Scan CEE company domains for CVEs → auto-generate cold outreach emails</div>
             </div>
             <div style="display:flex;gap:8px">
-              <button class="btn-scan-all" onclick="dbShowTab('prospects',document.getElementById('prospects-tab-btn'))">Open Scanner →</button>
-              <button class="btn-scan-all" onclick="dbShowTab('outreach',document.getElementById('outreach-tab-btn'))">Open Outreach →</button>
+              <button class="btn-scan-all" onclick="dbShowTab('marketing',document.getElementById('marketing-tab-btn'))">Open Marketing →</button>
             </div>
           </div>
 
@@ -2530,10 +2512,11 @@ function dbShowTab(tab, btn) {
   // legacy redirects
   if (tab === 'intel') tab = 'threats';
   if (tab === 'competitors' || tab === 'supply-chain') tab = 'domains';
+  if (tab === 'prospects' || tab === 'outreach') tab = 'marketing';
   document.getElementById('db-'+tab).classList.add('active');
   if (tab === 'threats' && !dbIntelLoaded) dbLoadIntel(false);
   if (tab === 'domains') compLoad();
-  if (tab === 'outreach') outreachLoad();
+  if (tab === 'marketing') outreachLoad();
 }
 
 async function dbLoadAll() {
@@ -3460,7 +3443,7 @@ async function adminLoadProspects() {
         return '<tr>'
           +'<td style="color:var(--white)">' + labels[s] + '</td>'
           +'<td style="font-family:Space Mono,monospace;font-weight:700;color:' + (s==='sent'?'#2ECC71':s==='approved'?'var(--lime)':s==='pending'?'#D4850A':'var(--grey)') + '">' + n + '</td>'
-          +'<td><button class="admin-btn-sm" onclick="dbShowTab(\'outreach\',document.getElementById(\'outreach-tab-btn\'))">Open Outreach →</button></td>'
+          +'<td><button class="admin-btn-sm" onclick="dbShowTab(\'marketing\',document.getElementById(\'marketing-tab-btn\'))">Open Marketing →</button></td>'
           +'</tr>';
       }).join('');
     }
@@ -4797,19 +4780,16 @@ function refreshAdminAccess() {
     .then(function(r){ return r.json(); })
     .then(function(u){
       var adminBtn = document.getElementById('admin-tab-btn');
-      var prospectsBtn = document.getElementById('prospects-tab-btn');
-      var outreachBtn = document.getElementById('outreach-tab-btn');
+      var marketingBtn = document.getElementById('marketing-tab-btn');
       if (!adminBtn) return;
       if (u.is_admin) {
         adminBtn.style.display = '';
-        if (prospectsBtn) prospectsBtn.style.display = '';
-        if (outreachBtn) outreachBtn.style.display = '';
+        if (marketingBtn) marketingBtn.style.display = '';
         currentUser = Object.assign(currentUser || {}, { is_admin: true });
         localStorage.setItem('sw_user', JSON.stringify(currentUser));
       } else {
         adminBtn.style.display = 'none';
-        if (prospectsBtn) prospectsBtn.style.display = 'none';
-        if (outreachBtn) outreachBtn.style.display = 'none';
+        if (marketingBtn) marketingBtn.style.display = 'none';
       }
     }).catch(function(){});
 }
