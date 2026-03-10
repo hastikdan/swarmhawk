@@ -1605,7 +1605,10 @@ async function startCheckout(plan) {
     if (!data.url) throw new Error('No checkout URL returned');
     window.location.href = data.url;
   } catch(e) {
-    toast('Checkout failed: ' + e.message, true);
+    var msg = e.message || 'Unknown error';
+    console.error('Checkout error:', msg);
+    toast('Checkout failed: ' + msg, true);
+    alert('Checkout error: ' + msg);
     if (btn) { btn.disabled=false; btn.textContent = labels[plan]; }
   }
 }
