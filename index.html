@@ -5052,6 +5052,7 @@ async function adminLoad() {
 }
 
 async function adminLoadLLMStats() {
+  if (!currentUser || !currentUser.is_admin) return;  // guard: admin only
   var el = document.getElementById('llm-stats-body');
   if (!el) return;
   el.innerHTML = '<div class="db-empty"><div class="spinner" style="width:20px;height:20px;border-width:2px;margin:0 auto 8px"></div>Loading from Portkey…</div>';
