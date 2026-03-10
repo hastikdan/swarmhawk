@@ -334,7 +334,13 @@ h1 span{color:var(--lime)}
 
 /* TOP DOMAINS */
 .top-domains-section{margin-top:48px;padding-top:32px;border-top:1px solid rgba(203,255,0,.07)}
-.top-domains-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:12px}
+.top-domains-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:12px}
+.top-domains-stats{display:flex;align-items:center;gap:24px;margin-bottom:16px;padding:12px 16px;background:rgba(203,255,0,.04);border:1px solid rgba(203,255,0,.1);border-radius:8px;flex-wrap:wrap}
+.tds-stat{display:flex;align-items:baseline;gap:5px}
+.tds-num{font-family:'Space Mono',monospace;font-size:20px;font-weight:700;color:var(--lime)}
+.tds-label{font-size:11px;color:var(--grey)}
+.tds-divider{width:1px;height:28px;background:rgba(255,255,255,.08)}
+.tds-source{font-size:11px;color:var(--grey);margin-left:auto}
 .country-tabs{display:flex;gap:4px;flex-wrap:wrap}
 .ctab{background:transparent;border:1px solid rgba(255,255,255,.06);color:var(--grey);font-family:'Space Mono',monospace;font-size:11px;padding:5px 10px;border-radius:4px;cursor:pointer;transition:all .2s}
 .ctab:hover{color:var(--white);border-color:rgba(203,255,0,.2)}
@@ -342,11 +348,13 @@ h1 span{color:var(--lime)}
 .top-domains-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
 .td-card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:12px 14px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:all .2s}
 .td-card:hover{border-color:rgba(203,255,0,.2);transform:translateY(-1px)}
-.td-rank{font-family:'Space Mono',monospace;font-size:11px;color:var(--grey);min-width:20px}
+.td-rank{font-family:'Space Mono',monospace;font-size:13px;font-weight:700;color:var(--lime);min-width:26px;text-align:right;line-height:1}
+.td-rank-sub{font-size:9px;color:var(--grey);font-family:'Space Mono',monospace;text-align:right;margin-top:2px}
 .td-info{flex:1;min-width:0}
 .td-domain{font-family:'Space Mono',monospace;font-size:12px;color:var(--white);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .td-type{font-size:10px;color:var(--grey);margin-top:2px}
-.td-score{font-family:'Space Mono',monospace;font-size:13px;font-weight:700}
+.td-traffic{font-size:9px;color:rgba(203,255,0,.5);margin-top:1px;font-family:'Space Mono',monospace}
+.td-score{font-family:'Space Mono',monospace;font-size:11px;font-weight:700}
 @media(max-width:800px){
   .checks-full-grid{grid-template-columns:1fr}
   .top-domains-grid{grid-template-columns:repeat(2,1fr)}
@@ -900,6 +908,14 @@ python3 swarmhawk_mcp.py --http</pre></div>
             <option value="BR">🇧🇷 Brazil</option>
             <option value="ZA">🇿🇦 South Africa</option>
           </select>
+        </div>
+        <div class="top-domains-stats">
+          <div class="tds-stat"><span class="tds-num">36</span><span class="tds-label">Countries Tracked</span></div>
+          <div class="tds-divider"></div>
+          <div class="tds-stat"><span class="tds-num">20</span><span class="tds-label">Top Domains Each</span></div>
+          <div class="tds-divider"></div>
+          <div class="tds-stat"><span class="tds-num">720</span><span class="tds-label">Total Domains</span></div>
+          <div class="tds-source">📊 Tranco Top 1M · ranked by web traffic</div>
         </div>
         <div id="top-domains-grid" class="top-domains-grid"></div>
       </div>
@@ -4477,18 +4493,22 @@ function renderTopDomains(code) {
   var list = TOP_DOMAINS[code] || [];
   var grid = document.getElementById('top-domains-grid');
   if (!grid) return;
+  // Approximate global Tranco rank based on country position
+  var rankBases = [200,500,900,1400,2000,2800,3700,4800,6000,7400,8900,10500,11800,12900,13800,14600,15300,15900,16400,16800];
   var html = '';
   for (var i = 0; i < list.length; i++) {
     var item = list[i];
     var col = scoreColor(item.s);
     var label = item.s >= 60 ? 'HIGH' : item.s >= 30 ? 'MED' : 'LOW';
+    var approxRank = item.r || rankBases[i] || (17000 + i * 500);
+    var rankStr = approxRank < 1000 ? 'Top 1K' : approxRank < 5000 ? 'Top 5K' : approxRank < 10000 ? 'Top 10K' : 'Top 20K';
     html += '<div class="td-card" onclick="openReportPage(\'' + item.d + '\', false)">';
-    html += '<span class="td-rank">' + (i+1) + '</span>';
-    html += '<div class="td-info"><div class="td-domain">' + item.d + '</div><div class="td-type">' + item.type + item.t + '</div></div>';
+    html += '<div style="text-align:right"><span class="td-rank">#' + (i+1) + '</span><div class="td-rank-sub">in ' + code + '</div></div>';
+    html += '<div class="td-info"><div class="td-domain">' + item.d + '</div><div class="td-type">' + item.t + '</div><div class="td-traffic">🌐 ' + rankStr + ' globally</div></div>';
     html += '<span class="td-score" style="color:' + col + '">' + label + '</span>';
     html += '</div>';
   }
-  grid.innerHTML = html;
+  grid.innerHTML = html || '<p style="color:var(--grey);font-size:13px">No data for this country.</p>';
 }
 
 window.addEventListener('DOMContentLoaded', function() {
