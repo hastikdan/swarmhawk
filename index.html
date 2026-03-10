@@ -3518,8 +3518,9 @@ async function prospectRunScan() {
   var list = document.getElementById('prospect-list');
   if (list) list.innerHTML = '<div class="db-empty" style="padding:40px;text-align:center"><div class="spinner" style="width:28px;height:28px;border-width:2.5px;margin:0 auto 12px"></div>Scanning domains across CEE…</div>';
 
-  var countries = Object.keys(PROSPECT_DOMAINS);
-  var totalDomains = countries.reduce(function(s,c){ return s + PROSPECT_DOMAINS[c].length; }, 0);
+  var selectedCountry = (document.getElementById('prospect-country') || {}).value || 'all';
+  var countries = selectedCountry === 'all' ? Object.keys(PROSPECT_DOMAINS) : [selectedCountry];
+  var totalDomains = countries.reduce(function(s,c){ return s + (PROSPECT_DOMAINS[c] || []).length; }, 0);
   var scanned = 0;
 
   for (var ci = 0; ci < countries.length; ci++) {
