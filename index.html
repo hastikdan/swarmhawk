@@ -701,8 +701,6 @@ h1 span{color:var(--lime)}
             <span class="pill">Free tier available</span>
           </div>
           <div class="split-actions">
-            <span class="status-badge" id="mcp-status"><span class="logo-dot"></span> Checking server…</span>
-            <a href="https://github.com/hastikdan/swarmhawk" target="_blank" class="btn-ghost">View on GitHub ↗</a>
           </div>
         </div>
         <div class="split-code">
@@ -737,12 +735,6 @@ git clone github.com/hastikdan/swarmhawk
 cd swarmhawk
 
 python3 swarmhawk_mcp.py --http</pre></div>
-          <div class="key-gen-bar" style="margin-top:12px">
-            <div class="key-display" id="api-key-display">Click to generate your free API key</div>
-            <button class="btn-gen" onclick="generateKey()">Get Free Key</button>
-            <button class="btn-copy" onclick="copyKey()">Copy</button>
-          </div>
-          <p style="font-size:11px;color:var(--grey);margin-top:8px">Free: 10 scans/month · Pro: €29/mo · Business: €99/mo</p>
         </div>
       </div>
 
@@ -1129,7 +1121,6 @@ window.addEventListener('DOMContentLoaded', () => {
     setTimeout(function(){ toast('✓ Email confirmed — you can now sign in'); }, 500);
     history.replaceState(null,'', window.location.pathname);
   }
-  checkMCPStatus();
 });
 
 function activateScanner() {
@@ -1146,17 +1137,6 @@ function activateScanner() {
   openDashboard();
 }
 
-async function checkMCPStatus() {
-  const badge = document.getElementById('mcp-status');
-  try {
-    const r = await fetch(MCP_URL, {signal: AbortSignal.timeout(5000)});
-    badge.innerHTML = '<span class="logo-dot"></span> MCP Server Online';
-    badge.className = 'status-badge';
-  } catch {
-    badge.innerHTML = '⚠ MCP Server Starting…';
-    badge.className = 'status-badge offline';
-  }
-}
 
 function switchCodeTab(tab, btn) {
   document.querySelectorAll('.code-tab').forEach(t=>t.classList.remove('active'));
