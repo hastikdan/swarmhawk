@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SwarmHawk API Documentation</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0e0d12;--card:#16151e;--border:rgba(255,255,255,.08);
+  --white:#f0eef8;--grey:#6b6880;--lime:#cbff00;--black:#0e0d12;
+  --red:#C0392B;--amber:#D4850A;--green:#2ECC71;--blue:#4285F4;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--white);font-family:'Inter',sans-serif;font-size:14px;line-height:1.6}
+
+/* ── Layout ── */
+.docs-layout{display:grid;grid-template-columns:260px 1fr;min-height:100vh}
+
+/* ── Sidebar ── */
+.sidebar{position:sticky;top:0;height:100vh;overflow-y:auto;background:var(--card);border-right:1px solid var(--border);padding:28px 0}
+.sidebar::-webkit-scrollbar{width:4px}
+.sidebar::-webkit-scrollbar-thumb{background:rgba(255,255,255,.08);border-radius:2px}
+.sb-logo{font-family:'Space Mono',monospace;font-weight:700;font-size:13px;letter-spacing:2px;color:var(--white);padding:0 24px 24px;border-bottom:1px solid var(--border);margin-bottom:16px}
+.sb-logo span{color:var(--red)}
+.sb-logo a{text-decoration:none;color:inherit}
+.sb-section{font-family:'Space Mono',monospace;font-size:9px;color:var(--lime);letter-spacing:2px;text-transform:uppercase;padding:12px 24px 6px}
+.sb-link{display:block;padding:6px 24px;font-size:12px;color:var(--grey);text-decoration:none;border-left:2px solid transparent;transition:all .15s}
+.sb-link:hover{color:var(--white);border-left-color:rgba(203,255,0,.3)}
+.sb-link.active{color:var(--lime);border-left-color:var(--lime);background:rgba(203,255,0,.04)}
+.sb-method{display:inline-block;font-family:'Space Mono',monospace;font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;margin-right:6px;vertical-align:middle}
+.m-get{background:rgba(46,204,113,.15);color:var(--green)}
+.m-post{background:rgba(66,133,244,.15);color:var(--blue)}
+.m-delete{background:rgba(192,57,43,.15);color:var(--red)}
+.m-patch{background:rgba(212,133,10,.15);color:var(--amber)}
+
+/* ── Content ── */
+.docs-content{padding:48px 64px;max-width:860px}
+h1{font-family:'Space Mono',monospace;font-size:28px;font-weight:700;color:var(--white);margin-bottom:12px}
+h2{font-family:'Space Mono',monospace;font-size:18px;font-weight:700;color:var(--white);margin:52px 0 16px;padding-bottom:10px;border-bottom:1px solid rgba(203,255,0,.1)}
+h3{font-family:'Space Mono',monospace;font-size:13px;font-weight:700;color:var(--white);margin:32px 0 10px}
+p{color:var(--grey);line-height:1.8;margin-bottom:14px}
+a{color:var(--lime);text-decoration:none}
+a:hover{text-decoration:underline}
+
+.doc-tag{display:inline-block;background:rgba(203,255,0,.08);border:1px solid rgba(203,255,0,.2);color:var(--lime);font-family:'Space Mono',monospace;font-size:10px;letter-spacing:2px;padding:4px 12px;border-radius:20px;margin-bottom:24px;text-transform:uppercase}
+.base-url{font-family:'Space Mono',monospace;font-size:13px;color:var(--lime);background:rgba(203,255,0,.06);border:1px solid rgba(203,255,0,.15);border-radius:8px;padding:12px 18px;margin:16px 0 24px;display:flex;align-items:center;gap:10px}
+.base-url .label{font-size:10px;color:var(--grey);text-transform:uppercase;letter-spacing:1px;min-width:70px}
+
+/* ── Endpoint blocks ── */
+.endpoint{background:var(--card);border:1px solid var(--border);border-radius:10px;margin-bottom:24px;overflow:hidden}
+.endpoint-head{display:flex;align-items:center;gap:12px;padding:14px 20px;border-bottom:1px solid var(--border);background:rgba(255,255,255,.02)}
+.method-badge{font-family:'Space Mono',monospace;font-size:11px;font-weight:700;padding:4px 10px;border-radius:5px;flex-shrink:0}
+.method-get{background:rgba(46,204,113,.12);color:var(--green);border:1px solid rgba(46,204,113,.2)}
+.method-post{background:rgba(66,133,244,.12);color:var(--blue);border:1px solid rgba(66,133,244,.2)}
+.method-delete{background:rgba(192,57,43,.12);color:var(--red);border:1px solid rgba(192,57,43,.2)}
+.method-patch{background:rgba(212,133,10,.12);color:var(--amber);border:1px solid rgba(212,133,10,.2)}
+.endpoint-path{font-family:'Space Mono',monospace;font-size:13px;color:var(--white)}
+.endpoint-desc{font-size:12px;color:var(--grey);margin-left:auto}
+.endpoint-body{padding:16px 20px}
+.endpoint-body p{font-size:12px;margin-bottom:12px}
+
+/* ── Code blocks ── */
+.code-tabs-bar{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:0}
+.code-tab-btn{background:transparent;border:none;border-bottom:2px solid transparent;color:var(--grey);font-family:'Space Mono',monospace;font-size:10px;padding:8px 14px;cursor:pointer;letter-spacing:1px;text-transform:uppercase;transition:all .15s;margin-bottom:-1px}
+.code-tab-btn:hover{color:var(--white)}
+.code-tab-btn.active{color:var(--lime);border-bottom-color:var(--lime)}
+.code-pane{display:none}
+.code-pane.active{display:block}
+pre{background:#0a090f;border-radius:0 0 8px 8px;padding:18px 20px;overflow-x:auto;font-family:'Space Mono',monospace;font-size:11px;line-height:1.7;color:#c9c7d4}
+.code-block-wrap{border:1px solid var(--border);border-radius:8px;overflow:hidden;margin:12px 0 16px}
+.code-block-wrap pre{border-radius:8px;margin:0}
+.code-block-wrap.with-tabs{border-radius:8px}
+.code-block-wrap.with-tabs pre{border-radius:0 0 7px 7px}
+
+/* Syntax colours */
+.kw{color:#c792ea}.str{color:#c3e88d}.num{color:#f78c6c}
+.cm{color:#546e7a;font-style:italic}.key{color:#82aaff}.op{color:var(--lime)}
+
+/* ── Tables ── */
+table{width:100%;border-collapse:collapse;margin:12px 0 20px;font-size:12px}
+th{background:rgba(203,255,0,.05);color:var(--lime);font-family:'Space Mono',monospace;font-size:10px;letter-spacing:1px;text-transform:uppercase;padding:8px 12px;text-align:left;border-bottom:1px solid rgba(203,255,0,.1)}
+td{padding:9px 12px;border-bottom:1px solid rgba(255,255,255,.04);color:var(--grey);vertical-align:top}
+td:first-child{font-family:'Space Mono',monospace;font-size:11px;color:var(--white)}
+tr:last-child td{border-bottom:none}
+
+/* ── Auth / Info boxes ── */
+.info-box{background:rgba(66,133,244,.07);border:1px solid rgba(66,133,244,.2);border-radius:8px;padding:14px 18px;margin:16px 0;font-size:12px;color:#a8c6fa}
+.warn-box{background:rgba(212,133,10,.07);border:1px solid rgba(212,133,10,.2);border-radius:8px;padding:14px 18px;margin:16px 0;font-size:12px;color:#f0c070}
+.badge-inline{font-family:'Space Mono',monospace;font-size:10px;padding:2px 7px;border-radius:4px}
+.badge-required{background:rgba(192,57,43,.15);color:#e87060}
+.badge-optional{background:rgba(107,104,128,.15);color:var(--grey)}
+.badge-auth{background:rgba(66,133,244,.15);color:var(--blue)}
+.badge-free{background:rgba(46,204,113,.12);color:var(--green)}
+
+/* ── Status pills ── */
+.status-ok{color:var(--green)}.status-warning{color:var(--amber)}.status-critical{color:var(--red)}.status-locked{color:var(--grey)}
+
+/* ── Topbar ── */
+.topbar{display:none;background:var(--card);border-bottom:1px solid var(--border);padding:12px 20px;align-items:center;justify-content:space-between}
+.topbar .sb-logo{padding:0;border:none;margin:0}
+
+@media(max-width:900px){
+  .docs-layout{grid-template-columns:1fr}
+  .sidebar{display:none}
+  .topbar{display:flex}
+  .docs-content{padding:32px 20px}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="sb-logo"><a href="/">SWARM<span>HAWK</span></a> · API Docs</div>
+  <a href="/" style="font-family:'Space Mono',monospace;font-size:11px;color:var(--grey)">← Back</a>
+</div>
+
+<div class="docs-layout">
+
+<!-- ── SIDEBAR ── -->
+<nav class="sidebar">
+  <div class="sb-logo"><a href="/">SWARM<span>HAWK</span></a><br><span style="font-size:10px;color:var(--grey);letter-spacing:1px;font-weight:400">API Documentation</span></div>
+
+  <div class="sb-section">Getting Started</div>
+  <a class="sb-link active" href="#overview">Overview</a>
+  <a class="sb-link" href="#authentication">Authentication</a>
+  <a class="sb-link" href="#errors">Errors & Rate Limits</a>
+
+  <div class="sb-section">REST API</div>
+  <a class="sb-link" href="#scan"><span class="sb-method m-post">POST</span>Scan Domain</a>
+  <a class="sb-link" href="#public-scan"><span class="sb-method m-post">POST</span>Public Scan</a>
+  <a class="sb-link" href="#passive-scan"><span class="sb-method m-get">GET</span>Passive Scan</a>
+  <a class="sb-link" href="#domains"><span class="sb-method m-get">GET</span>List Domains</a>
+  <a class="sb-link" href="#add-domain"><span class="sb-method m-post">POST</span>Add Domain</a>
+  <a class="sb-link" href="#report"><span class="sb-method m-get">GET</span>Domain Report</a>
+  <a class="sb-link" href="#history"><span class="sb-method m-get">GET</span>Scan History</a>
+  <a class="sb-link" href="#nis2"><span class="sb-method m-get">GET</span>NIS2 Report</a>
+  <a class="sb-link" href="#intel"><span class="sb-method m-post">POST</span>AI Briefing</a>
+
+  <div class="sb-section">API Keys</div>
+  <a class="sb-link" href="#keys-create"><span class="sb-method m-post">POST</span>Create Key</a>
+  <a class="sb-link" href="#keys-list"><span class="sb-method m-get">GET</span>List Keys</a>
+  <a class="sb-link" href="#keys-revoke"><span class="sb-method m-delete">DEL</span>Revoke Key</a>
+
+  <div class="sb-section">MCP Server</div>
+  <a class="sb-link" href="#mcp">MCP Overview</a>
+  <a class="sb-link" href="#mcp-tools">MCP Tools</a>
+
+  <div class="sb-section">Reference</div>
+  <a class="sb-link" href="#objects">Response Objects</a>
+  <a class="sb-link" href="#check-names">Check Names</a>
+</nav>
+
+<!-- ── MAIN CONTENT ── -->
+<main class="docs-content">
+
+  <!-- OVERVIEW -->
+  <section id="overview">
+    <div class="doc-tag">v2.0 · REST + MCP</div>
+    <h1>SwarmHawk API</h1>
+    <p>The SwarmHawk API gives you programmatic access to 22 automated security checks — SSL, DNS, CVEs, breach exposure, typosquats, AI threat analysis and more — for any domain. Use it to build security workflows, automate due diligence, or wire SwarmHawk into your AI assistant via MCP.</p>
+
+    <div class="base-url">
+      <span class="label">Base URL</span>
+      <span>https://swarmhawk-backend.onrender.com</span>
+    </div>
+    <div class="base-url">
+      <span class="label">MCP URL</span>
+      <span>https://www.swarmhawk.com/mcp</span>
+    </div>
+
+    <div class="info-box">📘 All responses are <strong>JSON</strong>. All requests with a body must set <code>Content-Type: application/json</code>.</div>
+
+    <h3>Quick Start — scan a domain in 30 seconds</h3>
+    <div class="code-block-wrap with-tabs">
+      <div class="code-tabs-bar">
+        <button class="code-tab-btn active" onclick="switchTab('qs','curl',this)">cURL</button>
+        <button class="code-tab-btn" onclick="switchTab('qs','python',this)">Python</button>
+        <button class="code-tab-btn" onclick="switchTab('qs','js',this)">JavaScript</button>
+      </div>
+      <div class="code-pane active" id="qs-curl"><pre><span class="cm"># 1. Create a free API key at www.swarmhawk.com → Account → API Keys
+# 2. Run your first scan:</span>
+
+curl -X POST https://swarmhawk-backend.onrender.com/api/v1/scan \
+  -H <span class="str">"X-API-Key: swh_your_key_here"</span> \
+  -H <span class="str">"Content-Type: application/json"</span> \
+  -d <span class="str">'{"domain": "example.com"}'</span></pre></div>
+      <div class="code-pane" id="qs-python"><pre><span class="kw">import</span> requests
+
+API_KEY = <span class="str">"swh_your_key_here"</span>
+
+resp = requests.post(
+    <span class="str">"https://swarmhawk-backend.onrender.com/api/v1/scan"</span>,
+    headers={<span class="str">"X-API-Key"</span>: API_KEY},
+    json={<span class="str">"domain"</span>: <span class="str">"example.com"</span>}
+)
+data = resp.json()
+<span class="kw">print</span>(f<span class="str">"Risk score: {data['risk_score']} · {data['critical']} critical findings"</span>)</pre></div>
+      <div class="code-pane" id="qs-js"><pre><span class="kw">const</span> res = <span class="kw">await</span> fetch(<span class="str">"https://swarmhawk-backend.onrender.com/api/v1/scan"</span>, {
+  method: <span class="str">"POST"</span>,
+  headers: {
+    <span class="str">"X-API-Key"</span>: <span class="str">"swh_your_key_here"</span>,
+    <span class="str">"Content-Type"</span>: <span class="str">"application/json"</span>
+  },
+  body: JSON.stringify({ domain: <span class="str">"example.com"</span> })
+});
+<span class="kw">const</span> data = <span class="kw">await</span> res.json();
+console.log(<span class="str">`Risk: ${data.risk_score} — ${data.critical} critical`</span>);</pre></div>
+    </div>
+  </section>
+
+  <!-- AUTH -->
+  <section id="authentication">
+    <h2>Authentication</h2>
+    <p>SwarmHawk uses two authentication methods depending on the endpoint:</p>
+
+    <table>
+      <thead><tr><th>Method</th><th>Header</th><th>Used for</th></tr></thead>
+      <tbody>
+        <tr><td>API Key</td><td><code>X-API-Key: swh_…</code></td><td>/api/v1/* developer endpoints</td></tr>
+        <tr><td>Session Token</td><td><code>Authorization: Bearer &lt;token&gt;</code></td><td>User dashboard, account management</td></tr>
+        <tr><td>None</td><td>—</td><td>/public-scan, /health</td></tr>
+      </tbody>
+    </table>
+
+    <div class="info-box">🔑 Get your API key at <a href="https://www.swarmhawk.com" target="_blank">www.swarmhawk.com</a> → Sign In → Account → API Keys. Free keys include <strong>10 scans/month</strong>. Upgrade to Annual ($50/yr) for unlimited.</div>
+
+    <h3>API Key format</h3>
+    <div class="code-block-wrap"><pre>swh_3f8a2b1c4d5e6f7a8b9c0d1e2f3a4b5c</pre></div>
+  </section>
+
+  <!-- ERRORS -->
+  <section id="errors">
+    <h2>Errors & Rate Limits</h2>
+    <h3>HTTP status codes</h3>
+    <table>
+      <thead><tr><th>Code</th><th>Meaning</th></tr></thead>
+      <tbody>
+        <tr><td>200</td><td>Success</td></tr>
+        <tr><td>400</td><td>Bad request — check your request body</td></tr>
+        <tr><td>401</td><td>Missing or invalid API key / session token</td></tr>
+        <tr><td>403</td><td>Forbidden — feature requires a paid plan</td></tr>
+        <tr><td>429</td><td>Rate limit exceeded</td></tr>
+        <tr><td>500</td><td>Server error — retry after 30 seconds</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Error response shape</h3>
+    <div class="code-block-wrap"><pre>{
+  <span class="key">"detail"</span>: <span class="str">"Invalid API key"</span>
+}</pre></div>
+
+    <h3>Rate limits</h3>
+    <table>
+      <thead><tr><th>Plan</th><th>Limit</th></tr></thead>
+      <tbody>
+        <tr><td>Free API key</td><td>10 scans / month</td></tr>
+        <tr><td>Annual ($50/yr)</td><td>Unlimited</td></tr>
+        <tr><td>/public-scan</td><td>No key required · throttled by IP</td></tr>
+      </tbody>
+    </table>
+
+    <div class="warn-box">⚠ The backend runs on Render free tier. First request after inactivity may take 15–30 seconds to cold-start. Subsequent requests are fast.</div>
+  </section>
+
+  <!-- SCAN -->
+  <section id="scan">
+    <h2>POST /api/v1/scan</h2>
+    <p>Run a full 22-check security scan on any domain. Returns a risk score, detailed findings, and (for paid users) AI threat analysis. Results are saved to your account.</p>
+
+    <div class="endpoint">
+      <div class="endpoint-head">
+        <span class="method-badge method-post">POST</span>
+        <span class="endpoint-path">/api/v1/scan</span>
+        <span class="endpoint-desc"><span class="badge-inline badge-auth">X-API-Key</span></span>
+      </div>
+      <div class="endpoint-body">
+        <h3 style="margin-top:0">Request body</h3>
+        <table>
+          <thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td>domain</td><td>string</td><td><span class="badge-inline badge-required">required</span></td><td>Domain to scan, e.g. <code>"example.com"</code></td></tr>
+          </tbody>
+        </table>
+        <h3>Response</h3>
+        <div class="code-block-wrap"><pre>{
+  <span class="key">"domain"</span>: <span class="str">"example.com"</span>,
+  <span class="key">"risk_score"</span>: <span class="num">42</span>,
+  <span class="key">"critical"</span>: <span class="num">1</span>,
+  <span class="key">"warnings"</span>: <span class="num">3</span>,
+  <span class="key">"scanned_at"</span>: <span class="str">"2025-03-10T09:15:00Z"</span>,
+  <span class="key">"checks"</span>: [
+    {
+      <span class="key">"check"</span>: <span class="str">"ssl"</span>,
+      <span class="key">"status"</span>: <span class="str">"ok"</span>,
+      <span class="key">"title"</span>: <span class="str">"SSL valid for 84 days"</span>,
+      <span class="key">"detail"</span>: <span class="str">"Certificate issued by Let's Encrypt. Expires 2025-06-02."</span>,
+      <span class="key">"score_impact"</span>: <span class="num">0</span>
+    },
+    {
+      <span class="key">"check"</span>: <span class="str">"breach"</span>,
+      <span class="key">"status"</span>: <span class="str">"critical"</span>,
+      <span class="key">"title"</span>: <span class="str">"4,200 breached accounts found"</span>,
+      <span class="key">"detail"</span>: <span class="str">"Found in LinkedIn 2021 breach. Rotate all credentials."</span>,
+      <span class="key">"score_impact"</span>: <span class="num">25</span>
+    }
+  ]
+}</pre></div>
+
+        <div class="code-block-wrap with-tabs">
+          <div class="code-tabs-bar">
+            <button class="code-tab-btn active" onclick="switchTab('scan','curl',this)">cURL</button>
+            <button class="code-tab-btn" onclick="switchTab('scan','python',this)">Python</button>
+            <button class="code-tab-btn" onclick="switchTab('scan','js',this)">JavaScript</button>
+          </div>
+          <div class="code-pane active" id="scan-curl"><pre>curl -X POST https://swarmhawk-backend.onrender.com/api/v1/scan \
+  -H <span class="str">"X-API-Key: swh_your_key"</span> \
+  -H <span class="str">"Content-Type: application/json"</span> \
+  -d <span class="str">'{"domain":"example.com"}'</span></pre></div>
+          <div class="code-pane" id="scan-python"><pre>resp = requests.post(
+    <span class="str">"https://swarmhawk-backend.onrender.com/api/v1/scan"</span>,
+    headers={<span class="str">"X-API-Key"</span>: API_KEY},
+    json={<span class="str">"domain"</span>: <span class="str">"example.com"</span>}
+)
+data = resp.json()
+<span class="cm"># data["risk_score"], data["checks"]</span></pre></div>
+          <div class="code-pane" id="scan-js"><pre><span class="kw">const</span> r = <span class="kw">await</span> fetch(<span class="str">"/api/v1/scan"</span>, {
+  method:<span class="str">"POST"</span>,
+  headers:{<span class="str">"X-API-Key"</span>:key,<span class="str">"Content-Type"</span>:<span class="str">"application/json"</span>},
+  body:JSON.stringify({domain:<span class="str">"example.com"</span>})
+});
+<span class="kw">const</span> d = <span class="kw">await</span> r.json();</pre></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PUBLIC SCAN -->
+  <section id="public-scan">
+    <h2>POST /public-scan</h2>
+    <p>Anonymous scan — no API key required. Returns a subset of checks with some results locked. Use this for demos or embeds. Results are <strong>not</strong> saved.</p>
+
+    <div class="endpoint">
+      <div class="endpoint-head">
+        <span class="method-badge method-post">POST</span>
+        <span class="endpoint-path">/public-scan</span>
+        <span class="endpoint-desc"><span class="badge-inline badge-free">No auth</span></span>
+      </div>
+      <div class="endpoint-body">
+        <table>
+          <thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td>domain</td><td>string</td><td>Domain to scan</td></tr>
+          </tbody>
+        </table>
+        <div class="code-block-wrap"><pre>{
+  <span class="key">"domain"</span>: <span class="str">"example.com"</span>,
+  <span class="key">"risk_score"</span>: <span class="num">42</span>,
+  <span class="key">"critical"</span>: <span class="num">1</span>,
+  <span class="key">"warnings"</span>: <span class="num">3</span>,
+  <span class="key">"locked_count"</span>: <span class="num">8</span>,
+  <span class="key">"checks"</span>: [<span class="cm">/* 7 free checks visible, 8 locked */</span>],
+  <span class="key">"scanned_at"</span>: <span class="str">"2025-03-10T09:15:00Z"</span>
+}</pre></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PASSIVE SCAN -->
+  <section id="passive-scan">
+    <h2>GET /scan/passive</h2>
+    <p>Fast fingerprint scan — detects software stack and checks for known CVEs without a full scan. Response in ~3 seconds. No result saved.</p>
+
+    <div class="endpoint">
+      <div class="endpoint-head">
+        <span class="method-badge method-get">GET</span>
+        <span class="endpoint-path">/scan/passive?domain=example.com</span>
+        <span class="endpoint-desc"><span class="badge-inline badge-auth">Bearer</span></span>
+      </div>
+      <div class="endpoint-body">
+        <div class="code-block-wrap"><pre>{
+  <span class="key">"domain"</span>: <span class="str">"example.com"</span>,
+  <span class="key">"software"</span>: [
+    {<span class="key">"product"</span>: <span class="str">"nginx"</span>, <span class="key">"version"</span>: <span class="str">"1.18.0"</span>},
+    {<span class="key">"product"</span>: <span class="str">"WordPress"</span>, <span class="key">"version"</span>: <span class="str">"6.3.1"</span>}
+  ],
+  <span class="key">"cves"</span>: [
+    {<span class="key">"id"</span>: <span class="str">"CVE-2023-39320"</span>, <span class="key">"cvss"</span>: <span class="num">9.8</span>, <span class="key">"severity"</span>: <span class="str">"CRITICAL"</span>}
+  ]
+}</pre></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DOMAINS -->
+  <section id="domains">
+    <h2>GET /domains</h2>
+    <p>List all domains in your account with their latest risk scores and checks.</p>
+    <div class="endpoint">
+      <div class="endpoint-head">
+        <span class="method-badge method-get">GET</span>
+        <span class="endpoint-path">/domains</span>
+        <span class="endpoint-desc"><span class="badge-inline badge-auth">Bearer</span></span>
+      </div>
+      <div class="endpoint-body">
+        <div class="code-block-wrap"><pre>{
+  <span class="key">"domains"</span>: [
+    {
+      <span class="key">"id"</span>: <span class="str">"uuid"</span>,
+      <span class="key">"domain"</span>: <span class="str">"example.com"</span>,
+      <span class="key">"country"</span>: <span class="str">"DE"</span>,
+      <span class="key">"status"</span>: <span class="str">"active"</span>,
+      <span class="key">"paid"</span>: <span class="kw">true</span>,
+      <span class="key">"risk_score"</span>: <span class="num">42</span>,
+      <span class="key">"scanned_at"</span>: <span class="str">"2025-03-10T09:15:00Z"</span>,
+      <span class="key">"checks"</span>: [<span class="cm">/* latest check array */</span>],
+      <span class="key">"scan_history"</span>: [{<span class="key">"date"</span>:<span class="str">"…"</span>,<span class="key">"risk"</span>:<span class="num">42</span>}]
+    }
+  ]
+}</pre></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ADD DOMAIN -->
+  <section id="add-domain">
+    <h2>POST /domains</h2>
+    <p>Add a domain to your account and queue a background scan.</p>
+    <div class="endpoint">
+      <div class="endpoint-head">
+        <span class="method-badge method-post">POST</span>
+        <span class="endpoint-path">/domains</span>
+        <span class="endpoint-desc"><span class="badge-inline badge-auth">Bearer</span></span>
+      </div>
+      <div class="endpoint-body">
+        <table>
+          <thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td>domain</td><td>string</td><td>Domain to add, e.g. <code>"mycompany.cz"</code></td></tr>
+            <tr><td>country</td><td>string</td><td>ISO country code (optional — auto-detected from TLD)</td></tr>
+          </tbody>
+        </table>
+        <div class="code-block-wrap"><pre>{
+  <span class="key">"id"</span>: <span class="str">"uuid"</span>,
+  <span class="key">"domain"</span>: <span class="str">"mycompany.cz"</span>,
+  <span class="key">"status"</span>: <span class="str">"scanning"</span>,
+  <span class="key">"message"</span>: <span class="str">"Domain added — scan starting now"</span>
+}</pre></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- REPORT -->
+  <section id="report">
+    <h2>GET /domains/{domain_id}/report</h2>
+    <p>Retrieve the latest full scan report for a domain. Free users see a subset; paid users see all 22 checks including AI summary.</p>
+    <div class="endpoint">
+      <div class="endpoint-head">
+        <span class="method-badge method-get">GET</span>
+        <span class="endpoint-path">/domains/{domain_id}/report</span>
+        <span class="endpoint-desc"><span class="badge-inline badge-auth">Bearer</span></span>
+      </div>
+      <div class="endpoint-body">
+        <div class="code-block-wrap"><pre>{
+  <span class="key">"domain"</span>: <span class="str">"example.com"</span>,
+  <span class="key">"risk_score"</span>: <span class="num">42</span>,
+  <span class="key">"scanned_at"</span>: <span class="str">"2025-03-10T09:15:00Z"</span>,
+  <span class="key">"paid"</span>: <span class="kw">true</span>,
+  <span class="key">"critical"</span>: <span class="num">1</span>,
+  <span class="key">"warnings"</span>: <span class="num">3</span>,
+  <span class="key">"locked_count"</span>: <span class="num">0</span>,
+  <span class="key">"checks"</span>: [<span class="cm">/* full check array */</span>]
+}</pre></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HISTORY -->
+  <section id="history">
+    <h2>GET /domains/{domain_id}/history</h2>
+    <p>Risk score trend over time — useful for building dashboards or alerting on score increases.</p>
+    <div class="endpoint">
+      <div class="endpoint-head">
+        <span class="method-badge method-get">GET</span>
+        <span class="endpoint-path">/domains/{domain_id}/history</span>
+        <span class="endpoint-desc"><span class="badge-inline badge-auth">Bearer</span></span>
+      </div>
+      <div class="endpoint-body">
+        <div class="code-block-wrap"><pre>{
+  <span class="key">"domain"</span>: <span class="str">"example.com"</span>,
+  <span class="key">"scans"</span>: [
+    {<span class="key">"risk_score"</span>:<span class="num">42</span>,<span class="key">"critical"</span>:<span class="num">1</span>,<span class="key">"warnings"</span>:<span class="num">3</span>,<span class="key">"scanned_at"</span>:<span class="str">"2025-03-10T09:15:00Z"</span>},
+    {<span class="key">"risk_score"</span>:<span class="num">38</span>,<span class="key">"critical"</span>:<span class="num">0</span>,<span class="key">"warnings"</span>:<span class="num">4</span>,<span class="key">"scanned_at"</span>:<span class="str">"2025-02-10T08:00:00Z"</span>}
+  ]
+}</pre></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- NIS2 -->
+  <section id="nis2">
+    <h2>GET /domains/{domain_id}/nis2</h2>
+    <p>Map scan findings to NIS2 Directive articles. Returns a compliance score and per-article status — suitable as audit evidence for regulators.</p>
+    <div class="endpoint">
+      <div class="endpoint-head">
+        <span class="method-badge method-get">GET</span>
+        <span class="endpoint-path">/domains/{domain_id}/nis2</span>
+        <span class="endpoint-desc"><span class="badge-inline badge-auth">Bearer</span></span>
+      </div>
+      <div class="endpoint-body">
+        <div class="code-block-wrap"><pre>{
+  <span class="key">"domain"</span>: <span class="str">"example.com"</span>,
+  <span class="key">"risk_score"</span>: <span class="num">42</span>,
+  <span class="key">"nis2_score"</span>: <span class="num">71</span>,
+  <span class="key">"articles"</span>: [
+    {
+      <span class="key">"article"</span>: <span class="str">"Art.21(2)(i)"</span>,
+      <span class="key">"requirement"</span>: <span class="str">"Secure communications"</span>,
+      <span class="key">"status"</span>: <span class="str">"met"</span>
+    },
+    {
+      <span class="key">"article"</span>: <span class="str">"Art.21(2)(h)"</span>,
+      <span class="key">"requirement"</span>: <span class="str">"Supply chain security"</span>,
+      <span class="key">"status"</span>: <span class="str">"warning"</span>
+    }
+  ]
+}</pre></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- INTEL -->
+  <section id="intel">
+    <h2>POST /intel</h2>
+    <p>Generate an AI-powered threat briefing for your domain portfolio using Claude. Returns a structured briefing with executive summary, critical findings, and remediation priorities.</p>
+    <div class="endpoint">
+      <div class="endpoint-head">
+        <span class="method-badge method-post">POST</span>
+        <span class="endpoint-path">/intel</span>
+        <span class="endpoint-desc"><span class="badge-inline badge-auth">Bearer</span></span>
+      </div>
+      <div class="endpoint-body">
+        <table>
+          <thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td>domains</td><td>string</td><td>Comma-separated: <code>"example.com (risk:42), other.cz (risk:18)"</code></td></tr>
+            <tr><td>date</td><td>string</td><td>Today's date, e.g. <code>"10 March 2025"</code></td></tr>
+          </tbody>
+        </table>
+        <div class="code-block-wrap"><pre>{
+  <span class="key">"text"</span>: <span class="str">"## Executive Summary\n\nYour domain portfolio shows..."</span>,
+  <span class="key">"briefing"</span>: <span class="str">"…"</span>
+}</pre></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- API KEYS -->
+  <section id="keys-create">
+    <h2>POST /api/v1/keys</h2>
+    <p>Create a new API key for your account. Returns all keys including the new one.</p>
+    <div class="endpoint">
+      <div class="endpoint-head">
+        <span class="method-badge method-post">POST</span>
+        <span class="endpoint-path">/api/v1/keys</span>
+        <span class="endpoint-desc"><span class="badge-inline badge-auth">Bearer</span></span>
+      </div>
+      <div class="endpoint-body">
+        <div class="code-block-wrap"><pre>{
+  <span class="key">"keys"</span>: [
+    {
+      <span class="key">"key"</span>: <span class="str">"swh_3f8a2b1c4d5e6f7a8b9c0d1e2f3a4b5c"</span>,
+      <span class="key">"calls_this_month"</span>: <span class="num">0</span>,
+      <span class="key">"limit_per_month"</span>: <span class="num">10</span>,
+      <span class="key">"active"</span>: <span class="kw">true</span>,
+      <span class="key">"created_at"</span>: <span class="str">"2025-03-10T09:00:00Z"</span>
+    }
+  ]
+}</pre></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="keys-list">
+    <h2>GET /api/v1/keys</h2>
+    <p>List all API keys and their usage for the current month.</p>
+    <div class="endpoint">
+      <div class="endpoint-head">
+        <span class="method-badge method-get">GET</span>
+        <span class="endpoint-path">/api/v1/keys</span>
+        <span class="endpoint-desc"><span class="badge-inline badge-auth">Bearer</span></span>
+      </div>
+      <div class="endpoint-body">
+        <div class="code-block-wrap"><pre>curl https://swarmhawk-backend.onrender.com/api/v1/keys \
+  -H <span class="str">"Authorization: Bearer YOUR_SESSION_TOKEN"</span></pre></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="keys-revoke">
+    <h2>DELETE /api/v1/keys/{key}</h2>
+    <p>Revoke an API key immediately. All future requests with this key will be rejected.</p>
+    <div class="endpoint">
+      <div class="endpoint-head">
+        <span class="method-badge method-delete">DELETE</span>
+        <span class="endpoint-path">/api/v1/keys/{key}</span>
+        <span class="endpoint-desc"><span class="badge-inline badge-auth">Bearer</span></span>
+      </div>
+      <div class="endpoint-body">
+        <div class="code-block-wrap"><pre>{ <span class="key">"revoked"</span>: <span class="str">"swh_3f8a2b1c…"</span> }</pre></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MCP -->
+  <section id="mcp">
+    <h2>MCP Server</h2>
+    <p>SwarmHawk exposes a <a href="https://modelcontextprotocol.io" target="_blank">Model Context Protocol</a> server, letting any MCP-compatible AI assistant (Claude, Cursor, Windsurf) call SwarmHawk tools directly from conversation.</p>
+
+    <div class="base-url">
+      <span class="label">MCP URL</span>
+      <span>https://www.swarmhawk.com/mcp</span>
+    </div>
+
+    <h3>Claude Desktop config</h3>
+    <div class="code-block-wrap"><pre>{
+  <span class="key">"mcpServers"</span>: {
+    <span class="key">"swarmhawk"</span>: {
+      <span class="key">"url"</span>: <span class="str">"https://www.swarmhawk.com/mcp"</span>,
+      <span class="key">"headers"</span>: { <span class="key">"X-API-Key"</span>: <span class="str">"swh_your_key"</span> }
+    }
+  }
+}</pre></div>
+
+    <h3>Cursor / Windsurf config</h3>
+    <div class="code-block-wrap"><pre>{
+  <span class="key">"mcpServers"</span>: {
+    <span class="key">"swarmhawk"</span>: {
+      <span class="key">"url"</span>: <span class="str">"https://www.swarmhawk.com/mcp"</span>,
+      <span class="key">"headers"</span>: { <span class="key">"X-API-Key"</span>: <span class="str">"swh_your_key"</span> }
+    }
+  }
+}</pre></div>
+
+    <div class="info-box">💡 Once connected, just ask your AI: <em>"Scan example.com for security issues"</em> — it will call SwarmHawk automatically.</div>
+  </section>
+
+  <!-- MCP TOOLS -->
+  <section id="mcp-tools">
+    <h2>MCP Tools</h2>
+    <table>
+      <thead><tr><th>Tool</th><th>Description</th><th>~Time</th></tr></thead>
+      <tbody>
+        <tr><td>scan_domain(domain)</td><td>Full 22-check scan with risk score and all findings</td><td>~30s</td></tr>
+        <tr><td>quick_risk_score(domain)</td><td>Fast risk score without full scan detail</td><td>~3s</td></tr>
+        <tr><td>check_typosquats(domain)</td><td>Find registered lookalike/typosquat domains</td><td>~5s</td></tr>
+        <tr><td>check_breach_exposure(domain)</td><td>Check HaveIBeenPwned (12B+ accounts)</td><td>~3s</td></tr>
+        <tr><td>check_reputation(domain)</td><td>VirusTotal + Spamhaus + Google Safe Browsing</td><td>~8s</td></tr>
+        <tr><td>batch_risk_scores(domains[])</td><td>Score multiple domains in one call</td><td>~10s</td></tr>
+        <tr><td>get_quota()</td><td>Check remaining API calls for this month</td><td>instant</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- OBJECTS -->
+  <section id="objects">
+    <h2>Response Objects</h2>
+    <h3>Check object</h3>
+    <table>
+      <thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>check</td><td>string</td><td>Check identifier (see Check Names below)</td></tr>
+        <tr><td>status</td><td>string</td><td><code class="status-ok">ok</code> · <code class="status-warning">warning</code> · <code class="status-critical">critical</code> · <code class="status-locked">locked</code></td></tr>
+        <tr><td>title</td><td>string</td><td>One-line human-readable finding</td></tr>
+        <tr><td>detail</td><td>string</td><td>Full explanation with evidence</td></tr>
+        <tr><td>score_impact</td><td>number</td><td>Points added to risk score (0–40)</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Risk score interpretation</h3>
+    <table>
+      <thead><tr><th>Score</th><th>Level</th><th>Meaning</th></tr></thead>
+      <tbody>
+        <tr><td>0 – 29</td><td><span class="status-ok">LOW RISK</span></td><td>Good security posture, minor issues</td></tr>
+        <tr><td>30 – 59</td><td><span class="status-warning">MEDIUM RISK</span></td><td>Notable issues requiring attention</td></tr>
+        <tr><td>60 – 100</td><td><span class="status-critical">HIGH RISK</span></td><td>Critical findings, immediate action needed</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- CHECK NAMES -->
+  <section id="check-names">
+    <h2>Check Names</h2>
+    <table>
+      <thead><tr><th>check</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>ssl</td><td>SSL/TLS validity, expiry, certificate chain</td></tr>
+        <tr><td>dns</td><td>DNS configuration — SPF, DMARC, DKIM, MX</td></tr>
+        <tr><td>headers</td><td>HTTP security headers (CSP, HSTS, X-Frame-Options…)</td></tr>
+        <tr><td>breach</td><td>HaveIBeenPwned breach exposure</td></tr>
+        <tr><td>virustotal</td><td>VirusTotal (94 AV engines)</td></tr>
+        <tr><td>safebrowsing</td><td>Google Safe Browsing</td></tr>
+        <tr><td>spamhaus</td><td>Spamhaus Domain Block List</td></tr>
+        <tr><td>urlhaus</td><td>URLhaus malicious URL database</td></tr>
+        <tr><td>shodan</td><td>Shodan — open ports and exposed services</td></tr>
+        <tr><td>whois</td><td>WHOIS / RDAP — domain age and registrant</td></tr>
+        <tr><td>cve</td><td>CVE lookup via NVD for detected software</td></tr>
+        <tr><td>typosquats</td><td>Registered lookalike domain detection</td></tr>
+        <tr><td>sast</td><td>Static analysis exposure indicators</td></tr>
+        <tr><td>sca</td><td>Software composition analysis</td></tr>
+        <tr><td>dast</td><td>Dynamic application security testing probes</td></tr>
+        <tr><td>iac</td><td>Infrastructure-as-code security check</td></tr>
+        <tr><td>email_security</td><td>Email authentication and relay configuration</td></tr>
+        <tr><td>dnssec</td><td>DNSSEC validation</td></tr>
+        <tr><td>subdomain_takeover</td><td>Dangling subdomain / takeover risk</td></tr>
+        <tr><td>open_ports</td><td>Unexpected open port exposure</td></tr>
+        <tr><td>mx</td><td>Mail exchange record analysis</td></tr>
+        <tr><td>ai_summary</td><td>AI-generated threat analysis (paid only)</td></tr>
+      </tbody>
+    </table>
+
+    <div style="margin-top:40px;padding:24px;background:rgba(203,255,0,.04);border:1px solid rgba(203,255,0,.12);border-radius:10px;text-align:center">
+      <div style="font-family:'Space Mono',monospace;font-size:13px;color:var(--white);margin-bottom:8px">Ready to start building?</div>
+      <p style="font-size:12px;margin-bottom:16px">Get your free API key at www.swarmhawk.com → Sign In → Account → API Keys</p>
+      <a href="https://www.swarmhawk.com" style="display:inline-block;background:var(--lime);color:var(--black);font-family:'Space Mono',monospace;font-weight:700;font-size:12px;padding:10px 24px;border-radius:6px;text-decoration:none">Get Free API Key →</a>
+    </div>
+  </section>
+
+</main>
+</div>
+
+<script>
+function switchTab(group, tab, btn) {
+  document.querySelectorAll('[id^="'+group+'-"]').forEach(function(el){ el.classList.remove('active'); });
+  document.getElementById(group+'-'+tab).classList.add('active');
+  btn.closest('.code-tabs-bar').querySelectorAll('.code-tab-btn').forEach(function(b){ b.classList.remove('active'); });
+  btn.classList.add('active');
+}
+
+// Highlight active sidebar link on scroll
+var sections = document.querySelectorAll('section[id]');
+var links = document.querySelectorAll('.sb-link[href^="#"]');
+window.addEventListener('scroll', function() {
+  var y = window.scrollY + 120;
+  var current = '';
+  sections.forEach(function(s){ if (s.offsetTop <= y) current = s.id; });
+  links.forEach(function(l){
+    l.classList.toggle('active', l.getAttribute('href') === '#'+current);
+  });
+}, { passive: true });
+</script>
+</body>
+</html>

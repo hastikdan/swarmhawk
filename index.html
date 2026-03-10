@@ -744,12 +744,13 @@ h1 span{color:var(--lime)}
           <div class="code-tabs">
             <button class="code-tab active" onclick="switchCodeTab('claude', this)">Claude Desktop</button>
             <button class="code-tab" onclick="switchCodeTab('cursor', this)">Cursor</button>
+            <button class="code-tab" onclick="switchCodeTab('restapi', this)">REST API</button>
             <button class="code-tab" onclick="switchCodeTab('selfhost', this)">Self-host</button>
           </div>
           <div class="code-block" id="code-claude"><pre>{
   "mcpServers": {
     "swarmhawk": {
-      "url": "https://swarmhawk.com/mcp",
+      "url": "https://www.swarmhawk.com/mcp",
       "headers": {
         "X-API-Key": "YOUR_KEY"
       }
@@ -759,12 +760,26 @@ h1 span{color:var(--lime)}
           <div class="code-block" id="code-cursor" style="display:none"><pre>{
   "mcpServers": {
     "swarmhawk": {
-      "url": "https://swarmhawk.com/mcp",
+      "url": "https://www.swarmhawk.com/mcp",
       "headers": {
         "X-API-Key": "YOUR_KEY"
       }
     }
   }
+}</pre></div>
+          <div class="code-block" id="code-restapi" style="display:none"><pre><span style="color:#6b6880"># POST /api/v1/scan  —  X-API-Key required</span>
+curl -X POST https://swarmhawk-backend.onrender.com/api/v1/scan \
+  -H "X-API-Key: swh_your_key" \
+  -H "Content-Type: application/json" \
+  -d '{"domain": "example.com"}'
+
+<span style="color:#6b6880"># Response</span>
+{
+  "domain": "example.com",
+  "risk_score": 42,
+  "critical": 1,
+  "warnings": 3,
+  "checks": [ ... ]
 }</pre></div>
           <div class="code-block" id="code-selfhost" style="display:none"><pre>pip install fastmcp requests
 
@@ -794,6 +809,54 @@ python3 swarmhawk_mcp.py --http</pre></div>
           <div style="font-size:12px;color:var(--grey);line-height:1.5">Instant domain risk score on any webpage — one click scan directly from your browser without switching tabs.</div>
         </div>
         <a href="https://chrome.google.com/webstore/detail/swarmhawk" target="_blank" rel="noopener" style="flex-shrink:0;display:inline-flex;align-items:center;gap:6px;background:rgba(203,255,0,.08);border:1px solid rgba(203,255,0,.25);color:var(--lime);font-family:'Space Mono',monospace;font-size:11px;padding:8px 14px;border-radius:6px;text-decoration:none;white-space:nowrap;transition:background .2s" onmouseover="this.style.background='rgba(203,255,0,.15)'" onmouseout="this.style.background='rgba(203,255,0,.08)'">⬇ Add to Chrome</a>
+      </div>
+
+      <!-- REST API quick reference -->
+      <div style="margin:24px 0 0;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.07);border-radius:10px;overflow:hidden">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid rgba(255,255,255,.06);flex-wrap:wrap;gap:10px">
+          <div>
+            <div style="font-family:'Space Mono',monospace;font-size:12px;color:var(--white);font-weight:700">REST API</div>
+            <div style="font-size:11px;color:var(--grey);margin-top:2px">Base URL: swarmhawk-backend.onrender.com · Auth: X-API-Key</div>
+          </div>
+          <a href="docs.html" target="_blank" style="font-family:'Space Mono',monospace;font-size:11px;color:var(--lime);border:1px solid rgba(203,255,0,.25);padding:6px 14px;border-radius:6px;text-decoration:none;white-space:nowrap;background:rgba(203,255,0,.06)">Full API Docs →</a>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr))">
+          <div style="padding:12px 20px;border-right:1px solid rgba(255,255,255,.04);border-bottom:1px solid rgba(255,255,255,.04)">
+            <span style="font-family:'Space Mono',monospace;font-size:9px;font-weight:700;color:#4285F4;background:rgba(66,133,244,.12);border:1px solid rgba(66,133,244,.2);padding:2px 7px;border-radius:3px;margin-right:8px">POST</span>
+            <span style="font-family:'Space Mono',monospace;font-size:11px;color:var(--white)">/api/v1/scan</span>
+            <div style="font-size:11px;color:var(--grey);margin-top:4px">Full 22-check domain scan · returns risk score + all findings</div>
+          </div>
+          <div style="padding:12px 20px;border-right:1px solid rgba(255,255,255,.04);border-bottom:1px solid rgba(255,255,255,.04)">
+            <span style="font-family:'Space Mono',monospace;font-size:9px;font-weight:700;color:#2ECC71;background:rgba(46,204,113,.12);border:1px solid rgba(46,204,113,.2);padding:2px 7px;border-radius:3px;margin-right:8px">GET</span>
+            <span style="font-family:'Space Mono',monospace;font-size:11px;color:var(--white)">/scan/passive</span>
+            <div style="font-size:11px;color:var(--grey);margin-top:4px">Fast CVE fingerprint · detects software stack in ~3s</div>
+          </div>
+          <div style="padding:12px 20px;border-right:1px solid rgba(255,255,255,.04);border-bottom:1px solid rgba(255,255,255,.04)">
+            <span style="font-family:'Space Mono',monospace;font-size:9px;font-weight:700;color:#4285F4;background:rgba(66,133,244,.12);border:1px solid rgba(66,133,244,.2);padding:2px 7px;border-radius:3px;margin-right:8px">POST</span>
+            <span style="font-family:'Space Mono',monospace;font-size:11px;color:var(--white)">/public-scan</span>
+            <div style="font-size:11px;color:var(--grey);margin-top:4px">No auth required · demo scan with partial results</div>
+          </div>
+          <div style="padding:12px 20px;border-bottom:1px solid rgba(255,255,255,.04)">
+            <span style="font-family:'Space Mono',monospace;font-size:9px;font-weight:700;color:#2ECC71;background:rgba(46,204,113,.12);border:1px solid rgba(46,204,113,.2);padding:2px 7px;border-radius:3px;margin-right:8px">GET</span>
+            <span style="font-family:'Space Mono',monospace;font-size:11px;color:var(--white)">/domains/{id}/report</span>
+            <div style="font-size:11px;color:var(--grey);margin-top:4px">Retrieve saved report with full check details</div>
+          </div>
+          <div style="padding:12px 20px;border-right:1px solid rgba(255,255,255,.04)">
+            <span style="font-family:'Space Mono',monospace;font-size:9px;font-weight:700;color:#2ECC71;background:rgba(46,204,113,.12);border:1px solid rgba(46,204,113,.2);padding:2px 7px;border-radius:3px;margin-right:8px">GET</span>
+            <span style="font-family:'Space Mono',monospace;font-size:11px;color:var(--white)">/domains/{id}/nis2</span>
+            <div style="font-size:11px;color:var(--grey);margin-top:4px">NIS2 / DORA compliance mapping · audit evidence</div>
+          </div>
+          <div style="padding:12px 20px">
+            <span style="font-family:'Space Mono',monospace;font-size:9px;font-weight:700;color:#4285F4;background:rgba(66,133,244,.12);border:1px solid rgba(66,133,244,.2);padding:2px 7px;border-radius:3px;margin-right:8px">POST</span>
+            <span style="font-family:'Space Mono',monospace;font-size:11px;color:var(--white)">/intel</span>
+            <div style="font-size:11px;color:var(--grey);margin-top:4px">AI threat briefing via Claude · portfolio analysis</div>
+          </div>
+        </div>
+        <div style="padding:12px 20px;border-top:1px solid rgba(255,255,255,.05);display:flex;gap:16px;align-items:center;flex-wrap:wrap">
+          <span style="font-size:11px;color:var(--grey)">Rate limits:</span>
+          <span style="font-family:'Space Mono',monospace;font-size:10px;color:var(--grey);background:rgba(255,255,255,.05);padding:3px 9px;border-radius:4px">Free · 10 scans/month</span>
+          <span style="font-family:'Space Mono',monospace;font-size:10px;color:var(--lime);background:rgba(203,255,0,.07);padding:3px 9px;border-radius:4px">Annual $50/yr · unlimited</span>
+        </div>
       </div>
 
       <!-- Dev use cases -->
