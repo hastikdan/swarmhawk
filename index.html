@@ -1861,8 +1861,6 @@ function renderReportPage(data, domain, isSample) {
       <button class="db-tab active" onclick="dbShowTab('overview',this)">📊 Overview</button>
       <button class="db-tab" onclick="dbShowTab('domains',this)">🌐 Domains</button>
       <button class="db-tab" onclick="dbShowTab('threats',this)">⚡ Threats & Intel</button>
-      <button class="db-tab" onclick="dbShowTab('competitors',this);compLoad()">🎯 Competitors</button>
-      <button class="db-tab" onclick="dbShowTab('supply-chain',this);scLoadResults()">🔗 Supply Chain</button>
       <button class="db-tab" onclick="dbShowTab('account',this);dbLoadAccount()">👤 Account</button>
       <button class="db-tab" id="prospects-tab-btn" onclick="dbShowTab('prospects',this)" style="display:none">🎯 Prospects</button>
       <button class="db-tab" id="outreach-tab-btn" onclick="dbShowTab('outreach',this)" style="display:none">📨 Outreach</button>
@@ -1962,6 +1960,36 @@ function renderReportPage(data, domain, isSample) {
         </div>
         <div id="db-domains-table" class="db-domains-table">
           <div class="db-empty">Loading domains…</div>
+        </div>
+
+        <!-- ── COMPETITOR TRACKING ────────────────────────────── -->
+        <div style="margin-top:36px">
+          <div class="db-header" style="margin-bottom:16px">
+            <div>
+              <div class="db-section-label" style="margin-bottom:4px">Competitor Tracking</div>
+              <p style="color:var(--grey);font-size:12px;margin:0">Monitor competitor security posture. Score shown vs your primary domain.</p>
+            </div>
+            <button class="btn-scan-all" onclick="compToggleAdd()" id="comp-add-toggle-btn">+ Add Competitor</button>
+          </div>
+
+          <div id="comp-add-bar" style="display:none;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:16px">
+            <div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap">
+              <div style="flex:1;min-width:180px">
+                <label style="font-family:'Space Mono',monospace;font-size:9px;color:var(--grey);letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:5px">Competitor Domain</label>
+                <input id="comp-domain" type="text" placeholder="competitor.com" style="width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:6px;color:var(--white);font-size:13px;padding:8px 11px;box-sizing:border-box;font-family:inherit" onkeydown="if(event.key==='Enter')compAdd()">
+              </div>
+              <div style="flex:1;min-width:140px">
+                <label style="font-family:'Space Mono',monospace;font-size:9px;color:var(--grey);letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:5px">Label (optional)</label>
+                <input id="comp-label" type="text" placeholder="e.g. Main rival" style="width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:6px;color:var(--white);font-size:13px;padding:8px 11px;box-sizing:border-box;font-family:inherit">
+              </div>
+              <button onclick="compAdd()" id="comp-add-btn" style="background:var(--lime);color:var(--black);font-family:'Space Mono',monospace;font-weight:700;font-size:11px;padding:9px 16px;border:none;border-radius:6px;cursor:pointer;white-space:nowrap">Track →</button>
+              <button onclick="compToggleAdd()" style="background:transparent;border:1px solid var(--border);color:var(--grey);font-family:'Space Mono',monospace;font-size:11px;padding:9px 12px;border-radius:6px;cursor:pointer">Cancel</button>
+            </div>
+          </div>
+
+          <div id="comp-list">
+            <div class="db-empty">No competitors tracked yet</div>
+          </div>
         </div>
       </div>
     </div>
@@ -2306,55 +2334,6 @@ function renderReportPage(data, domain, isSample) {
       </div>
     </div>
 
-    <!-- ── TAB: ACCOUNT ─────────────────────────────────────── -->
-    <!-- ── COMPETITOR INTELLIGENCE ──────────────────────────── -->
-    <div class="db-page" id="db-competitors" style="display:none">
-      <div style="max-width:860px;margin:0 auto;padding:32px 24px">
-        <div style="font-family:'Space Mono',monospace;font-size:11px;color:var(--lime);letter-spacing:3px;text-transform:uppercase;margin-bottom:6px">Competitor Intelligence</div>
-        <div style="font-size:22px;font-weight:700;color:var(--white);margin-bottom:6px">Track Competitor Security Posture</div>
-        <p style="font-size:13px;color:var(--grey);margin-bottom:28px">Monitor competitor domains weekly. Get alerted when their risk score spikes, new CVEs appear, or new ports open. Free: 5 competitors · Paid: 20.</p>
-
-        <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:24px;display:flex;gap:12px;align-items:flex-end">
-          <div style="flex:1">
-            <label style="font-family:'Space Mono',monospace;font-size:10px;color:var(--lime);letter-spacing:1px;display:block;margin-bottom:6px">COMPETITOR DOMAIN</label>
-            <input id="comp-domain" type="text" placeholder="competitor.com" style="width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:6px;color:var(--white);font-size:13px;padding:9px 12px;box-sizing:border-box;font-family:inherit">
-          </div>
-          <div style="flex:1">
-            <label style="font-family:'Space Mono',monospace;font-size:10px;color:var(--lime);letter-spacing:1px;display:block;margin-bottom:6px">LABEL (OPTIONAL)</label>
-            <input id="comp-label" type="text" placeholder="Main competitor" style="width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:6px;color:var(--white);font-size:13px;padding:9px 12px;box-sizing:border-box;font-family:inherit">
-          </div>
-          <button onclick="compAdd()" id="comp-add-btn" style="background:var(--lime);color:var(--black);font-family:'Space Mono',monospace;font-weight:700;font-size:12px;padding:10px 18px;border:none;border-radius:6px;cursor:pointer;white-space:nowrap">+ Track →</button>
-        </div>
-
-        <div id="comp-list">
-          <div class="db-empty" style="padding:40px;text-align:center">No competitors tracked yet — add one above</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ── SUPPLY CHAIN MONITOR ─────────────────────────────── -->
-    <div class="db-page" id="db-supply-chain" style="display:none">
-      <div style="max-width:860px;margin:0 auto;padding:32px 24px">
-        <div style="font-family:'Space Mono',monospace;font-size:11px;color:var(--lime);letter-spacing:3px;text-transform:uppercase;margin-bottom:6px">Supply Chain Monitor</div>
-        <div style="font-size:22px;font-weight:700;color:var(--white);margin-bottom:6px">Vendor Risk Intelligence</div>
-        <p style="font-size:13px;color:var(--grey);margin-bottom:28px">Paste up to 50 vendor/partner domains. SwarmHawk scans each for vulnerabilities and emails you a risk digest if any are high-risk.</p>
-
-        <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:24px">
-          <div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--lime);letter-spacing:2px;text-transform:uppercase;margin-bottom:12px">New Batch Scan</div>
-          <input id="sc-label" type="text" placeholder="Label (e.g. Q1 2025 Vendor Review)" style="width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:6px;color:var(--white);font-size:13px;padding:9px 12px;box-sizing:border-box;margin-bottom:12px;font-family:inherit">
-          <textarea id="sc-domains" placeholder="One domain per line&#10;example.com&#10;vendor.eu&#10;partner.io" rows="6" style="width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:6px;color:var(--white);font-size:13px;padding:9px 12px;box-sizing:border-box;font-family:'Space Mono',monospace;resize:vertical"></textarea>
-          <div style="display:flex;align-items:center;gap:12px;margin-top:12px">
-            <button onclick="scStartScan()" id="sc-scan-btn" style="background:var(--lime);color:var(--black);font-family:'Space Mono',monospace;font-weight:700;font-size:12px;padding:10px 20px;border:none;border-radius:6px;cursor:pointer">▶ Scan Vendors →</button>
-            <span style="font-size:11px;color:#555">Requires active plan · Results emailed if high-risk found</span>
-          </div>
-        </div>
-
-        <div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--lime);letter-spacing:2px;text-transform:uppercase;margin-bottom:14px">Previous Batches</div>
-        <div id="sc-batches">
-          <div class="db-empty" style="padding:40px;text-align:center">No scans yet — enter vendor domains above to start</div>
-        </div>
-      </div>
-    </div>
 
     <div class="db-page" id="db-account">
       <div class="db-inner">
@@ -2502,10 +2481,12 @@ function dbShowTab(tab, btn) {
       if (t.getAttribute('onclick') && t.getAttribute('onclick').indexOf("'"+tab+"'") > -1) t.classList.add('active');
     });
   }
-  // 'intel' tab merged into 'threats' — redirect any legacy calls
+  // legacy redirects
   if (tab === 'intel') tab = 'threats';
+  if (tab === 'competitors' || tab === 'supply-chain') tab = 'domains';
   document.getElementById('db-'+tab).classList.add('active');
   if (tab === 'threats' && !dbIntelLoaded) dbLoadIntel(false);
+  if (tab === 'domains') compLoad();
   if (tab === 'outreach') outreachLoad();
 }
 
@@ -3891,6 +3872,15 @@ var pendingDomain = '';
 // COMPETITOR INTELLIGENCE
 // ═══════════════════════════════════════════════════════════════════════
 
+function compToggleAdd() {
+  var bar = document.getElementById('comp-add-bar');
+  var btn = document.getElementById('comp-add-toggle-btn');
+  var open = bar.style.display === 'none' || bar.style.display === '';
+  bar.style.display = open ? 'block' : 'none';
+  btn.textContent = open ? 'Cancel' : '+ Add Competitor';
+  if (open) document.getElementById('comp-domain').focus();
+}
+
 async function compAdd() {
   var domain = (document.getElementById('comp-domain').value||'').trim().toLowerCase()
     .replace(/^https?:\/\//,'').split('/')[0];
@@ -3903,9 +3893,10 @@ async function compAdd() {
     toast('✓ Tracking ' + domain + ' — scanning now');
     document.getElementById('comp-domain').value = '';
     document.getElementById('comp-label').value  = '';
+    compToggleAdd();
     setTimeout(compLoad, 2000);
   } catch(e) { toast('Error: ' + e.message, true); }
-  finally { btn.disabled=false; btn.textContent='+ Track →'; }
+  finally { btn.disabled=false; btn.textContent='Track →'; }
 }
 
 async function compLoad() {
@@ -3914,29 +3905,46 @@ async function compLoad() {
   try {
     var data = await api('/competitors');
     var comps = data.competitors || [];
+    // Primary domain score for delta comparison
+    var primaryScore = dbDomains && dbDomains.length ? (dbDomains[0].risk_score || null) : null;
+    var primaryDomain = dbDomains && dbDomains.length ? dbDomains[0].domain : null;
+
     if (!comps.length) {
-      el.innerHTML = '<div class="db-empty" style="padding:40px;text-align:center">No competitors tracked yet — add one above</div>';
+      el.innerHTML = '<div class="db-empty">No competitors tracked yet — click "+ Add Competitor" above</div>';
       return;
     }
     el.innerHTML = comps.map(function(c) {
-      var s = c.risk_score;
+      var s  = c.risk_score;
       var sc = s === null ? '#555' : s >= 70 ? '#C0392B' : s >= 40 ? '#D4850A' : '#2ECC71';
-      var delta = c.score_delta;
-      var deltaHtml = delta === null ? '' :
-        delta > 0 ? '<span style="color:#C0392B;font-size:11px;margin-left:8px">▲+'+delta+' vs last week</span>' :
-        delta < 0 ? '<span style="color:#2ECC71;font-size:11px;margin-left:8px">▼'+delta+' vs last week</span>' :
-        '<span style="color:#555;font-size:11px;margin-left:8px">±0 vs last week</span>';
-      var ts = c.scanned_at ? new Date(c.scanned_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : 'Scanning…';
-      return '<div style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:18px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between">'
-        +'<div><div style="font-family:Space Mono,monospace;font-weight:700;color:var(--white);font-size:14px">'+c.domain+'</div>'
-        +'<div style="font-size:11px;color:var(--grey);margin-top:2px">'+(c.label&&c.label!==c.domain?c.label+' · ':'')+ts+'</div></div>'
-        +'<div style="display:flex;align-items:center;gap:16px">'
-        +'<div style="text-align:center"><div style="font-size:26px;font-weight:700;color:'+sc+'">'+(s===null?'—':s)+'</div>'
-        +'<div style="font-size:10px;color:var(--grey)">risk score</div>'+deltaHtml+'</div>'
-        +'<div style="display:flex;gap:6px">'
-        +'<button onclick="compHistory(\''+c.id+'\',\''+c.domain+'\')" style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:var(--grey);font-size:10px;padding:5px 10px;border-radius:4px;cursor:pointer;font-family:Space Mono,monospace">History</button>'
-        +'<button onclick="compDelete(\''+c.id+'\',\''+c.domain+'\')" style="background:rgba(192,57,43,.1);border:1px solid rgba(192,57,43,.2);color:#E74C3C;font-size:10px;padding:5px 10px;border-radius:4px;cursor:pointer;font-family:Space Mono,monospace">Remove</button>'
-        +'</div></div></div>';
+      // Delta vs previous competitor scan
+      var weekDelta = c.score_delta;
+      var weekHtml = weekDelta === null ? '' :
+        weekDelta > 0 ? ' <span style="color:#C0392B;font-size:10px">▲+'+weekDelta+'</span>' :
+        weekDelta < 0 ? ' <span style="color:#2ECC71;font-size:10px">▼'+weekDelta+'</span>' :
+        ' <span style="color:#555;font-size:10px">±0</span>';
+      // Delta vs user's primary domain
+      var vsHtml = '';
+      if (s !== null && primaryScore !== null) {
+        var vsDiff = s - primaryScore;
+        var vsColor = vsDiff > 0 ? '#C0392B' : vsDiff < 0 ? '#2ECC71' : '#555';
+        vsHtml = '<div style="font-size:10px;color:'+vsColor+';margin-top:2px">'
+          +(vsDiff > 0 ? '▲ +'+vsDiff : vsDiff < 0 ? '▼ '+vsDiff : '= same')
+          +' vs <span style="color:#888">'+primaryDomain+'</span></div>';
+      }
+      var ts = c.scanned_at ? new Date(c.scanned_at).toLocaleDateString('en-GB',{day:'numeric',month:'short'}) : 'Scanning…';
+      return '<div style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;gap:12px">'
+        +'<div style="flex:1;min-width:0">'
+        +'<div style="font-family:Space Mono,monospace;font-weight:700;color:var(--white);font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+c.domain+'</div>'
+        +'<div style="font-size:11px;color:var(--grey);margin-top:1px">'+(c.label&&c.label!==c.domain?c.label+' · ':'')+ts+'</div>'
+        +'</div>'
+        +'<div style="text-align:right;flex-shrink:0">'
+        +'<div style="font-size:24px;font-weight:800;color:'+sc+';font-family:Space Mono,monospace;line-height:1">'+(s===null?'…':s)+weekHtml+'</div>'
+        +'<div style="font-size:9px;color:var(--grey);text-transform:uppercase;letter-spacing:1px">risk score</div>'
+        +vsHtml+'</div>'
+        +'<div style="display:flex;gap:5px;flex-shrink:0">'
+        +'<button onclick="compHistory(\''+c.id+'\',\''+c.domain+'\')" style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:var(--grey);font-size:9px;padding:4px 9px;border-radius:4px;cursor:pointer;font-family:Space Mono,monospace">History</button>'
+        +'<button onclick="compDelete(\''+c.id+'\',\''+c.domain+'\')" style="background:rgba(192,57,43,.08);border:1px solid rgba(192,57,43,.2);color:#E74C3C;font-size:9px;padding:4px 9px;border-radius:4px;cursor:pointer;font-family:Space Mono,monospace">✕</button>'
+        +'</div></div>';
     }).join('');
   } catch(e) { console.warn('compLoad:', e.message); }
 }
@@ -3956,25 +3964,24 @@ async function compHistory(id, domain) {
     var hist = data.history || [];
     if (!hist.length) { toast('No history yet — check back after the first scan completes'); return; }
     var rows = hist.map(function(s,i){
-      var prev = hist[i+1];
+      var prev  = hist[i+1];
       var score = s.risk_score||0;
-      var sc = score>=70?'#C0392B':score>=40?'#D4850A':'#2ECC71';
+      var sc    = score>=70?'#C0392B':score>=40?'#D4850A':'#2ECC71';
       var delta = prev ? (score-(prev.risk_score||0)) : null;
-      var ts = new Date(s.scanned_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+      var ts    = new Date(s.scanned_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
       return '<tr><td style="padding:8px 12px;font-size:12px;color:#aaa">'+ts+'</td>'
         +'<td style="padding:8px 12px;font-weight:700;color:'+sc+';font-family:Space Mono,monospace">'+score+'</td>'
         +'<td style="padding:8px 12px;font-size:11px;color:#aaa">'+s.critical+' critical · '+s.warnings+' warnings</td>'
         +'<td style="padding:8px 12px;font-size:11px">'+(delta===null?'':'<span style="color:'+(delta>0?'#C0392B':delta<0?'#2ECC71':'#555')+'">'+(delta>0?'▲+':delta<0?'▼':'')+delta+'</span>')+'</td>'
         +'</tr>';
     }).join('');
-    // Show in a simple toast-style overlay
     var overlay = document.createElement('div');
     overlay.style.cssText='position:fixed;inset:0;z-index:30000;background:rgba(0,0,0,.85);display:flex;align-items:center;justify-content:center;padding:24px';
     overlay.onclick=function(e){if(e.target===overlay)document.body.removeChild(overlay);};
     overlay.innerHTML='<div style="background:#13121A;border:1px solid rgba(203,255,0,.2);border-radius:12px;padding:28px;width:100%;max-width:560px">'
       +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">'
       +'<div style="font-family:Space Mono,monospace;font-weight:700;color:var(--lime)">'+domain+' — Score History</div>'
-      +'<button onclick="this.closest(\'div[style]\').parentElement.parentElement && document.body.removeChild(this.closest(\'div[style]\').parentElement)" style="background:none;border:none;color:#666;font-size:18px;cursor:pointer">✕</button></div>'
+      +'<button onclick="document.body.removeChild(this.closest(\'[style*=fixed]\'))" style="background:none;border:none;color:#666;font-size:18px;cursor:pointer">✕</button></div>'
       +'<table style="width:100%;border-collapse:collapse"><thead><tr style="border-bottom:1px solid rgba(255,255,255,.08)">'
       +'<th style="padding:6px 12px;text-align:left;font-size:10px;color:#aaa">DATE</th>'
       +'<th style="padding:6px 12px;text-align:left;font-size:10px;color:#aaa">SCORE</th>'
@@ -3983,70 +3990,6 @@ async function compHistory(id, domain) {
       +'</tr></thead><tbody>'+rows+'</tbody></table></div>';
     document.body.appendChild(overlay);
   } catch(e) { toast('Error: ' + e.message, true); }
-}
-
-// ═══════════════════════════════════════════════════════════════════════
-// SUPPLY CHAIN MONITOR
-// ═══════════════════════════════════════════════════════════════════════
-
-async function scStartScan() {
-  var raw    = (document.getElementById('sc-domains').value || '').trim();
-  var label  = (document.getElementById('sc-label').value || '').trim();
-  var domains = raw.split('\n').map(d => d.trim().toLowerCase()
-    .replace(/^https?:\/\//,'').split('/')[0]).filter(d => d && d.includes('.'));
-  if (!domains.length) { toast('Enter at least one domain', true); return; }
-  if (domains.length > 50) { toast('Maximum 50 domains per batch', true); return; }
-  var btn = document.getElementById('sc-scan-btn');
-  btn.disabled = true; btn.textContent = 'Starting scan…';
-  try {
-    var data = await api('/supply-chain/scan', {
-      method: 'POST',
-      body: JSON.stringify({ domains, label })
-    });
-    toast('✓ Scan started for ' + data.domains + ' domains. Results appear below when ready.');
-    document.getElementById('sc-domains').value = '';
-    document.getElementById('sc-label').value = '';
-    setTimeout(scLoadResults, 3000);
-  } catch(e) {
-    toast('Error: ' + e.message, true);
-  } finally {
-    btn.disabled = false; btn.textContent = '▶ Scan Vendors →';
-  }
-}
-
-async function scLoadResults() {
-  try {
-    var data = await api('/supply-chain/results');
-    var el = document.getElementById('sc-batches');
-    if (!el) return;
-    if (!data.batches || !data.batches.length) {
-      el.innerHTML = '<div class="db-empty" style="padding:40px;text-align:center">No scans yet — enter vendor domains above to start</div>';
-      return;
-    }
-    el.innerHTML = data.batches.map(function(b) {
-      var results = b.results || [];
-      var statusColor = b.status === 'complete' ? '#2ECC71' : b.status === 'error' ? '#C0392B' : '#D4850A';
-      var rows = results.slice(0,10).map(function(r) {
-        var s = r.risk_score;
-        var c = s === null ? '#555' : s >= 70 ? '#C0392B' : s >= 40 ? '#D4850A' : '#2ECC71';
-        return '<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:12px">'
-          +'<span style="font-family:Space Mono,monospace;color:var(--white)">' + r.domain + '</span>'
-          +'<span style="font-family:Space Mono,monospace;font-weight:700;color:'+c+'">' + (s === null ? 'error' : s) + '</span>'
-          +'</div>';
-      }).join('');
-      return '<div style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:20px;margin-bottom:16px">'
-        +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">'
-        +'<div><div style="font-weight:600;color:var(--white);margin-bottom:2px">' + (b.label||'Batch') + '</div>'
-        +'<div style="font-size:11px;color:var(--grey)">' + new Date(b.created_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) + ' · ' + results.length + ' domains</div></div>'
-        +'<div style="display:flex;gap:10px;align-items:center">'
-        +(b.high_risk ? '<span style="font-family:Space Mono,monospace;font-size:11px;color:#C0392B;background:rgba(192,57,43,.15);padding:3px 10px;border-radius:4px">⚠ '+b.high_risk+' high-risk</span>' : '')
-        +'<span style="font-family:Space Mono,monospace;font-size:10px;color:'+statusColor+';text-transform:uppercase">'+b.status+'</span>'
-        +'</div></div>'
-        + rows
-        + (results.length > 10 ? '<div style="font-size:11px;color:var(--grey);margin-top:8px">+'+(results.length-10)+' more domains…</div>' : '')
-        +'</div>';
-    }).join('');
-  } catch(e) { console.warn('scLoadResults:', e.message); }
 }
 
 // ═══════════════════════════════════════════════════════════════════════
