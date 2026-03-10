@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contact — SwarmHawk</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--black:#0E0D12;--lime:#CBFF00;--white:#fff;--grey:#6B7280;--red:#C0392B;--card:#111318;--border:rgba(255,255,255,.06)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--black);color:var(--white);font-family:'DM Sans',sans-serif;min-height:100vh;overflow-x:hidden;line-height:1.7}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(203,255,0,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(203,255,0,.03) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0}
+nav{position:sticky;top:0;z-index:100;background:rgba(14,13,18,.95);backdrop-filter:blur(12px);border-bottom:1px solid rgba(203,255,0,.1);padding:0 24px;display:flex;align-items:center;height:60px;gap:16px}
+.logo{font-family:'Space Mono',monospace;font-size:16px;font-weight:700;color:var(--lime);letter-spacing:1px;text-decoration:none}
+.logo span{color:#C0392B}
+.nav-back{margin-left:auto;background:transparent;border:1px solid rgba(203,255,0,.2);color:var(--grey);font-size:12px;padding:5px 14px;border-radius:4px;cursor:pointer;font-family:'Space Mono',monospace;text-decoration:none;transition:all .2s}
+.nav-back:hover{border-color:var(--lime);color:var(--lime)}
+
+.page-wrap{position:relative;z-index:1;max-width:1000px;margin:0 auto;padding:60px 24px 80px}
+.page-tag{display:inline-block;background:rgba(203,255,0,.08);border:1px solid rgba(203,255,0,.2);color:var(--lime);font-family:'Space Mono',monospace;font-size:10px;letter-spacing:2px;padding:5px 12px;border-radius:20px;margin-bottom:20px;text-transform:uppercase}
+.page-title{font-family:'Space Mono',monospace;font-size:clamp(24px,4vw,40px);font-weight:700;color:var(--white);margin-bottom:12px;line-height:1.15}
+.page-sub{font-size:16px;color:var(--grey);margin-bottom:48px;max-width:500px}
+
+.contact-layout{display:grid;grid-template-columns:1fr 1.6fr;gap:32px;align-items:start}
+@media(max-width:700px){.contact-layout{grid-template-columns:1fr}}
+
+/* Left column — info cards */
+.info-col{display:flex;flex-direction:column;gap:16px}
+.info-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:20px 22px;transition:border-color .2s}
+.info-card:hover{border-color:rgba(203,255,0,.2)}
+.info-card-icon{font-size:22px;margin-bottom:10px}
+.info-card-title{font-family:'Space Mono',monospace;font-size:11px;color:var(--lime);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px}
+.info-card p{font-size:13px;color:var(--grey);margin-bottom:4px}
+.info-card a{color:var(--white);text-decoration:none;font-size:14px;font-weight:500}
+.info-card a:hover{color:var(--lime)}
+.response-badge{display:inline-block;background:rgba(203,255,0,.08);border:1px solid rgba(203,255,0,.15);color:var(--lime);font-family:'Space Mono',monospace;font-size:9px;letter-spacing:1px;padding:2px 8px;border-radius:10px;margin-top:6px}
+
+.social-row{display:flex;gap:10px;margin-top:4px}
+.social-btn{background:rgba(255,255,255,.04);border:1px solid var(--border);color:var(--grey);font-family:'Space Mono',monospace;font-size:10px;padding:6px 12px;border-radius:6px;text-decoration:none;transition:all .2s;letter-spacing:1px}
+.social-btn:hover{border-color:rgba(203,255,0,.3);color:var(--lime)}
+
+/* Right column — form */
+.form-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:32px}
+.form-title{font-family:'Space Mono',monospace;font-size:13px;color:var(--lime);letter-spacing:1px;text-transform:uppercase;margin-bottom:24px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:500px){.form-row{grid-template-columns:1fr}}
+.field{margin-bottom:16px}
+.field label{display:block;font-size:12px;color:var(--grey);margin-bottom:6px;font-family:'Space Mono',monospace;letter-spacing:.5px}
+.field input,.field select,.field textarea{width:100%;background:#0e0d12;border:1px solid rgba(203,255,0,.15);color:var(--white);font-size:14px;padding:11px 14px;border-radius:7px;outline:none;font-family:'DM Sans',sans-serif;transition:border-color .2s}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--lime)}
+.field input::placeholder,.field textarea::placeholder{color:#3d3c4a}
+.field select{cursor:pointer}
+.field textarea{min-height:120px;resize:vertical}
+.field select option{background:#111318}
+.char-count{font-size:11px;color:#3d3c4a;text-align:right;margin-top:4px;font-family:'Space Mono',monospace}
+.form-footer{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-top:8px}
+.form-note{font-size:12px;color:#3d3c4a;max-width:260px}
+.btn-submit{background:var(--lime);color:var(--black);font-family:'Space Mono',monospace;font-size:12px;font-weight:700;padding:12px 28px;border:none;border-radius:7px;cursor:pointer;letter-spacing:1px;transition:all .2s;white-space:nowrap}
+.btn-submit:hover{background:#d4ff1a;transform:translateY(-1px)}
+.btn-submit:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.success-msg{display:none;background:rgba(26,122,74,.12);border:1px solid rgba(26,122,74,.3);color:#2ECC71;border-radius:8px;padding:14px 18px;font-size:14px;text-align:center;margin-top:16px}
+
+/* Map / office section */
+.office-section{margin-top:56px}
+.section-label{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:2px;color:var(--lime);text-transform:uppercase;margin-bottom:20px}
+.office-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}
+.office-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:22px}
+.office-flag{font-size:24px;margin-bottom:10px}
+.office-city{font-family:'Space Mono',monospace;font-size:13px;color:var(--white);font-weight:700;margin-bottom:6px}
+.office-addr{font-size:13px;color:var(--grey);line-height:1.6}
+
+.faq-mini{margin-top:56px}
+.faq-item{border-bottom:1px solid rgba(203,255,0,.07);padding:16px 0}
+.faq-q{font-size:15px;font-weight:600;color:var(--white);cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:12px}
+.faq-a{font-size:14px;color:var(--grey);max-height:0;overflow:hidden;transition:max-height .3s ease,padding-top .3s ease;line-height:1.6}
+.faq-item.open .faq-a{max-height:200px;padding-top:10px}
+.faq-arrow{color:var(--lime);font-size:18px;flex-shrink:0;transition:transform .3s}
+.faq-item.open .faq-arrow{transform:rotate(45deg)}
+
+.site-footer{background:var(--card);border-top:1px solid rgba(203,255,0,.08);padding:40px 24px 28px;position:relative;z-index:1}
+.sf-inner{max-width:1000px;margin:0 auto;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:20px}
+.sf-brand{font-family:'Space Mono',monospace;font-size:14px;font-weight:700;color:var(--white);letter-spacing:2px}
+.sf-brand span{color:#C0392B}
+.sf-links-row{display:flex;flex-wrap:wrap;gap:20px}
+.sf-links-row a{font-family:'Space Mono',monospace;font-size:10px;color:var(--grey);text-decoration:none;letter-spacing:1px;transition:color .2s}
+.sf-links-row a:hover{color:var(--lime)}
+.sf-copy{font-size:12px;color:#3d3c4a;text-align:center;margin-top:20px;padding-top:20px;border-top:1px solid rgba(255,255,255,.04)}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="logo">SWARM<span>HAWK</span></a>
+  <a href="/" class="nav-back">← Back to App</a>
+</nav>
+
+<div class="page-wrap">
+  <div class="page-tag">Get in Touch</div>
+  <h1 class="page-title">Contact SwarmHawk</h1>
+  <p class="page-sub">Questions, partnerships, support, or just want to talk cyber? We're here.</p>
+
+  <div class="contact-layout">
+    <!-- Left: info cards -->
+    <div class="info-col">
+
+      <div class="info-card">
+        <div class="info-card-icon">💬</div>
+        <div class="info-card-title">General Enquiries</div>
+        <p>Sales, partnerships, pricing, feature requests</p>
+        <a href="mailto:hello@swarmhawk.com">hello@swarmhawk.com</a>
+        <div class="response-badge">Reply within 1 business day</div>
+      </div>
+
+      <div class="info-card">
+        <div class="info-card-icon">🛡</div>
+        <div class="info-card-title">Security &amp; Responsible Disclosure</div>
+        <p>Report vulnerabilities in our platform</p>
+        <a href="mailto:security@swarmhawk.com">security@swarmhawk.com</a>
+        <div class="response-badge">Reply within 24 hours</div>
+      </div>
+
+      <div class="info-card">
+        <div class="info-card-icon">⚖️</div>
+        <div class="info-card-title">Legal &amp; Privacy</div>
+        <p>GDPR requests, DPA, legal notices</p>
+        <a href="mailto:privacy@swarmhawk.com">privacy@swarmhawk.com</a><br>
+        <a href="mailto:legal@swarmhawk.com">legal@swarmhawk.com</a>
+        <div class="response-badge">Reply within 5 business days</div>
+      </div>
+
+      <div class="info-card">
+        <div class="info-card-icon">🤝</div>
+        <div class="info-card-title">Enterprise &amp; API Partnerships</div>
+        <p>Volume licensing, white-label, MSSP integrations</p>
+        <a href="mailto:enterprise@swarmhawk.com">enterprise@swarmhawk.com</a>
+        <div class="response-badge">Reply within 2 business days</div>
+      </div>
+
+      <div class="info-card">
+        <div class="info-card-icon">📢</div>
+        <div class="info-card-title">Follow Us</div>
+        <p>Stay up to date with threat intelligence and product news</p>
+        <div class="social-row">
+          <a href="https://twitter.com/swarmhawk" class="social-btn" target="_blank">X / TWITTER</a>
+          <a href="https://linkedin.com/company/swarmhawk" class="social-btn" target="_blank">LINKEDIN</a>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Right: contact form -->
+    <div class="form-card">
+      <div class="form-title">Send Us a Message</div>
+      <form id="contact-form" onsubmit="submitContact(event)">
+        <div class="form-row">
+          <div class="field">
+            <label>First Name *</label>
+            <input type="text" id="cf-first" placeholder="Jan" required>
+          </div>
+          <div class="field">
+            <label>Last Name *</label>
+            <input type="text" id="cf-last" placeholder="Novák" required>
+          </div>
+        </div>
+        <div class="field">
+          <label>Email Address *</label>
+          <input type="email" id="cf-email" placeholder="you@company.com" required>
+        </div>
+        <div class="field">
+          <label>Company / Organisation</label>
+          <input type="text" id="cf-company" placeholder="Acme Corp (optional)">
+        </div>
+        <div class="field">
+          <label>Topic *</label>
+          <select id="cf-topic" required>
+            <option value="">— Select a topic —</option>
+            <option value="sales">Sales &amp; Pricing</option>
+            <option value="technical">Technical Support</option>
+            <option value="api">API &amp; Integration</option>
+            <option value="enterprise">Enterprise / Partnership</option>
+            <option value="security">Security / Vulnerability Report</option>
+            <option value="gdpr">Privacy / GDPR Request</option>
+            <option value="media">Press &amp; Media</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Message *</label>
+          <textarea id="cf-message" placeholder="Tell us what you need…" maxlength="2000" oninput="updateChar(this)" required></textarea>
+          <div class="char-count" id="char-count">0 / 2000</div>
+        </div>
+        <div class="form-footer">
+          <div class="form-note">We typically reply within 1 business day. Your data is handled per our <a href="/privacy.html" style="color:var(--lime)">Privacy Policy</a>.</div>
+          <button type="submit" class="btn-submit" id="cf-btn">SEND MESSAGE →</button>
+        </div>
+      </form>
+      <div class="success-msg" id="success-msg">
+        ✓ Message sent! We'll get back to you shortly.
+      </div>
+    </div>
+  </div>
+
+  <!-- Offices -->
+  <div class="office-section">
+    <div class="section-label">Our Presence</div>
+    <div class="office-grid">
+      <div class="office-card">
+        <div class="office-flag">🇨🇿</div>
+        <div class="office-city">Prague, Czech Republic</div>
+        <div class="office-addr">Headquarters &amp; Engineering<br>Central European Time (CET/CEST)</div>
+      </div>
+      <div class="office-card">
+        <div class="office-flag">🇪🇺</div>
+        <div class="office-city">European Union</div>
+        <div class="office-addr">Platform covers 36 countries<br>GDPR &amp; NIS2 jurisdiction</div>
+      </div>
+      <div class="office-card">
+        <div class="office-flag">🌍</div>
+        <div class="office-city">Global Threat Intelligence</div>
+        <div class="office-addr">Feeds from 16+ intelligence sources<br>24/7 automated monitoring</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mini FAQ -->
+  <div class="faq-mini">
+    <div class="section-label">Frequently Asked Questions</div>
+
+    <div class="faq-item" onclick="faqToggle(this)">
+      <div class="faq-q">How quickly do you respond to support requests? <span class="faq-arrow">+</span></div>
+      <div class="faq-a">General enquiries are answered within 1 business day. Security vulnerability reports receive an acknowledgement within 24 hours. Enterprise customers on Professional and above plans receive priority support with a 4-hour response SLA during business hours.</div>
+    </div>
+
+    <div class="faq-item" onclick="faqToggle(this)">
+      <div class="faq-q">Can I request a live demo? <span class="faq-arrow">+</span></div>
+      <div class="faq-a">Yes — select "Sales &amp; Pricing" in the form above and mention you'd like a demo. We'll set up a 30-minute call to walk through the platform, discuss your use case, and answer any technical questions.</div>
+    </div>
+
+    <div class="faq-item" onclick="faqToggle(this)">
+      <div class="faq-q">Do you offer reseller or MSSP programmes? <span class="faq-arrow">+</span></div>
+      <div class="faq-a">Yes. We have a structured MSSP/reseller programme with volume discounts, white-label options, and dedicated API endpoints. Contact enterprise@swarmhawk.com for our partner pack.</div>
+    </div>
+
+    <div class="faq-item" onclick="faqToggle(this)">
+      <div class="faq-q">How do I report a bug or security vulnerability? <span class="faq-arrow">+</span></div>
+      <div class="faq-a">For security vulnerabilities, please email security@swarmhawk.com with a description of the issue, steps to reproduce, and impact. We follow coordinated disclosure and credit researchers who responsibly report valid findings. For general bugs, use the contact form above with topic "Technical Support".</div>
+    </div>
+
+    <div class="faq-item" onclick="faqToggle(this)">
+      <div class="faq-q">Where can I find API documentation? <span class="faq-arrow">+</span></div>
+      <div class="faq-a">Full API documentation is available at <a href="/docs.html">swarmhawk.com/docs.html</a>. It covers all endpoints, authentication, response schemas, rate limits, and code examples in cURL, Python, and JavaScript.</div>
+    </div>
+  </div>
+</div>
+
+<footer class="site-footer">
+  <div class="sf-inner">
+    <div class="sf-brand">SWARM<span>HAWK</span></div>
+    <div class="sf-links-row">
+      <a href="/privacy.html">Privacy Policy</a>
+      <a href="/terms.html">Terms of Use</a>
+      <a href="/gdpr.html">GDPR</a>
+      <a href="/contact.html">Contact</a>
+      <a href="/">Back to App</a>
+    </div>
+  </div>
+  <div class="sf-copy">© 2025–2026 SwarmHawk s.r.o. All rights reserved.</div>
+</footer>
+
+<script>
+function updateChar(el) {
+  document.getElementById('char-count').textContent = el.value.length + ' / 2000';
+}
+
+function faqToggle(item) {
+  item.classList.toggle('open');
+}
+
+function submitContact(e) {
+  e.preventDefault();
+  const first   = document.getElementById('cf-first').value.trim();
+  const last    = document.getElementById('cf-last').value.trim();
+  const email   = document.getElementById('cf-email').value.trim();
+  const company = document.getElementById('cf-company').value.trim();
+  const topic   = document.getElementById('cf-topic').value;
+  const message = document.getElementById('cf-message').value.trim();
+
+  const subjectMap = {
+    sales: 'Sales & Pricing Enquiry',
+    technical: 'Technical Support Request',
+    api: 'API & Integration Question',
+    enterprise: 'Enterprise / Partnership',
+    security: 'Security Vulnerability Report',
+    gdpr: 'Privacy / GDPR Request',
+    media: 'Press & Media Enquiry',
+    other: 'General Enquiry',
+  };
+
+  const to = topic === 'security' ? 'security@swarmhawk.com' :
+             topic === 'gdpr'     ? 'privacy@swarmhawk.com'  :
+             topic === 'enterprise' ? 'enterprise@swarmhawk.com' :
+             'hello@swarmhawk.com';
+
+  const subject = encodeURIComponent(`[SwarmHawk] ${subjectMap[topic] || 'Enquiry'}`);
+  const body = encodeURIComponent(
+    `Name: ${first} ${last}\nEmail: ${email}${company ? '\nCompany: ' + company : ''}\nTopic: ${topic}\n\n${message}`
+  );
+
+  // Open mailto — in production this would POST to a backend endpoint
+  window.location.href = `mailto:${to}?subject=${subject}&body=${body}`;
+
+  // Show success state
+  document.getElementById('contact-form').style.display = 'none';
+  document.getElementById('success-msg').style.display = 'block';
+}
+</script>
+</body>
+</html>

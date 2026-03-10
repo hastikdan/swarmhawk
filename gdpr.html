@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GDPR Compliance — SwarmHawk</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--black:#0E0D12;--lime:#CBFF00;--white:#fff;--grey:#6B7280;--red:#C0392B;--card:#111318;--border:rgba(255,255,255,.06)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--black);color:var(--white);font-family:'DM Sans',sans-serif;min-height:100vh;overflow-x:hidden;line-height:1.7}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(203,255,0,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(203,255,0,.03) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0}
+nav{position:sticky;top:0;z-index:100;background:rgba(14,13,18,.95);backdrop-filter:blur(12px);border-bottom:1px solid rgba(203,255,0,.1);padding:0 24px;display:flex;align-items:center;height:60px;gap:16px}
+.logo{font-family:'Space Mono',monospace;font-size:16px;font-weight:700;color:var(--lime);letter-spacing:1px;text-decoration:none}
+.logo span{color:#C0392B}
+.nav-back{margin-left:auto;background:transparent;border:1px solid rgba(203,255,0,.2);color:var(--grey);font-size:12px;padding:5px 14px;border-radius:4px;cursor:pointer;font-family:'Space Mono',monospace;text-decoration:none;transition:all .2s}
+.nav-back:hover{border-color:var(--lime);color:var(--lime)}
+.page-wrap{position:relative;z-index:1;max-width:820px;margin:0 auto;padding:60px 24px 80px}
+.page-tag{display:inline-block;background:rgba(203,255,0,.08);border:1px solid rgba(203,255,0,.2);color:var(--lime);font-family:'Space Mono',monospace;font-size:10px;letter-spacing:2px;padding:5px 12px;border-radius:20px;margin-bottom:20px;text-transform:uppercase}
+.page-title{font-family:'Space Mono',monospace;font-size:clamp(24px,4vw,40px);font-weight:700;color:var(--white);margin-bottom:10px;line-height:1.15}
+.page-meta{font-size:13px;color:var(--grey);font-family:'Space Mono',monospace;margin-bottom:48px;padding-bottom:32px;border-bottom:1px solid rgba(203,255,0,.08)}
+.toc{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:24px 28px;margin-bottom:48px}
+.toc-title{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:2px;color:var(--lime);text-transform:uppercase;margin-bottom:14px}
+.toc-list{list-style:none;display:flex;flex-direction:column;gap:6px}
+.toc-list a{color:var(--grey);text-decoration:none;font-size:13px;transition:color .2s}
+.toc-list a:hover{color:var(--lime)}
+.toc-num{font-family:'Space Mono',monospace;font-size:11px;color:var(--lime);margin-right:8px}
+section{margin-bottom:48px}
+h2{font-family:'Space Mono',monospace;font-size:16px;font-weight:700;color:var(--white);margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid rgba(203,255,0,.08);display:flex;align-items:center;gap:10px}
+h2 .sec-num{color:var(--lime);font-size:13px}
+h3{font-family:'Space Mono',monospace;font-size:13px;color:var(--lime);margin:20px 0 10px}
+p{color:#b0adc0;font-size:15px;margin-bottom:14px}
+ul,ol{color:#b0adc0;font-size:15px;padding-left:20px;margin-bottom:14px}
+li{margin-bottom:6px}
+strong{color:var(--white)}
+a{color:var(--lime);text-decoration:none}
+a:hover{text-decoration:underline}
+.gdpr-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin:16px 0}
+.gdpr-card{background:var(--card);border:1px solid rgba(203,255,0,.1);border-radius:10px;padding:20px}
+.gdpr-card-icon{font-size:24px;margin-bottom:10px}
+.gdpr-card-title{font-family:'Space Mono',monospace;font-size:11px;color:var(--lime);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px}
+.gdpr-card p{font-size:13px;color:var(--grey);margin-bottom:0}
+.rights-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:16px 0}
+@media(max-width:600px){.rights-grid{grid-template-columns:1fr}}
+.right-item{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:16px}
+.right-item .art{font-family:'Space Mono',monospace;font-size:9px;color:var(--lime);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px}
+.right-item strong{display:block;margin-bottom:4px;font-size:14px}
+.right-item p{font-size:13px;color:var(--grey);margin-bottom:0}
+.highlight-box{background:rgba(203,255,0,.04);border:1px solid rgba(203,255,0,.12);border-radius:8px;padding:16px 20px;margin:16px 0}
+.highlight-box p{margin-bottom:0;color:#b0adc0}
+.dpa-table{width:100%;border-collapse:collapse;margin:16px 0}
+.dpa-table th{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:1px;color:var(--lime);text-transform:uppercase;padding:10px 12px;text-align:left;border-bottom:1px solid rgba(203,255,0,.15)}
+.dpa-table td{font-size:13px;color:#b0adc0;padding:10px 12px;border-bottom:1px solid rgba(255,255,255,.04)}
+.dpa-table tr:last-child td{border-bottom:none}
+.contact-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:24px 28px;margin-top:16px}
+.contact-card p{margin-bottom:6px}
+.request-form-box{background:rgba(203,255,0,.04);border:1px solid rgba(203,255,0,.15);border-radius:10px;padding:28px;margin-top:20px}
+.rf-title{font-family:'Space Mono',monospace;font-size:12px;color:var(--lime);letter-spacing:1px;text-transform:uppercase;margin-bottom:16px}
+.rf-field{margin-bottom:14px}
+.rf-field label{display:block;font-size:12px;color:var(--grey);margin-bottom:6px;font-family:'Space Mono',monospace}
+.rf-field input,.rf-field select,.rf-field textarea{width:100%;background:var(--card);border:1px solid rgba(203,255,0,.2);color:var(--white);font-size:14px;padding:10px 14px;border-radius:6px;outline:none;font-family:'DM Sans',sans-serif;transition:border-color .2s}
+.rf-field input:focus,.rf-field select:focus,.rf-field textarea:focus{border-color:var(--lime)}
+.rf-field textarea{min-height:80px;resize:vertical}
+.rf-field select{cursor:pointer}
+.rf-submit{background:var(--lime);color:var(--black);font-family:'Space Mono',monospace;font-size:12px;font-weight:700;padding:11px 24px;border:none;border-radius:6px;cursor:pointer;letter-spacing:1px;transition:background .2s}
+.rf-submit:hover{background:#d4ff1a}
+.rf-note{font-size:12px;color:#3d3c4a;margin-top:10px}
+.site-footer{background:var(--card);border-top:1px solid rgba(203,255,0,.08);padding:40px 24px 28px;position:relative;z-index:1}
+.sf-inner{max-width:820px;margin:0 auto;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:20px}
+.sf-brand{font-family:'Space Mono',monospace;font-size:14px;font-weight:700;color:var(--white);letter-spacing:2px}
+.sf-brand span{color:#C0392B}
+.sf-links-row{display:flex;flex-wrap:wrap;gap:20px}
+.sf-links-row a{font-family:'Space Mono',monospace;font-size:10px;color:var(--grey);text-decoration:none;letter-spacing:1px;transition:color .2s}
+.sf-links-row a:hover{color:var(--lime)}
+.sf-copy{font-size:12px;color:#3d3c4a;text-align:center;margin-top:20px;padding-top:20px;border-top:1px solid rgba(255,255,255,.04)}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="logo">SWARM<span>HAWK</span></a>
+  <a href="/" class="nav-back">← Back to App</a>
+</nav>
+
+<div class="page-wrap">
+  <div class="page-tag">Compliance</div>
+  <h1 class="page-title">GDPR Compliance</h1>
+  <div class="page-meta">Regulation (EU) 2016/679 &nbsp;·&nbsp; Last reviewed: 10 March 2026</div>
+
+  <div class="gdpr-grid">
+    <div class="gdpr-card">
+      <div class="gdpr-card-icon">🛡</div>
+      <div class="gdpr-card-title">Data Controller</div>
+      <p>SwarmHawk s.r.o., Czech Republic, is the data controller for all personal data processed through the platform.</p>
+    </div>
+    <div class="gdpr-card">
+      <div class="gdpr-card-icon">⚖️</div>
+      <div class="gdpr-card-title">Legal Basis</div>
+      <p>We process data based on contract performance, legitimate interests, legal obligation, and consent as appropriate.</p>
+    </div>
+    <div class="gdpr-card">
+      <div class="gdpr-card-icon">🔒</div>
+      <div class="gdpr-card-title">Privacy by Design</div>
+      <p>Security and data minimisation are built into our architecture — we collect only what is strictly necessary.</p>
+    </div>
+    <div class="gdpr-card">
+      <div class="gdpr-card-icon">⏱</div>
+      <div class="gdpr-card-title">72-Hour Breach Notice</div>
+      <p>In case of a data breach, we notify the supervisory authority within 72 hours and affected users promptly.</p>
+    </div>
+  </div>
+
+  <div class="toc">
+    <div class="toc-title">Sections</div>
+    <ul class="toc-list">
+      <li><a href="#s1"><span class="toc-num">01</span> Our Commitment to GDPR</a></li>
+      <li><a href="#s2"><span class="toc-num">02</span> Roles: Controller vs. Processor</a></li>
+      <li><a href="#s3"><span class="toc-num">03</span> Data We Process &amp; Legal Bases</a></li>
+      <li><a href="#s4"><span class="toc-num">04</span> Your GDPR Rights</a></li>
+      <li><a href="#s5"><span class="toc-num">05</span> Sub-Processors</a></li>
+      <li><a href="#s6"><span class="toc-num">06</span> International Transfers</a></li>
+      <li><a href="#s7"><span class="toc-num">07</span> Data Breach Response</a></li>
+      <li><a href="#s8"><span class="toc-num">08</span> SwarmHawk as a Tool for Your GDPR Programme</a></li>
+      <li><a href="#s9"><span class="toc-num">09</span> Submit a Data Subject Request</a></li>
+      <li><a href="#s10"><span class="toc-num">10</span> DPO &amp; Contact</a></li>
+    </ul>
+  </div>
+
+  <section id="s1">
+    <h2><span class="sec-num">01</span> Our Commitment to GDPR</h2>
+    <p>SwarmHawk is headquartered in the Czech Republic, an EU member state, and the General Data Protection Regulation (GDPR) — Regulation (EU) 2016/679 — applies directly to our operations. We take GDPR compliance seriously as both a legal obligation and a core business value.</p>
+    <p>This page provides a structured overview of how SwarmHawk complies with GDPR requirements, both as a data controller (when processing user account data) and as a data processor (when scanning domains on behalf of business customers).</p>
+    <div class="highlight-box"><p>SwarmHawk is built to help <em>your</em> organisation achieve GDPR compliance — we monitor domains for exposed personal data, misconfigured email authentication (which enables GDPR-violating phishing), and more. See <a href="#s8">Section 8</a> for details.</p></div>
+  </section>
+
+  <section id="s2">
+    <h2><span class="sec-num">02</span> Roles: Controller vs. Processor</h2>
+    <h3>SwarmHawk as Data Controller</h3>
+    <p>When you create an account and use our platform, SwarmHawk acts as the <strong>data controller</strong> for the personal data you provide (email, name, organisation). We determine the purposes and means of processing that data.</p>
+    <h3>SwarmHawk as Data Processor</h3>
+    <p>When your organisation uses SwarmHawk to scan <em>your own</em> domains and those domains may involve personal data (e.g. employee subdomains, email addresses in WHOIS records), SwarmHawk acts as your <strong>data processor</strong>. In this capacity:</p>
+    <ul>
+      <li>We process personal data only on your documented instructions</li>
+      <li>We do not use your data for any purpose other than providing the Service</li>
+      <li>We assist you in fulfilling data subject requests relating to data we process on your behalf</li>
+      <li>We notify you without undue delay if we become aware of a breach affecting your data</li>
+    </ul>
+    <p>Enterprise customers can request a <strong>Data Processing Agreement (DPA)</strong> by contacting <a href="mailto:legal@swarmhawk.com">legal@swarmhawk.com</a>. The DPA covers all Art. 28 GDPR requirements and includes our standard contractual clauses for sub-processors.</p>
+  </section>
+
+  <section id="s3">
+    <h2><span class="sec-num">03</span> Data We Process &amp; Legal Bases</h2>
+    <table class="dpa-table">
+      <thead>
+        <tr><th>Data Category</th><th>Examples</th><th>Legal Basis (Art. 6)</th><th>Retention</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Account data</td>
+          <td>Email, name, password hash</td>
+          <td>Art. 6(1)(b) — Contract</td>
+          <td>Account lifetime + 30 days</td>
+        </tr>
+        <tr>
+          <td>Scan data</td>
+          <td>Domain names, scan results</td>
+          <td>Art. 6(1)(b) — Contract</td>
+          <td>12 months</td>
+        </tr>
+        <tr>
+          <td>Technical logs</td>
+          <td>IP address, request logs</td>
+          <td>Art. 6(1)(f) — Legitimate interests (security)</td>
+          <td>90 days</td>
+        </tr>
+        <tr>
+          <td>Audit logs</td>
+          <td>Login events, API calls</td>
+          <td>Art. 6(1)(c) — Legal obligation (NIS2)</td>
+          <td>36 months</td>
+        </tr>
+        <tr>
+          <td>Billing records</td>
+          <td>Invoice amount, VAT ID</td>
+          <td>Art. 6(1)(c) — Legal obligation (accounting law)</td>
+          <td>10 years</td>
+        </tr>
+        <tr>
+          <td>Marketing emails</td>
+          <td>Name, email, preferences</td>
+          <td>Art. 6(1)(a) — Consent</td>
+          <td>Until consent withdrawn</td>
+        </tr>
+      </tbody>
+    </table>
+    <p>We apply data minimisation: only data necessary for the stated purpose is collected. Fields marked optional in forms are genuinely optional and not required to receive the core service.</p>
+  </section>
+
+  <section id="s4">
+    <h2><span class="sec-num">04</span> Your GDPR Rights</h2>
+    <p>As a data subject under GDPR, you have the following rights. We respond to all requests within <strong>30 days</strong> (extendable by 2 months for complex requests, with notice):</p>
+    <div class="rights-grid">
+      <div class="right-item">
+        <div class="art">Art. 15</div>
+        <strong>Right of Access</strong>
+        <p>Request a copy of all personal data we hold about you, including the purposes and recipients.</p>
+      </div>
+      <div class="right-item">
+        <div class="art">Art. 16</div>
+        <strong>Right to Rectification</strong>
+        <p>Ask us to correct or complete inaccurate or incomplete personal data.</p>
+      </div>
+      <div class="right-item">
+        <div class="art">Art. 17</div>
+        <strong>Right to Erasure</strong>
+        <p>Request deletion of your data ("right to be forgotten"), subject to legal retention obligations.</p>
+      </div>
+      <div class="right-item">
+        <div class="art">Art. 18</div>
+        <strong>Right to Restriction</strong>
+        <p>Ask us to pause processing your data while you contest its accuracy or our legal basis.</p>
+      </div>
+      <div class="right-item">
+        <div class="art">Art. 20</div>
+        <strong>Right to Portability</strong>
+        <p>Receive your account data in a structured, machine-readable JSON format (available in account settings).</p>
+      </div>
+      <div class="right-item">
+        <div class="art">Art. 21</div>
+        <strong>Right to Object</strong>
+        <p>Object to processing based on legitimate interests (e.g. analytics), with effect unless we have compelling grounds.</p>
+      </div>
+      <div class="right-item">
+        <div class="art">Art. 22</div>
+        <strong>Automated Decision-Making</strong>
+        <p>We do not make legally significant automated decisions about individuals. AI risk scores apply to domain names, not people.</p>
+      </div>
+      <div class="right-item">
+        <div class="art">Art. 7(3)</div>
+        <strong>Withdraw Consent</strong>
+        <p>Revoke marketing consent at any time via the unsubscribe link in emails or in account settings. Withdrawal does not affect prior lawful processing.</p>
+      </div>
+    </div>
+    <p>To exercise any right, use the form in <a href="#s9">Section 9</a> or email <a href="mailto:privacy@swarmhawk.com">privacy@swarmhawk.com</a>. If you are unsatisfied with our response, you have the right to lodge a complaint with the <strong>Czech Office for Personal Data Protection (ÚOOÚ)</strong>:</p>
+    <div class="contact-card" style="margin-top:12px">
+      <p><strong>Úřad pro ochranu osobních údajů (ÚOOÚ)</strong></p>
+      <p>Address: Pplk. Sochora 27, 170 00 Prague 7, Czech Republic</p>
+      <p>Website: <a href="https://www.uoou.cz" target="_blank">www.uoou.cz</a></p>
+      <p>Email: <a href="mailto:posta@uoou.cz">posta@uoou.cz</a></p>
+    </div>
+  </section>
+
+  <section id="s5">
+    <h2><span class="sec-num">05</span> Sub-Processors</h2>
+    <p>We use the following sub-processors to deliver the Service. All are bound by data processing agreements and appropriate transfer safeguards:</p>
+    <table class="dpa-table">
+      <thead><tr><th>Sub-processor</th><th>Role</th><th>Location</th><th>Safeguard</th></tr></thead>
+      <tbody>
+        <tr><td>Supabase Inc.</td><td>Database hosting (PostgreSQL)</td><td>EU (Frankfurt)</td><td>Adequacy / SCCs</td></tr>
+        <tr><td>Render Inc.</td><td>Application server hosting</td><td>US (Oregon)</td><td>SCCs (2021/914)</td></tr>
+        <tr><td>Anthropic PBC</td><td>AI text generation (domain risk summaries)</td><td>US</td><td>SCCs + DPA</td></tr>
+        <tr><td>Portkey AI</td><td>LLM gateway / observability</td><td>US</td><td>SCCs</td></tr>
+        <tr><td>Stripe Inc.</td><td>Payment processing</td><td>US / EU</td><td>SCCs + Adequacy</td></tr>
+        <tr><td>Cloudflare Inc.</td><td>CDN &amp; DDoS protection</td><td>Global edge</td><td>SCCs</td></tr>
+      </tbody>
+    </table>
+    <p>We will notify affected customers at least 30 days before adding a new sub-processor that processes personal data, giving customers the opportunity to object.</p>
+  </section>
+
+  <section id="s6">
+    <h2><span class="sec-num">06</span> International Transfers</h2>
+    <p>Some sub-processors are based in the United States, a country that does not benefit from a blanket EU adequacy decision. We protect these transfers using:</p>
+    <ul>
+      <li><strong>Standard Contractual Clauses (SCCs)</strong> — European Commission Decision 2021/914 (Module 2: controller-to-processor, Module 3: processor-to-processor)</li>
+      <li><strong>Transfer Impact Assessments (TIAs)</strong> — Conducted for each US-based sub-processor, assessing US surveillance law risk and supplementary measures</li>
+      <li><strong>Data minimisation</strong> — We send only the minimum necessary data to each sub-processor (e.g. Anthropic receives domain names and scan output only, not user account information)</li>
+    </ul>
+    <p>Copies of our SCCs are available on request at <a href="mailto:privacy@swarmhawk.com">privacy@swarmhawk.com</a>.</p>
+  </section>
+
+  <section id="s7">
+    <h2><span class="sec-num">07</span> Data Breach Response</h2>
+    <p>Our incident response procedure for data breaches complies with GDPR Art. 33–34:</p>
+    <ol>
+      <li><strong>Detection &amp; Containment</strong> — Our security monitoring identifies anomalies; on-call engineers assess and contain the incident</li>
+      <li><strong>Assessment</strong> — We assess the nature, scope, and likely consequences for data subjects within 24 hours of discovery</li>
+      <li><strong>Supervisory Authority Notification</strong> — We notify the ÚOOÚ within 72 hours if the breach is likely to result in a risk to individuals' rights and freedoms</li>
+      <li><strong>User Notification</strong> — We notify affected users without undue delay if the breach is likely to result in a <em>high</em> risk to their rights and freedoms, including the nature of the breach, data categories affected, likely consequences, and measures taken</li>
+      <li><strong>Documentation</strong> — All breaches (regardless of notification threshold) are documented in our internal breach register</li>
+    </ol>
+    <p>To report a suspected security issue, contact <a href="mailto:security@swarmhawk.com">security@swarmhawk.com</a>. For responsible disclosure, we offer a coordinated disclosure programme.</p>
+  </section>
+
+  <section id="s8">
+    <h2><span class="sec-num">08</span> SwarmHawk as a Tool for Your GDPR Programme</h2>
+    <p>Beyond our own compliance, SwarmHawk helps your organisation meet GDPR obligations by monitoring domains under your control:</p>
+    <ul>
+      <li><strong>Email security (SPF, DKIM, DMARC)</strong> — Weak email authentication enables spoofing and phishing, a common route for GDPR-reportable data breaches</li>
+      <li><strong>SSL certificate monitoring</strong> — Expired certificates can expose user data in transit; GDPR Art. 32 requires appropriate encryption</li>
+      <li><strong>Blacklist &amp; breach monitoring</strong> — Detects if your domain or IPs appear in threat feeds, indicating a possible compromise requiring GDPR Art. 33 notification</li>
+      <li><strong>Subdomain takeover detection</strong> — Dangling DNS records can be hijacked to harvest user credentials from your domain, constituting a personal data breach</li>
+      <li><strong>WHOIS data exposure</strong> — Flags when registrant personal data (email, address) is publicly exposed unnecessarily</li>
+      <li><strong>NIS2 compliance dashboard</strong> — For organisations subject to NIS2 (which intersects with GDPR for incident reporting), SwarmHawk provides automated evidence of continuous monitoring</li>
+    </ul>
+    <p>For a GDPR-focused integration guide, see our <a href="/docs.html">API Documentation</a>.</p>
+  </section>
+
+  <section id="s9">
+    <h2><span class="sec-num">09</span> Submit a Data Subject Request</h2>
+    <p>Use the form below or email <a href="mailto:privacy@swarmhawk.com">privacy@swarmhawk.com</a> to exercise your GDPR rights. We will verify your identity and respond within 30 days.</p>
+    <div class="request-form-box">
+      <div class="rf-title">Data Subject Request Form</div>
+      <form onsubmit="submitDSR(event)">
+        <div class="rf-field">
+          <label>Full Name</label>
+          <input type="text" id="dsr-name" placeholder="Your legal name" required>
+        </div>
+        <div class="rf-field">
+          <label>Email Address (account email)</label>
+          <input type="email" id="dsr-email" placeholder="you@example.com" required>
+        </div>
+        <div class="rf-field">
+          <label>Request Type</label>
+          <select id="dsr-type">
+            <option value="">— Select —</option>
+            <option value="access">Access — copy of my data (Art. 15)</option>
+            <option value="rectify">Rectification — correct my data (Art. 16)</option>
+            <option value="erasure">Erasure — delete my data (Art. 17)</option>
+            <option value="restriction">Restriction of processing (Art. 18)</option>
+            <option value="portability">Data portability — export my data (Art. 20)</option>
+            <option value="object">Object to processing (Art. 21)</option>
+            <option value="withdraw">Withdraw consent</option>
+          </select>
+        </div>
+        <div class="rf-field">
+          <label>Details (optional)</label>
+          <textarea id="dsr-details" placeholder="Any additional context about your request…"></textarea>
+        </div>
+        <button type="submit" class="rf-submit">SUBMIT REQUEST →</button>
+        <div class="rf-note">We will acknowledge receipt within 5 business days and complete your request within 30 days.</div>
+      </form>
+    </div>
+  </section>
+
+  <section id="s10">
+    <h2><span class="sec-num">10</span> DPO &amp; Contact</h2>
+    <p>SwarmHawk has appointed a Data Protection Officer (DPO) who can be reached for any GDPR-related query:</p>
+    <div class="contact-card">
+      <p><strong>Data Protection Officer</strong></p>
+      <p>Email: <a href="mailto:privacy@swarmhawk.com">privacy@swarmhawk.com</a></p>
+      <p>For Data Processing Agreement requests: <a href="mailto:legal@swarmhawk.com">legal@swarmhawk.com</a></p>
+      <p>Security / breach reports: <a href="mailto:security@swarmhawk.com">security@swarmhawk.com</a></p>
+      <p><br><strong>SwarmHawk s.r.o.</strong> · Czech Republic · <a href="https://www.swarmhawk.com">www.swarmhawk.com</a></p>
+    </div>
+  </section>
+</div>
+
+<footer class="site-footer">
+  <div class="sf-inner">
+    <div class="sf-brand">SWARM<span>HAWK</span></div>
+    <div class="sf-links-row">
+      <a href="/privacy.html">Privacy Policy</a>
+      <a href="/terms.html">Terms of Use</a>
+      <a href="/gdpr.html">GDPR</a>
+      <a href="/contact.html">Contact</a>
+      <a href="/">Back to App</a>
+    </div>
+  </div>
+  <div class="sf-copy">© 2025–2026 SwarmHawk s.r.o. All rights reserved.</div>
+</footer>
+
+<script>
+function submitDSR(e) {
+  e.preventDefault();
+  const name = document.getElementById('dsr-name').value.trim();
+  const email = document.getElementById('dsr-email').value.trim();
+  const type = document.getElementById('dsr-type').value;
+  const details = document.getElementById('dsr-details').value.trim();
+  if (!type) { alert('Please select a request type.'); return; }
+  const subject = encodeURIComponent(`GDPR Data Subject Request: ${type}`);
+  const body = encodeURIComponent(`Name: ${name}\nEmail: ${email}\nRequest Type: ${type}\n\nDetails:\n${details}`);
+  window.location.href = `mailto:privacy@swarmhawk.com?subject=${subject}&body=${body}`;
+}
+</script>
+</body>
+</html>

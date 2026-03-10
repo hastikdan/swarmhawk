@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Privacy Policy — SwarmHawk</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--black:#0E0D12;--lime:#CBFF00;--white:#fff;--grey:#6B7280;--red:#C0392B;--card:#111318;--border:rgba(255,255,255,.06)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--black);color:var(--white);font-family:'DM Sans',sans-serif;min-height:100vh;overflow-x:hidden;line-height:1.7}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(203,255,0,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(203,255,0,.03) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0}
+
+nav{position:sticky;top:0;z-index:100;background:rgba(14,13,18,.95);backdrop-filter:blur(12px);border-bottom:1px solid rgba(203,255,0,.1);padding:0 24px;display:flex;align-items:center;height:60px;gap:16px}
+.logo{font-family:'Space Mono',monospace;font-size:16px;font-weight:700;color:var(--lime);letter-spacing:1px;text-decoration:none}
+.logo span{color:#C0392B}
+.nav-back{margin-left:auto;background:transparent;border:1px solid rgba(203,255,0,.2);color:var(--grey);font-size:12px;padding:5px 14px;border-radius:4px;cursor:pointer;font-family:'Space Mono',monospace;text-decoration:none;transition:all .2s}
+.nav-back:hover{border-color:var(--lime);color:var(--lime)}
+
+.page-wrap{position:relative;z-index:1;max-width:820px;margin:0 auto;padding:60px 24px 80px}
+.page-tag{display:inline-block;background:rgba(203,255,0,.08);border:1px solid rgba(203,255,0,.2);color:var(--lime);font-family:'Space Mono',monospace;font-size:10px;letter-spacing:2px;padding:5px 12px;border-radius:20px;margin-bottom:20px;text-transform:uppercase}
+.page-title{font-family:'Space Mono',monospace;font-size:clamp(24px,4vw,40px);font-weight:700;color:var(--white);margin-bottom:10px;line-height:1.15}
+.page-meta{font-size:13px;color:var(--grey);font-family:'Space Mono',monospace;margin-bottom:48px;padding-bottom:32px;border-bottom:1px solid rgba(203,255,0,.08)}
+
+.toc{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:24px 28px;margin-bottom:48px}
+.toc-title{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:2px;color:var(--lime);text-transform:uppercase;margin-bottom:14px}
+.toc-list{list-style:none;display:flex;flex-direction:column;gap:6px}
+.toc-list a{color:var(--grey);text-decoration:none;font-size:13px;transition:color .2s}
+.toc-list a:hover{color:var(--lime)}
+.toc-num{font-family:'Space Mono',monospace;font-size:11px;color:var(--lime);margin-right:8px}
+
+section{margin-bottom:48px}
+h2{font-family:'Space Mono',monospace;font-size:16px;font-weight:700;color:var(--white);margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid rgba(203,255,0,.08);display:flex;align-items:center;gap:10px}
+h2 .sec-num{color:var(--lime);font-size:13px}
+p{color:#b0adc0;font-size:15px;margin-bottom:14px}
+ul,ol{color:#b0adc0;font-size:15px;padding-left:20px;margin-bottom:14px}
+li{margin-bottom:6px}
+strong{color:var(--white)}
+a{color:var(--lime);text-decoration:none}
+a:hover{text-decoration:underline}
+
+.highlight-box{background:rgba(203,255,0,.04);border:1px solid rgba(203,255,0,.12);border-radius:8px;padding:16px 20px;margin:16px 0}
+.highlight-box p{margin-bottom:0;color:#b0adc0}
+
+.contact-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:24px 28px;margin-top:16px}
+.contact-card p{margin-bottom:6px}
+
+.site-footer{background:var(--card);border-top:1px solid rgba(203,255,0,.08);padding:40px 24px 28px;position:relative;z-index:1}
+.sf-inner{max-width:820px;margin:0 auto;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:20px}
+.sf-brand{font-family:'Space Mono',monospace;font-size:14px;font-weight:700;color:var(--white);letter-spacing:2px}
+.sf-brand span{color:#C0392B}
+.sf-links-row{display:flex;flex-wrap:wrap;gap:20px}
+.sf-links-row a{font-family:'Space Mono',monospace;font-size:10px;color:var(--grey);text-decoration:none;letter-spacing:1px;transition:color .2s}
+.sf-links-row a:hover{color:var(--lime)}
+.sf-copy{font-size:12px;color:#3d3c4a;text-align:center;margin-top:20px;padding-top:20px;border-top:1px solid rgba(255,255,255,.04)}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="logo">SWARM<span>HAWK</span></a>
+  <a href="/" class="nav-back">← Back to App</a>
+</nav>
+
+<div class="page-wrap">
+  <div class="page-tag">Legal</div>
+  <h1 class="page-title">Privacy Policy</h1>
+  <div class="page-meta">Effective date: 1 January 2025 &nbsp;·&nbsp; Last updated: 10 March 2026</div>
+
+  <div class="toc">
+    <div class="toc-title">Table of Contents</div>
+    <ul class="toc-list">
+      <li><a href="#s1"><span class="toc-num">01</span> Who We Are</a></li>
+      <li><a href="#s2"><span class="toc-num">02</span> Data We Collect</a></li>
+      <li><a href="#s3"><span class="toc-num">03</span> How We Use Your Data</a></li>
+      <li><a href="#s4"><span class="toc-num">04</span> Legal Basis for Processing</a></li>
+      <li><a href="#s5"><span class="toc-num">05</span> Data Sharing &amp; Third Parties</a></li>
+      <li><a href="#s6"><span class="toc-num">06</span> Data Retention</a></li>
+      <li><a href="#s7"><span class="toc-num">07</span> Your Rights</a></li>
+      <li><a href="#s8"><span class="toc-num">08</span> Cookies &amp; Tracking</a></li>
+      <li><a href="#s9"><span class="toc-num">09</span> International Transfers</a></li>
+      <li><a href="#s10"><span class="toc-num">10</span> Security</a></li>
+      <li><a href="#s11"><span class="toc-num">11</span> Changes to This Policy</a></li>
+      <li><a href="#s12"><span class="toc-num">12</span> Contact Us</a></li>
+    </ul>
+  </div>
+
+  <section id="s1">
+    <h2><span class="sec-num">01</span> Who We Are</h2>
+    <p>SwarmHawk is a cybersecurity intelligence platform operated by <strong>SwarmHawk s.r.o.</strong>, a company registered in the Czech Republic. Our platform provides domain security scanning, threat intelligence, and compliance monitoring services for businesses across the European Union and beyond.</p>
+    <p>For the purposes of EU data protection law, SwarmHawk s.r.o. is the <strong>data controller</strong> for personal data collected through this website and its services.</p>
+    <div class="highlight-box"><p><strong>Data Controller:</strong> SwarmHawk s.r.o. · Registered in Czech Republic · Contact: <a href="mailto:privacy@swarmhawk.com">privacy@swarmhawk.com</a></p></div>
+  </section>
+
+  <section id="s2">
+    <h2><span class="sec-num">02</span> Data We Collect</h2>
+    <p>We collect different categories of data depending on how you interact with SwarmHawk:</p>
+    <p><strong>Account Data</strong></p>
+    <ul>
+      <li>Email address (required to create an account)</li>
+      <li>Name or display name (optional)</li>
+      <li>Organisation name (optional, for business plans)</li>
+      <li>Password stored as a bcrypt hash (we never store plaintext passwords)</li>
+    </ul>
+    <p><strong>Usage &amp; Scan Data</strong></p>
+    <ul>
+      <li>Domain names you submit for scanning</li>
+      <li>Scan results, risk scores, and generated intelligence reports</li>
+      <li>Timestamps and frequency of scans</li>
+      <li>API key identifiers (not the raw key value after creation)</li>
+    </ul>
+    <p><strong>Technical Data</strong></p>
+    <ul>
+      <li>IP address and approximate geographic location (country level)</li>
+      <li>Browser type and version</li>
+      <li>Device type (desktop / mobile)</li>
+      <li>Session identifiers (stored server-side, referenced via a cookie)</li>
+    </ul>
+    <p><strong>Communication Data</strong></p>
+    <ul>
+      <li>Messages sent to us via the contact form or email</li>
+      <li>Support ticket content</li>
+    </ul>
+    <p><strong>Data We Do NOT Collect</strong></p>
+    <ul>
+      <li>Payment card numbers (payments processed by Stripe; we receive only a transaction token)</li>
+      <li>Government ID or passport information</li>
+      <li>Biometric data</li>
+      <li>Data from children under 16</li>
+    </ul>
+  </section>
+
+  <section id="s3">
+    <h2><span class="sec-num">03</span> How We Use Your Data</h2>
+    <p>We use collected data for the following purposes:</p>
+    <ul>
+      <li><strong>Service delivery</strong> — Running domain security scans, generating reports, and returning intelligence results to you</li>
+      <li><strong>Account management</strong> — Authenticating you, managing your subscription, and providing customer support</li>
+      <li><strong>Security &amp; fraud prevention</strong> — Detecting abuse, rate-limiting, and protecting the integrity of the platform</li>
+      <li><strong>Service improvement</strong> — Aggregated, anonymised analytics on feature usage to improve the product</li>
+      <li><strong>Legal compliance</strong> — Maintaining audit logs where required by law (NIS2, GDPR record-keeping obligations)</li>
+      <li><strong>Communications</strong> — Sending transactional emails (scan results, account notices) and, with your consent, product updates</li>
+    </ul>
+    <p>We do <strong>not</strong> sell your personal data, use it for advertising profiling, or share it with data brokers.</p>
+  </section>
+
+  <section id="s4">
+    <h2><span class="sec-num">04</span> Legal Basis for Processing (GDPR Art. 6)</h2>
+    <ul>
+      <li><strong>Contract performance (Art. 6(1)(b))</strong> — Processing necessary to provide the scanning and intelligence services you signed up for</li>
+      <li><strong>Legitimate interests (Art. 6(1)(f))</strong> — Security monitoring, fraud prevention, and aggregated product analytics (interests balanced against your rights)</li>
+      <li><strong>Legal obligation (Art. 6(1)(c))</strong> — Retaining audit logs and billing records as required by Czech and EU law</li>
+      <li><strong>Consent (Art. 6(1)(a))</strong> — Marketing emails and optional analytics cookies (you can withdraw consent at any time)</li>
+    </ul>
+  </section>
+
+  <section id="s5">
+    <h2><span class="sec-num">05</span> Data Sharing &amp; Third Parties</h2>
+    <p>We share data with the following categories of trusted sub-processors only to the extent necessary to provide the service:</p>
+    <ul>
+      <li><strong>Supabase Inc.</strong> — Database hosting (PostgreSQL) in EU data centres (Frankfurt)</li>
+      <li><strong>Render Inc.</strong> — Backend application hosting (US-based; Standard Contractual Clauses in place)</li>
+      <li><strong>Anthropic PBC / Portkey AI</strong> — AI analysis of domain risk (domain name + scan result only; no personal data in prompts)</li>
+      <li><strong>Stripe Inc.</strong> — Payment processing (we share only order amounts and a billing email)</li>
+      <li><strong>Cloudflare Inc.</strong> — DDoS protection and CDN (processes IP addresses transiently)</li>
+    </ul>
+    <p>We may disclose data to law enforcement or regulatory bodies if required by a legally binding court order or equivalent legal process. We will notify you unless prohibited by law.</p>
+  </section>
+
+  <section id="s6">
+    <h2><span class="sec-num">06</span> Data Retention</h2>
+    <ul>
+      <li><strong>Account data</strong> — Retained for the lifetime of your account plus 30 days after deletion</li>
+      <li><strong>Scan results</strong> — Retained for 12 months; older records are archived or deleted</li>
+      <li><strong>Audit logs</strong> — Retained for 36 months to comply with NIS2 incident logging requirements</li>
+      <li><strong>Billing records</strong> — Retained for 10 years as required by Czech accounting law</li>
+      <li><strong>Support communications</strong> — Retained for 24 months after ticket closure</li>
+    </ul>
+    <p>You can request early deletion of your personal data by contacting us (see Section 12), subject to legal retention obligations.</p>
+  </section>
+
+  <section id="s7">
+    <h2><span class="sec-num">07</span> Your Rights</h2>
+    <p>Under the GDPR (and applicable national law), you have the following rights:</p>
+    <ul>
+      <li><strong>Right of access (Art. 15)</strong> — Request a copy of the personal data we hold about you</li>
+      <li><strong>Right to rectification (Art. 16)</strong> — Ask us to correct inaccurate data</li>
+      <li><strong>Right to erasure (Art. 17)</strong> — Request deletion of your data ("right to be forgotten"), subject to legal retention needs</li>
+      <li><strong>Right to restriction (Art. 18)</strong> — Ask us to pause processing while a dispute is resolved</li>
+      <li><strong>Right to data portability (Art. 20)</strong> — Receive your data in a machine-readable format (JSON export available in account settings)</li>
+      <li><strong>Right to object (Art. 21)</strong> — Object to processing based on legitimate interests (e.g. analytics)</li>
+      <li><strong>Right to withdraw consent</strong> — Revoke marketing consent at any time via the unsubscribe link in any email or via account settings</li>
+    </ul>
+    <p>To exercise any right, email <a href="mailto:privacy@swarmhawk.com">privacy@swarmhawk.com</a>. We will respond within <strong>30 days</strong>. If you are unsatisfied with our response, you may lodge a complaint with the <strong>Czech Office for Personal Data Protection (ÚOOÚ)</strong> at <a href="https://www.uoou.cz" target="_blank">uoou.cz</a>.</p>
+  </section>
+
+  <section id="s8">
+    <h2><span class="sec-num">08</span> Cookies &amp; Tracking</h2>
+    <p>We use a minimal set of cookies:</p>
+    <ul>
+      <li><strong>Session cookie</strong> (strictly necessary) — Keeps you logged in; expires when you close the browser or after 7 days of inactivity</li>
+      <li><strong>Preference cookie</strong> (functional) — Remembers your UI settings (e.g. dark mode, selected country)</li>
+      <li><strong>Analytics cookie</strong> (with consent) — Aggregated, anonymised page-view tracking via a self-hosted instance; no cross-site tracking</li>
+    </ul>
+    <p>We do <strong>not</strong> use third-party advertising cookies, Google Analytics, Facebook Pixel, or similar tracking technologies.</p>
+    <p>You can manage cookie preferences in your browser settings or via the cookie banner shown on first visit.</p>
+  </section>
+
+  <section id="s9">
+    <h2><span class="sec-num">09</span> International Data Transfers</h2>
+    <p>Some of our sub-processors are based outside the EU/EEA (notably Render and Anthropic in the United States). Where this occurs, we rely on:</p>
+    <ul>
+      <li><strong>Standard Contractual Clauses (SCCs)</strong> approved by the European Commission (Decision 2021/914), or</li>
+      <li><strong>Adequacy decisions</strong> where applicable</li>
+    </ul>
+    <p>You can request a copy of the applicable transfer mechanism by contacting us.</p>
+  </section>
+
+  <section id="s10">
+    <h2><span class="sec-num">10</span> Security</h2>
+    <p>We implement industry-standard security measures including:</p>
+    <ul>
+      <li>TLS 1.3 encryption for all data in transit</li>
+      <li>AES-256 encryption for data at rest in the database</li>
+      <li>bcrypt password hashing with a cost factor of 12</li>
+      <li>Role-based access controls with principle of least privilege</li>
+      <li>Regular automated vulnerability scanning (we use SwarmHawk on ourselves)</li>
+      <li>No plain-text API keys stored; only hashed representations are retained</li>
+    </ul>
+    <p>In the event of a personal data breach affecting your rights and freedoms, we will notify the relevant supervisory authority within <strong>72 hours</strong> and inform affected users without undue delay, in accordance with GDPR Art. 33–34.</p>
+  </section>
+
+  <section id="s11">
+    <h2><span class="sec-num">11</span> Changes to This Policy</h2>
+    <p>We may update this Privacy Policy periodically. Material changes will be communicated via an in-app banner and, where required by law, by email at least 14 days before they take effect. The "Last updated" date at the top of this page always reflects the current version.</p>
+    <p>Continued use of the service after the effective date of changes constitutes acceptance of the revised policy.</p>
+  </section>
+
+  <section id="s12">
+    <h2><span class="sec-num">12</span> Contact Us</h2>
+    <p>For any privacy-related questions, data subject requests, or concerns:</p>
+    <div class="contact-card">
+      <p><strong>SwarmHawk s.r.o.</strong></p>
+      <p>Data Protection Officer: <a href="mailto:privacy@swarmhawk.com">privacy@swarmhawk.com</a></p>
+      <p>General enquiries: <a href="mailto:hello@swarmhawk.com">hello@swarmhawk.com</a></p>
+      <p>Website: <a href="https://www.swarmhawk.com">www.swarmhawk.com</a></p>
+    </div>
+  </section>
+</div>
+
+<footer class="site-footer">
+  <div class="sf-inner">
+    <div class="sf-brand">SWARM<span>HAWK</span></div>
+    <div class="sf-links-row">
+      <a href="/privacy.html">Privacy Policy</a>
+      <a href="/terms.html">Terms of Use</a>
+      <a href="/gdpr.html">GDPR</a>
+      <a href="/contact.html">Contact</a>
+      <a href="/">Back to App</a>
+    </div>
+  </div>
+  <div class="sf-copy">© 2025–2026 SwarmHawk s.r.o. All rights reserved.</div>
+</footer>
+
+</body>
+</html>

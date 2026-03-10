@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Terms of Use — SwarmHawk</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--black:#0E0D12;--lime:#CBFF00;--white:#fff;--grey:#6B7280;--red:#C0392B;--card:#111318;--border:rgba(255,255,255,.06)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--black);color:var(--white);font-family:'DM Sans',sans-serif;min-height:100vh;overflow-x:hidden;line-height:1.7}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(203,255,0,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(203,255,0,.03) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0}
+nav{position:sticky;top:0;z-index:100;background:rgba(14,13,18,.95);backdrop-filter:blur(12px);border-bottom:1px solid rgba(203,255,0,.1);padding:0 24px;display:flex;align-items:center;height:60px;gap:16px}
+.logo{font-family:'Space Mono',monospace;font-size:16px;font-weight:700;color:var(--lime);letter-spacing:1px;text-decoration:none}
+.logo span{color:#C0392B}
+.nav-back{margin-left:auto;background:transparent;border:1px solid rgba(203,255,0,.2);color:var(--grey);font-size:12px;padding:5px 14px;border-radius:4px;cursor:pointer;font-family:'Space Mono',monospace;text-decoration:none;transition:all .2s}
+.nav-back:hover{border-color:var(--lime);color:var(--lime)}
+.page-wrap{position:relative;z-index:1;max-width:820px;margin:0 auto;padding:60px 24px 80px}
+.page-tag{display:inline-block;background:rgba(203,255,0,.08);border:1px solid rgba(203,255,0,.2);color:var(--lime);font-family:'Space Mono',monospace;font-size:10px;letter-spacing:2px;padding:5px 12px;border-radius:20px;margin-bottom:20px;text-transform:uppercase}
+.page-title{font-family:'Space Mono',monospace;font-size:clamp(24px,4vw,40px);font-weight:700;color:var(--white);margin-bottom:10px;line-height:1.15}
+.page-meta{font-size:13px;color:var(--grey);font-family:'Space Mono',monospace;margin-bottom:48px;padding-bottom:32px;border-bottom:1px solid rgba(203,255,0,.08)}
+.toc{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:24px 28px;margin-bottom:48px}
+.toc-title{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:2px;color:var(--lime);text-transform:uppercase;margin-bottom:14px}
+.toc-list{list-style:none;display:flex;flex-direction:column;gap:6px}
+.toc-list a{color:var(--grey);text-decoration:none;font-size:13px;transition:color .2s}
+.toc-list a:hover{color:var(--lime)}
+.toc-num{font-family:'Space Mono',monospace;font-size:11px;color:var(--lime);margin-right:8px}
+section{margin-bottom:48px}
+h2{font-family:'Space Mono',monospace;font-size:16px;font-weight:700;color:var(--white);margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid rgba(203,255,0,.08);display:flex;align-items:center;gap:10px}
+h2 .sec-num{color:var(--lime);font-size:13px}
+p{color:#b0adc0;font-size:15px;margin-bottom:14px}
+ul,ol{color:#b0adc0;font-size:15px;padding-left:20px;margin-bottom:14px}
+li{margin-bottom:6px}
+strong{color:var(--white)}
+a{color:var(--lime);text-decoration:none}
+a:hover{text-decoration:underline}
+.highlight-box{background:rgba(192,57,43,.06);border:1px solid rgba(192,57,43,.2);border-radius:8px;padding:16px 20px;margin:16px 0}
+.highlight-box p{margin-bottom:0;color:#b0adc0}
+.plan-table{width:100%;border-collapse:collapse;margin:16px 0}
+.plan-table th{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:1px;color:var(--lime);text-transform:uppercase;padding:10px 12px;text-align:left;border-bottom:1px solid rgba(203,255,0,.15)}
+.plan-table td{font-size:13px;color:#b0adc0;padding:10px 12px;border-bottom:1px solid rgba(255,255,255,.04)}
+.plan-table tr:last-child td{border-bottom:none}
+.contact-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:24px 28px;margin-top:16px}
+.contact-card p{margin-bottom:6px}
+.site-footer{background:var(--card);border-top:1px solid rgba(203,255,0,.08);padding:40px 24px 28px;position:relative;z-index:1}
+.sf-inner{max-width:820px;margin:0 auto;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:20px}
+.sf-brand{font-family:'Space Mono',monospace;font-size:14px;font-weight:700;color:var(--white);letter-spacing:2px}
+.sf-brand span{color:#C0392B}
+.sf-links-row{display:flex;flex-wrap:wrap;gap:20px}
+.sf-links-row a{font-family:'Space Mono',monospace;font-size:10px;color:var(--grey);text-decoration:none;letter-spacing:1px;transition:color .2s}
+.sf-links-row a:hover{color:var(--lime)}
+.sf-copy{font-size:12px;color:#3d3c4a;text-align:center;margin-top:20px;padding-top:20px;border-top:1px solid rgba(255,255,255,.04)}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="logo">SWARM<span>HAWK</span></a>
+  <a href="/" class="nav-back">← Back to App</a>
+</nav>
+
+<div class="page-wrap">
+  <div class="page-tag">Legal</div>
+  <h1 class="page-title">Terms of Use</h1>
+  <div class="page-meta">Effective date: 1 January 2025 &nbsp;·&nbsp; Last updated: 10 March 2026</div>
+
+  <div class="toc">
+    <div class="toc-title">Table of Contents</div>
+    <ul class="toc-list">
+      <li><a href="#s1"><span class="toc-num">01</span> Acceptance of Terms</a></li>
+      <li><a href="#s2"><span class="toc-num">02</span> Description of Service</a></li>
+      <li><a href="#s3"><span class="toc-num">03</span> Eligibility</a></li>
+      <li><a href="#s4"><span class="toc-num">04</span> Accounts &amp; API Keys</a></li>
+      <li><a href="#s5"><span class="toc-num">05</span> Subscription Plans &amp; Billing</a></li>
+      <li><a href="#s6"><span class="toc-num">06</span> Acceptable Use Policy</a></li>
+      <li><a href="#s7"><span class="toc-num">07</span> Intellectual Property</a></li>
+      <li><a href="#s8"><span class="toc-num">08</span> Disclaimer of Warranties</a></li>
+      <li><a href="#s9"><span class="toc-num">09</span> Limitation of Liability</a></li>
+      <li><a href="#s10"><span class="toc-num">10</span> Indemnification</a></li>
+      <li><a href="#s11"><span class="toc-num">11</span> Termination</a></li>
+      <li><a href="#s12"><span class="toc-num">12</span> Governing Law &amp; Disputes</a></li>
+      <li><a href="#s13"><span class="toc-num">13</span> Changes to Terms</a></li>
+      <li><a href="#s14"><span class="toc-num">14</span> Contact</a></li>
+    </ul>
+  </div>
+
+  <section id="s1">
+    <h2><span class="sec-num">01</span> Acceptance of Terms</h2>
+    <p>By accessing or using SwarmHawk (the "Service") — whether through the web application at <a href="https://www.swarmhawk.com">www.swarmhawk.com</a>, our REST API, our Chrome Extension, or any other interface — you agree to be bound by these Terms of Use ("Terms").</p>
+    <p>If you are using the Service on behalf of a company or other legal entity, you represent that you have the authority to bind that entity to these Terms. In that case, "you" refers to both you individually and the entity.</p>
+    <p>If you do not agree with any part of these Terms, you may not use the Service.</p>
+    <div class="highlight-box"><p><strong>Important:</strong> SwarmHawk is a passive intelligence and monitoring tool. It does NOT perform intrusive penetration testing, exploit execution, or active attacks against any target system. Results are based on publicly available information and authorised third-party intelligence feeds.</p></div>
+  </section>
+
+  <section id="s2">
+    <h2><span class="sec-num">02</span> Description of Service</h2>
+    <p>SwarmHawk provides:</p>
+    <ul>
+      <li>Domain security scanning (SSL, DNS, open ports, email security, WHOIS, and more)</li>
+      <li>Threat intelligence aggregation from public and commercial feeds</li>
+      <li>NIS2 and DORA compliance monitoring dashboards</li>
+      <li>AI-generated risk summaries and remediation recommendations</li>
+      <li>Competitor and supplier domain monitoring</li>
+      <li>API access for programmatic integration</li>
+      <li>Chrome Extension for instant domain scanning while browsing</li>
+    </ul>
+    <p>The Service is provided "as is" and we reserve the right to modify, suspend, or discontinue any feature at any time with reasonable notice.</p>
+  </section>
+
+  <section id="s3">
+    <h2><span class="sec-num">03</span> Eligibility</h2>
+    <p>You must be at least 18 years old and capable of forming a legally binding contract to use the Service. The Service is intended for business and professional use. If you are using SwarmHawk as a consumer (individual not in trade or profession), you may have additional rights under applicable consumer protection law; these Terms do not limit those rights.</p>
+    <p>The Service may not be used by individuals or entities located in countries subject to EU, US, or Czech Republic trade sanctions.</p>
+  </section>
+
+  <section id="s4">
+    <h2><span class="sec-num">04</span> Accounts &amp; API Keys</h2>
+    <p>You are responsible for maintaining the confidentiality of your account credentials and API keys. You must notify us immediately at <a href="mailto:security@swarmhawk.com">security@swarmhawk.com</a> if you suspect unauthorised access to your account.</p>
+    <p>You may not share your account or API keys with third parties unless explicitly permitted under your subscription plan. Usage of your credentials — whether authorised by you or not — counts toward your plan limits and you remain liable for all activity under your account.</p>
+    <p>We reserve the right to suspend or terminate accounts that show signs of misuse, credential sharing, or automated abuse.</p>
+  </section>
+
+  <section id="s5">
+    <h2><span class="sec-num">05</span> Subscription Plans &amp; Billing</h2>
+    <table class="plan-table">
+      <thead><tr><th>Plan</th><th>Scan Limit</th><th>Features</th></tr></thead>
+      <tbody>
+        <tr><td>Free (Public)</td><td>5 scans / day</td><td>Basic risk score, limited checks</td></tr>
+        <tr><td>Starter</td><td>50 scans / day</td><td>Full 22 checks, 12-month history</td></tr>
+        <tr><td>Professional</td><td>250 scans / day</td><td>API access, competitor monitoring, NIS2 reports</td></tr>
+        <tr><td>Enterprise</td><td>Unlimited</td><td>Custom integrations, SLA, dedicated support</td></tr>
+      </tbody>
+    </table>
+    <p>Paid subscriptions are billed monthly or annually in advance. Prices are exclusive of VAT; Czech VAT (21 %) or applicable EU VAT will be added for EU customers without a valid VAT ID. By subscribing, you authorise us to charge your payment method on each renewal date.</p>
+    <p><strong>Refunds:</strong> You may cancel your subscription at any time. Cancellation takes effect at the end of the current billing period; we do not issue prorated refunds except where required by applicable consumer law or within 14 days of first purchase (EU statutory cooling-off right).</p>
+  </section>
+
+  <section id="s6">
+    <h2><span class="sec-num">06</span> Acceptable Use Policy</h2>
+    <p>You agree NOT to use the Service to:</p>
+    <ul>
+      <li>Scan domains or systems you do not own or do not have explicit written authorisation to scan</li>
+      <li>Attempt to circumvent rate limits or access controls</li>
+      <li>Reverse-engineer, decompile, or copy the SwarmHawk platform or algorithms</li>
+      <li>Resell or white-label the Service without a written reseller agreement</li>
+      <li>Use scan results to facilitate cyberattacks, harassment, or illegal surveillance</li>
+      <li>Submit false, fraudulent, or misleading information to the platform</li>
+      <li>Violate any applicable law, including computer fraud legislation (e.g. Czech Act No. 181/2014 Coll. on Cyber Security, EU NIS2 Directive, CFAA)</li>
+      <li>Upload malware, exploit code, or other harmful content via the API</li>
+    </ul>
+    <p>Violation of this policy may result in immediate account termination without refund and may be reported to relevant law enforcement authorities.</p>
+  </section>
+
+  <section id="s7">
+    <h2><span class="sec-num">07</span> Intellectual Property</h2>
+    <p>The SwarmHawk platform, including its source code, design, trademarks, logos, database schemas, scoring algorithms, and documentation, is the exclusive property of SwarmHawk s.r.o. and is protected by Czech and EU intellectual property law.</p>
+    <p>Your scan results and intelligence reports are your data. You retain ownership of the domain names you submit and the results generated for them. By using the Service, you grant SwarmHawk a limited, non-exclusive licence to process your submitted domain data solely to provide the Service and improve detection accuracy (using aggregated, anonymised signals only).</p>
+    <p>The SwarmHawk name, logo, and "SWARMHAWK" wordmark are registered or unregistered trademarks of SwarmHawk s.r.o. You may not use them without prior written permission.</p>
+  </section>
+
+  <section id="s8">
+    <h2><span class="sec-num">08</span> Disclaimer of Warranties</h2>
+    <p>TO THE FULLEST EXTENT PERMITTED BY APPLICABLE LAW, THE SERVICE IS PROVIDED "AS IS" AND "AS AVAILABLE" WITHOUT WARRANTIES OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, OR UNINTERRUPTED ACCESS.</p>
+    <p>SwarmHawk does not warrant that:</p>
+    <ul>
+      <li>Scan results are complete, accurate, or up-to-date at all times</li>
+      <li>The Service will be uninterrupted or error-free</li>
+      <li>The Service will detect all vulnerabilities or threats affecting a domain</li>
+      <li>AI-generated summaries are free from hallucinations or errors</li>
+    </ul>
+    <p>Scan results are informational only and do not constitute legal, security, or compliance advice. You should independently verify critical findings before taking remediation action.</p>
+  </section>
+
+  <section id="s9">
+    <h2><span class="sec-num">09</span> Limitation of Liability</h2>
+    <p>TO THE MAXIMUM EXTENT PERMITTED BY LAW, SWARMHAWK AND ITS OFFICERS, DIRECTORS, EMPLOYEES, AND SUPPLIERS SHALL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, INCLUDING LOSS OF PROFITS, DATA, OR GOODWILL, ARISING FROM YOUR USE OF OR INABILITY TO USE THE SERVICE.</p>
+    <p>Our total aggregate liability to you for all claims arising out of or related to these Terms or the Service shall not exceed the greater of (a) the total fees you paid to us in the 12 months preceding the claim, or (b) €100.</p>
+    <p>Some jurisdictions do not allow exclusion of certain warranties or limitation of liability; in such cases, our liability is limited to the minimum extent permitted by law.</p>
+  </section>
+
+  <section id="s10">
+    <h2><span class="sec-num">10</span> Indemnification</h2>
+    <p>You agree to defend, indemnify, and hold harmless SwarmHawk s.r.o. and its affiliates, officers, employees, and partners from any claims, damages, costs, and expenses (including reasonable legal fees) arising from: (a) your breach of these Terms; (b) your violation of any third-party rights; or (c) your use of the Service in violation of applicable law.</p>
+  </section>
+
+  <section id="s11">
+    <h2><span class="sec-num">11</span> Termination</h2>
+    <p>You may terminate your account at any time by using the account deletion option in your settings or by contacting us. Upon termination, your access to the Service ceases and your data will be deleted in accordance with our retention schedule (see Privacy Policy).</p>
+    <p>We may terminate or suspend your account immediately, without notice, if we determine that you have violated these Terms, engaged in fraudulent activity, or if required to do so by law. In the event of termination without cause by us, we will refund any unused prepaid subscription fees on a prorated basis.</p>
+  </section>
+
+  <section id="s12">
+    <h2><span class="sec-num">12</span> Governing Law &amp; Disputes</h2>
+    <p>These Terms are governed by the laws of the <strong>Czech Republic</strong>, without regard to its conflict of law provisions. The <strong>United Nations Convention on Contracts for the International Sale of Goods (CISG)</strong> does not apply.</p>
+    <p>Any dispute arising out of or in connection with these Terms shall first be attempted to be resolved through good-faith negotiation. If unresolved after 30 days, the dispute shall be submitted to the exclusive jurisdiction of the courts of <strong>Prague, Czech Republic</strong>.</p>
+    <p>If you are a consumer in the EU, you also have the right to use the EU Online Dispute Resolution platform at <a href="https://ec.europa.eu/consumers/odr" target="_blank">ec.europa.eu/consumers/odr</a>.</p>
+  </section>
+
+  <section id="s13">
+    <h2><span class="sec-num">13</span> Changes to Terms</h2>
+    <p>We may update these Terms from time to time. Material changes will be communicated via email and an in-app notice at least 14 days before they take effect. If you do not agree with the changes, you may cancel your account before the effective date; continued use constitutes acceptance.</p>
+    <p>For minor changes (e.g. fixing typos, clarifications that don't affect your rights), we will update the "Last updated" date without prior notice.</p>
+  </section>
+
+  <section id="s14">
+    <h2><span class="sec-num">14</span> Contact</h2>
+    <p>Questions about these Terms?</p>
+    <div class="contact-card">
+      <p><strong>SwarmHawk s.r.o.</strong></p>
+      <p>Legal: <a href="mailto:legal@swarmhawk.com">legal@swarmhawk.com</a></p>
+      <p>Security reports: <a href="mailto:security@swarmhawk.com">security@swarmhawk.com</a></p>
+      <p>General: <a href="mailto:hello@swarmhawk.com">hello@swarmhawk.com</a></p>
+    </div>
+  </section>
+</div>
+
+<footer class="site-footer">
+  <div class="sf-inner">
+    <div class="sf-brand">SWARM<span>HAWK</span></div>
+    <div class="sf-links-row">
+      <a href="/privacy.html">Privacy Policy</a>
+      <a href="/terms.html">Terms of Use</a>
+      <a href="/gdpr.html">GDPR</a>
+      <a href="/contact.html">Contact</a>
+      <a href="/">Back to App</a>
+    </div>
+  </div>
+  <div class="sf-copy">© 2025–2026 SwarmHawk s.r.o. All rights reserved.</div>
+</footer>
+
+</body>
+</html>
