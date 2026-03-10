@@ -1163,7 +1163,6 @@ async function loadDomains() {
       dbDomains = domains;
       dbRenderOverview();
       dbRenderDomainsTable();
-      dbRenderReportsDomainList();
       dbRenderThreats();
     }
     if (!domains.some(d=>d.status==='scanning')){clearInterval(pollTimer);pollTimer=null;}
@@ -1861,9 +1860,7 @@ function renderReportPage(data, domain, isSample) {
     <div class="db-tabs">
       <button class="db-tab active" onclick="dbShowTab('overview',this)">📊 Overview</button>
       <button class="db-tab" onclick="dbShowTab('domains',this)">🌐 Domains</button>
-      <button class="db-tab" onclick="dbShowTab('reports',this)">📋 Reports</button>
-      <button class="db-tab" onclick="dbShowTab('threats',this)">⚠️ Threats</button>
-      <button class="db-tab" onclick="dbShowTab('intel',this)">🧠 Intelligence</button>
+      <button class="db-tab" onclick="dbShowTab('threats',this)">⚡ Threats & Intel</button>
       <button class="db-tab" onclick="dbShowTab('competitors',this);compLoad()">🎯 Competitors</button>
       <button class="db-tab" onclick="dbShowTab('supply-chain',this);scLoadResults()">🔗 Supply Chain</button>
       <button class="db-tab" onclick="dbShowTab('account',this);dbLoadAccount()">👤 Account</button>
@@ -1970,38 +1967,21 @@ function renderReportPage(data, domain, isSample) {
     </div>
 
     <!-- ── TAB: REPORTS ──────────────────────────────────────── -->
-    <div class="db-page" id="db-reports">
-      <div class="db-inner">
-        <div class="db-header">
-          <h2 class="db-title">Reports & History</h2>
-        </div>
-        <div class="db-two-col">
-          <div>
-            <div class="db-section-label">Select Domain</div>
-            <div id="reports-domain-list" class="reports-domain-list"></div>
-          </div>
-          <div>
-            <div class="db-section-label">Scan History</div>
-            <div id="reports-history" class="reports-history">
-              <div class="db-empty" style="padding:40px;text-align:center">Select a domain to see its report history</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ── TAB: THREATS ──────────────────────────────────────── -->
+    <!-- ── TAB: THREATS & INTEL ─────────────────────────────── -->
     <div class="db-page" id="db-threats">
       <div class="db-inner">
         <div class="db-header">
           <div>
-            <h2 class="db-title">Threat Summary</h2>
-            <p style="color:var(--grey);font-size:13px;margin-top:4px">All active findings across your domains, prioritised by severity</p>
+            <h2 class="db-title">Threats & Intelligence</h2>
+            <p style="color:var(--grey);font-size:13px;margin-top:4px">Active findings across your domains + AI threat briefing</p>
           </div>
-          <div class="db-filter-row">
-            <button class="db-filter active" onclick="dbFilterThreats('all',this)">All</button>
-            <button class="db-filter" onclick="dbFilterThreats('critical',this)">Critical</button>
-            <button class="db-filter" onclick="dbFilterThreats('warning',this)">Warnings</button>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+            <div class="db-filter-row">
+              <button class="db-filter active" onclick="dbFilterThreats('all',this)">All</button>
+              <button class="db-filter" onclick="dbFilterThreats('critical',this)">Critical</button>
+              <button class="db-filter" onclick="dbFilterThreats('warning',this)">Warnings</button>
+            </div>
+            <button class="btn-scan-all" id="intel-refresh-btn" onclick="dbLoadIntel(true)">↻ AI Briefing</button>
           </div>
         </div>
 
@@ -2014,41 +1994,21 @@ function renderReportPage(data, domain, isSample) {
         </div>
 
         <!-- All findings table -->
-        <div class="db-card">
+        <div class="db-card" style="margin-bottom:20px">
           <div class="db-card-head"><span class="db-card-title">All Findings</span></div>
           <div id="threats-all" class="threats-all">
             <div class="db-empty">Loading…</div>
           </div>
         </div>
-      </div>
-    </div>
 
-    <!-- ── TAB: INTELLIGENCE ─────────────────────────────────── -->
-    <div class="db-page" id="db-intel">
-      <div class="db-inner">
-        <div class="db-header">
-          <div>
-            <h2 class="db-title">Threat Intelligence</h2>
-            <p style="color:var(--grey);font-size:13px;margin-top:4px">AI-generated briefing on current threats relevant to your domains</p>
+        <!-- AI Intelligence Briefing -->
+        <div class="db-card intel-card" id="intel-briefing">
+          <div class="db-card-head">
+            <span class="db-card-title">🤖 AI Threat Briefing</span>
+            <span id="intel-timestamp" style="font-size:11px;color:var(--grey)"></span>
           </div>
-          <button class="btn-scan-all" id="intel-refresh-btn" onclick="dbLoadIntel(true)">↻ Refresh Briefing</button>
-        </div>
-
-        <div class="db-two-col" style="align-items:start">
-          <!-- Main briefing -->
-          <div style="grid-column:1/3">
-            <div class="db-card intel-card" id="intel-briefing">
-              <div class="db-card-head">
-                <span class="db-card-title">🤖 Weekly Threat Briefing</span>
-                <span id="intel-timestamp" style="font-size:11px;color:var(--grey)"></span>
-              </div>
-              <div id="intel-content" class="intel-content">
-                <div class="db-empty" style="padding:40px;text-align:center">
-                  <div class="spinner" style="width:24px;height:24px;border-width:2px;margin:0 auto 12px"></div>
-                  Generating intelligence briefing…
-                </div>
-              </div>
-            </div>
+          <div id="intel-content" class="intel-content">
+            <div class="db-empty" style="padding:40px;text-align:center">Click ↻ AI Briefing to generate your personalised threat briefing</div>
           </div>
         </div>
 
@@ -2542,8 +2502,10 @@ function dbShowTab(tab, btn) {
       if (t.getAttribute('onclick') && t.getAttribute('onclick').indexOf("'"+tab+"'") > -1) t.classList.add('active');
     });
   }
+  // 'intel' tab merged into 'threats' — redirect any legacy calls
+  if (tab === 'intel') tab = 'threats';
   document.getElementById('db-'+tab).classList.add('active');
-  if (tab === 'intel' && !dbIntelLoaded) dbLoadIntel(false);
+  if (tab === 'threats' && !dbIntelLoaded) dbLoadIntel(false);
   if (tab === 'outreach') outreachLoad();
 }
 
@@ -2553,7 +2515,6 @@ async function dbLoadAll() {
     dbDomains = data.domains || data || [];
     dbRenderOverview();
     dbRenderDomainsTable();
-    dbRenderReportsDomainList();
     dbRenderThreats();
   } catch(e) {
     console.error('dbLoadAll:', e);
