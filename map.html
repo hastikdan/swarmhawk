@@ -512,6 +512,7 @@ const COUNTRY_NAMES = {
   BG:'Bulgaria', RS:'Serbia', BA:'Bosnia', MK:'North Macedonia', MD:'Moldova',
   AL:'Albania', ME:'Montenegro', XK:'Kosovo', LU:'Luxembourg', IE:'Ireland',
   IS:'Iceland', MT:'Malta', CY:'Cyprus',
+  EU:'European Union',
 };
 
 const COUNTRY_FLAGS = {
@@ -524,6 +525,7 @@ const COUNTRY_FLAGS = {
   KE:'🇰🇪', PK:'🇵🇰', BD:'🇧🇩', LT:'🇱🇹', LV:'🇱🇻', EE:'🇪🇪', HR:'🇭🇷',
   SI:'🇸🇮', BG:'🇧🇬', RS:'🇷🇸', BA:'🇧🇦', MK:'🇲🇰', MD:'🇲🇩', AL:'🇦🇱',
   ME:'🇲🇪', LU:'🇱🇺', IE:'🇮🇪', IS:'🇮🇸', MT:'🇲🇹', CY:'🇨🇾',
+  EU:'🇪🇺',
 };
 
 /* Approximate country centroids [lat, lng] */
@@ -544,6 +546,9 @@ const COUNTRY_COORDS = {
   BA:[44.2, 17.9], MK:[41.6, 21.7], MD:[47.4, 28.4], AL:[41.2, 20.2],
   ME:[42.7, 19.4], LU:[49.8, 6.1],  IE:[53.1,-8.2],  IS:[65.0,-18.6],
   MT:[35.9, 14.4], CY:[35.1, 33.4],
+  /* Special / generic codes */
+  EU:[50.9, 10.5],  /* EU TLD — plotted over central Europe */
+  '??':[0, 0],
 };
 
 /* ── Init Leaflet ── */
