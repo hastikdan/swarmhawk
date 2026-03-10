@@ -207,6 +207,9 @@ h1 span{color:var(--lime)}
 
 /* CHECKS PREVIEW */
 .checks-preview{display:flex;flex-wrap:wrap;gap:6px;margin-top:16px}
+.biz-check{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:6px;padding:8px 12px;font-size:12px;color:var(--grey);transition:border-color .15s}
+.biz-check:hover{border-color:rgba(255,255,255,.15);color:var(--white)}
+.biz-check-ai{background:rgba(203,255,0,.05);border-color:rgba(203,255,0,.2);color:var(--lime);grid-column:1/-1;text-align:center}
 .check-chip{font-family:'Space Mono',monospace;font-size:10px;padding:3px 10px;border-radius:3px}
 .check-chip.ok{background:rgba(26,122,74,.12);color:#27ae60;border:1px solid rgba(26,122,74,.2)}
 .check-chip.warn{background:rgba(212,133,10,.12);color:#f39c12;border:1px solid rgba(212,133,10,.2)}
@@ -798,38 +801,56 @@ python3 swarmhawk_mcp.py --http</pre></div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:start">
         <div>
           <h2>SWARMHAWK DASHBOARD</h2>
-          <p style="color:var(--grey);font-size:14px;line-height:1.7;margin:16px 0 24px">22 automated security checks — including SAST, SCA, DAST, and IaC scanning — with AI threat analysis and monthly PDF reports. No technical knowledge required.</p>
-          <div class="feature-pills" style="margin-bottom:0">
-            <span class="pill">€50/domain/year</span>
-            <span class="pill">Monthly AI reports</span>
-            <span class="pill">NIS2 compliance</span>
-            <span class="pill">No setup needed</span>
+          <p style="color:var(--grey);font-size:14px;line-height:1.7;margin:16px 0 28px">22 automated security checks — SSL, DNS, CVEs, breaches, typosquats and AI threat analysis — with monthly PDF reports. No technical knowledge required.</p>
+
+          <!-- Pricing cards -->
+          <div style="display:flex;gap:12px;flex-wrap:wrap">
+            <div style="flex:1;min-width:140px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:18px 20px">
+              <div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--grey);letter-spacing:1px;text-transform:uppercase;margin-bottom:10px">One-time Report</div>
+              <div style="font-size:30px;font-weight:800;color:var(--white);line-height:1">$10</div>
+              <div style="font-size:11px;color:var(--grey);margin:6px 0 14px">Full scan · single domain</div>
+              <ul style="list-style:none;font-size:12px;color:var(--grey);line-height:1.9;margin:0;padding:0">
+                <li>✓ All 22 security checks</li>
+                <li>✓ AI threat summary</li>
+                <li>✓ Downloadable PDF</li>
+              </ul>
+            </div>
+            <div style="flex:1;min-width:140px;background:rgba(203,255,0,.05);border:1px solid rgba(203,255,0,.2);border-radius:10px;padding:18px 20px">
+              <div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--lime);letter-spacing:1px;text-transform:uppercase;margin-bottom:10px">Annual Monitoring</div>
+              <div style="font-size:30px;font-weight:800;color:var(--white);line-height:1">$50<span style="font-size:13px;font-weight:400;color:var(--grey)">/yr</span></div>
+              <div style="font-size:11px;color:var(--grey);margin:6px 0 14px">per domain · billed annually</div>
+              <ul style="list-style:none;font-size:12px;color:var(--grey);line-height:1.9;margin:0;padding:0">
+                <li>✓ Monthly rescan &amp; PDF report</li>
+                <li>✓ Breach &amp; CVE alerts</li>
+                <li>✓ NIS2 / DORA audit evidence</li>
+                <li style="color:var(--lime)">✓ Unlimited domains</li>
+              </ul>
+            </div>
           </div>
         </div>
-        <div class="checks-two-col">
-          <div class="checks-col">
-            <div class="check-row"><span class="check-chip ok">✓ SSL/TLS Certificate</span><span class="check-desc">Validity, expiry, TLS grade</span></div>
-            <div class="check-row"><span class="check-chip ok">✓ HTTPS Redirect</span><span class="check-desc">Enforced HTTPS on all traffic</span></div>
-            <div class="check-row"><span class="check-chip ok">✓ Security Headers</span><span class="check-desc">CSP, HSTS, X-Frame-Options</span></div>
-            <div class="check-row"><span class="check-chip ok">✓ DNS Configuration</span><span class="check-desc">SPF, DMARC, DNSSEC</span></div>
-            <div class="check-row"><span class="check-chip warn">⚠ Typosquat Monitor</span><span class="check-desc">Lookalike domain detection</span></div>
-            <div class="check-row"><span class="check-chip ok">✓ Breach Exposure</span><span class="check-desc">HaveIBeenPwned 12B+ accounts</span></div>
-            <div class="check-row"><span class="check-chip ok">✓ VirusTotal</span><span class="check-desc">94 antivirus engines</span></div>
-            <div class="check-row"><span class="check-chip ok">✓ Google Safe Browsing</span><span class="check-desc">Phishing &amp; malware flags</span></div>
-            <div class="check-row"><span class="check-chip ok">✓ Spamhaus DBL</span><span class="check-desc">Domain block list</span></div>
-            <div class="check-row"><span class="check-chip ok">✓ URLhaus</span><span class="check-desc">Malicious URL database</span></div>
-            <div class="check-row"><span class="check-chip ok">✓ Email Security</span><span class="check-desc">SPF, DKIM, DMARC policy</span></div>
-          </div>
-          <div class="checks-col">
-            <div class="check-row"><span class="check-chip ok">✓ CVE Scan</span><span class="check-desc">NIST NVD — real CVEs per version</span></div>
-            <div class="check-row"><span class="check-chip ok">✓ SAST Exposure</span><span class="check-desc">.git, .env, backups, debug pages</span></div>
-            <div class="check-row"><span class="check-chip ok">✓ SCA Analysis</span><span class="check-desc">Exposed deps + NVD CVE lookup</span></div>
-            <div class="check-row"><span class="check-chip ok">✓ DAST Probing</span><span class="check-desc">Admin panels, APIs, open redirects</span></div>
-            <div class="check-row"><span class="check-chip ok">✓ IaC Security</span><span class="check-desc">Terraform, K8s, CloudFormation</span></div>
-            <div class="check-row"><span class="check-chip ok">✓ WHOIS / RDAP</span><span class="check-desc">Domain age, expiry, registrar</span></div>
-            <div class="check-row"><span class="check-chip ok">✓ Tech Fingerprint</span><span class="check-desc">CMS, framework, server versions</span></div>
-            <div class="check-row"><span class="check-chip ok">✓ Response Time</span><span class="check-desc">Availability &amp; latency baseline</span></div>
-            <div class="check-row"><span class="check-chip ok">✓ AI Threat Analysis</span><span class="check-desc">Plain-language findings + fixes</span></div>
+
+        <!-- Security checks grid -->
+        <div>
+          <div style="font-family:'Space Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--grey);margin-bottom:14px">22 Automated Checks</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+            <div class="biz-check">🔒 SSL / TLS</div>
+            <div class="biz-check">🌐 DNS · SPF · DMARC</div>
+            <div class="biz-check">🛡 Security Headers</div>
+            <div class="biz-check">📧 Email Security</div>
+            <div class="biz-check">🦠 VirusTotal</div>
+            <div class="biz-check">🔍 Google Safe Browsing</div>
+            <div class="biz-check">💧 Breach Exposure</div>
+            <div class="biz-check">🚫 Spamhaus / URLhaus</div>
+            <div class="biz-check">⚠️ Typosquat Monitor</div>
+            <div class="biz-check">🐛 CVE Scan (NVD)</div>
+            <div class="biz-check">🔓 SAST Exposure</div>
+            <div class="biz-check">📦 SCA Analysis</div>
+            <div class="biz-check">🎯 DAST Probing</div>
+            <div class="biz-check">🏗 IaC Security</div>
+            <div class="biz-check">🧩 Tech Fingerprint</div>
+            <div class="biz-check">📋 WHOIS / RDAP</div>
+            <div class="biz-check">⚡ Response Time</div>
+            <div class="biz-check biz-check-ai">✦ AI Threat Analysis</div>
           </div>
         </div>
       </div>
