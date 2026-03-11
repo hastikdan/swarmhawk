@@ -865,7 +865,7 @@ python3 swarmhawk_mcp.py --http</pre></div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:start">
         <div class="split-text">
           <h2>Swarmhawk Dashboard<br><span>AI Threat Analysis</span></h2>
-          <p>22 automated security checks — SSL, DNS, CVEs, breaches, typosquats and AI threat analysis — with monthly PDF reports. No technical knowledge required.</p>
+          <p>23 automated security checks — SSL, DNS, CVEs, breaches, typosquats and AI threat analysis — with monthly PDF reports. No technical knowledge required.</p>
 
           <!-- Pricing cards -->
           <div style="display:flex;gap:12px;flex-wrap:wrap">
@@ -874,7 +874,7 @@ python3 swarmhawk_mcp.py --http</pre></div>
               <div style="font-size:30px;font-weight:800;color:var(--white);line-height:1">$10</div>
               <div style="font-size:11px;color:var(--grey);margin:6px 0 14px">Full scan · single domain</div>
               <ul style="list-style:none;font-size:12px;color:var(--grey);line-height:1.9;margin:0;padding:0">
-                <li>✓ All 22 security checks</li>
+                <li>✓ All 23 security checks</li>
                 <li>✓ AI threat summary</li>
                 <li>✓ Downloadable PDF</li>
               </ul>
@@ -895,7 +895,7 @@ python3 swarmhawk_mcp.py --http</pre></div>
 
         <!-- Security checks grid -->
         <div>
-          <div style="font-family:'Space Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--grey);margin-bottom:14px">22 Automated Checks</div>
+          <div style="font-family:'Space Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--grey);margin-bottom:14px">23 Automated Checks</div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
             <div class="biz-check">🔒 SSL / TLS</div>
             <div class="biz-check">🌐 DNS · SPF · DMARC</div>
@@ -915,6 +915,7 @@ python3 swarmhawk_mcp.py --http</pre></div>
             <div class="biz-check">📋 WHOIS / RDAP</div>
             <div class="biz-check">⚡ Response Time</div>
             <div class="biz-check">🔭 Shodan Exposure</div>
+            <div class="biz-check" style="grid-column:1/-1;background:rgba(203,255,0,.04);border-color:rgba(203,255,0,.15)">🕸 Dark-Web Intelligence <span style="font-size:9px;color:var(--lime);font-family:'Space Mono',monospace;letter-spacing:1px;margin-left:6px">NEW</span></div>
           </div>
         </div>
       </div>
@@ -1033,7 +1034,7 @@ python3 swarmhawk_mcp.py --http</pre></div>
     <div class="section-inner">
       <div class="section-label-tag">📡 Data Sources &amp; Technical Specs</div>
       <h2 style="font-family:Space Mono,monospace;font-size:28px;color:var(--white);margin-bottom:8px">What powers <span style="color:var(--lime)">SwarmHawk</span></h2>
-      <p style="color:var(--grey);font-size:15px;margin-bottom:40px;max-width:700px">22 checks drawing from 16 independent sources — threat intelligence, SAST, SCA, DAST, and IaC scanning. Every scan queries live data — no cached results.</p>
+      <p style="color:var(--grey);font-size:15px;margin-bottom:40px;max-width:700px">23 checks drawing from 17 independent sources — threat intelligence, dark-web monitoring, SAST, SCA, DAST, and IaC scanning. Every scan queries live data — no cached results.</p>
 
       <div class="ds-grid">
         <div class="ds-card">
@@ -1164,11 +1165,19 @@ python3 swarmhawk_mcp.py --http</pre></div>
             <div class="ds-tags"><span class="ds-tag">Terraform</span><span class="ds-tag">Kubernetes</span><span class="ds-tag">CloudFormation</span><span class="ds-tag">Ansible</span></div>
           </div>
         </div>
+        <div class="ds-card" style="border-color:rgba(203,255,0,.15)">
+          <div class="ds-icon">🕸️</div>
+          <div class="ds-content">
+            <h4>Dark-Web Intelligence <span style="font-size:10px;background:rgba(203,255,0,.1);border:1px solid rgba(203,255,0,.2);color:var(--lime);font-family:'Space Mono',monospace;letter-spacing:1px;padding:2px 7px;border-radius:4px;margin-left:6px;vertical-align:middle">NEW</span></h4>
+            <p>Queries the dark-web and Telegram threat channels for leaked credentials, ransomware mentions, infostealer logs, and forum chatter linked to your domain. Categorises findings by severity — ransomware group posts, credential dumps, and Telegram intelligence. Source: ParanoidLab threat intelligence API.</p>
+            <div class="ds-tags"><span class="ds-tag">ransomware</span><span class="ds-tag">infostealers</span><span class="ds-tag">credential leaks</span><span class="ds-tag">Telegram</span><span class="ds-tag">dark web</span></div>
+          </div>
+        </div>
       </div>
 
       <div class="ds-footer">
-        <div class="ds-stat"><span class="ds-stat-val">16</span><span class="ds-stat-lbl">Intelligence Sources</span></div>
-        <div class="ds-stat"><span class="ds-stat-val">22</span><span class="ds-stat-lbl">Security Checks</span></div>
+        <div class="ds-stat"><span class="ds-stat-val">17</span><span class="ds-stat-lbl">Intelligence Sources</span></div>
+        <div class="ds-stat"><span class="ds-stat-val">23</span><span class="ds-stat-lbl">Security Checks</span></div>
         <div class="ds-stat"><span class="ds-stat-val">94</span><span class="ds-stat-lbl">AV Engines</span></div>
         <div class="ds-stat"><span class="ds-stat-val">12B+</span><span class="ds-stat-lbl">Breached Accounts</span></div>
         <div class="ds-stat"><span class="ds-stat-val">36</span><span class="ds-stat-lbl">Countries</span></div>
@@ -1181,7 +1190,7 @@ python3 swarmhawk_mcp.py --http</pre></div>
 
         <div class="faq-item" onclick="faqToggle(this)">
           <div class="faq-q">What exactly does SwarmHawk scan? <span class="faq-arrow">▼</span></div>
-          <div class="faq-a">SwarmHawk runs 22 automated security checks on any domain — including SSL/TLS validity, DNS configuration (SPF, DMARC, DKIM), open ports via Shodan, data breach exposure (12B+ accounts), blacklist status across VirusTotal, Spamhaus, URLhaus and Google Safe Browsing, CVE vulnerabilities in detected software, typosquat monitoring, and an AI-generated threat summary. Every scan queries live data — no cached results.</div>
+          <div class="faq-a">SwarmHawk runs 23 automated security checks on any domain — including SSL/TLS validity, DNS configuration (SPF, DMARC, DKIM), open ports via Shodan, data breach exposure (12B+ accounts), blacklist status across VirusTotal, Spamhaus, URLhaus and Google Safe Browsing, CVE vulnerabilities in detected software, typosquat monitoring, dark-web credential intelligence (ransomware, infostealers, Telegram channels), and an AI-generated threat summary. Every scan queries live data — no cached results.</div>
         </div>
 
         <div class="faq-item" onclick="faqToggle(this)">
@@ -1191,7 +1200,7 @@ python3 swarmhawk_mcp.py --http</pre></div>
 
         <div class="faq-item" onclick="faqToggle(this)">
           <div class="faq-q">How is SwarmHawk different from free tools like SSL Labs or MXToolbox? <span class="faq-arrow">▼</span></div>
-          <div class="faq-a">Free tools check one thing at a time. SwarmHawk runs 22 checks in parallel from a single scan, cross-references results across 16 intelligence sources, calculates a unified risk score, and generates an AI briefing with remediation steps. It also tracks your domain over time, sends monthly PDF reports, and provides NIS2/DORA audit evidence — none of which free tools offer.</div>
+          <div class="faq-a">Free tools check one thing at a time. SwarmHawk runs 23 checks in parallel from a single scan, cross-references results across 17 intelligence sources, calculates a unified risk score, and generates an AI briefing with remediation steps. It also tracks your domain over time, sends monthly PDF reports, and provides NIS2/DORA audit evidence — none of which free tools offer.</div>
         </div>
 
         <div class="faq-item" onclick="faqToggle(this)">
@@ -1216,7 +1225,7 @@ python3 swarmhawk_mcp.py --http</pre></div>
     <div class="site-footer-grid">
       <div>
         <div class="sf-brand">SWARM<span>HAWK</span></div>
-        <div class="sf-tagline">Domain security intelligence for businesses that can't afford a breach. 22 checks · AI analysis · 36 countries.</div>
+        <div class="sf-tagline">Domain security intelligence for businesses that can't afford a breach. 23 checks · AI analysis · 36 countries.</div>
       </div>
       <div>
         <div class="sf-col-title">Product</div>
@@ -2324,7 +2333,6 @@ function renderReportPage(data, domain, isSample) {
       <button class="db-tab active" onclick="dbShowTab('overview',this)">📊 Overview</button>
       <button class="db-tab" onclick="dbShowTab('domains',this)">🌐 Domains</button>
       <button class="db-tab" onclick="dbShowTab('threats',this)">⚡ Threats & Intel</button>
-      <button class="db-tab" onclick="dbShowTab('nis2',this);nis2Load()">🛡 NIS2 Autopilot</button>
       <button class="db-tab" onclick="dbShowTab('account',this);dbLoadAccount()">👤 Account</button>
       <button class="db-tab" id="marketing-tab-btn" onclick="dbShowTab('marketing',this)" style="display:none">📣 Marketing</button>
       <button class="db-tab" id="admin-tab-btn" onclick="dbShowTabAdmin('admin',this)" style="display:none">⚙️ Admin</button>
@@ -2384,7 +2392,7 @@ function renderReportPage(data, domain, isSample) {
               <div id="overview-nis2-status" style="font-size:14px;color:var(--white)">Loading NIS2 status across your domains…</div>
             </div>
           </div>
-          <button onclick="dbShowTab('nis2',document.querySelector('[onclick*=\"nis2\"]'));nis2Load()" style="background:var(--lime);color:var(--black);font-family:'Space Mono',monospace;font-size:11px;font-weight:700;padding:9px 18px;border:none;border-radius:6px;cursor:pointer;letter-spacing:1px;white-space:nowrap">Open NIS2 Autopilot →</button>
+          <button onclick="dbShowTab('domains',document.querySelector('[onclick*=\"domains\"]'));setTimeout(function(){document.getElementById('nis2-domains-grid').scrollIntoView({behavior:'smooth'})},200);nis2Load()" style="background:var(--lime);color:var(--black);font-family:'Space Mono',monospace;font-size:11px;font-weight:700;padding:9px 18px;border:none;border-radius:6px;cursor:pointer;letter-spacing:1px;white-space:nowrap">Open NIS2 Autopilot →</button>
         </div>
 
         <div class="db-two-col">
@@ -2466,6 +2474,48 @@ function renderReportPage(data, domain, isSample) {
             <div class="db-empty">No competitors tracked yet</div>
           </div>
         </div>
+
+        <!-- ── NIS2 COMPLIANCE AUTOPILOT ─────────────────────── -->
+        <div style="margin-top:40px;border-top:1px solid var(--border);padding-top:36px">
+          <div class="db-header" style="margin-bottom:20px">
+            <div>
+              <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
+                <div class="db-section-label">🛡 NIS2 Compliance Autopilot</div>
+                <span style="background:rgba(203,255,0,.08);border:1px solid rgba(203,255,0,.2);color:var(--lime);font-family:'Space Mono',monospace;font-size:9px;letter-spacing:2px;padding:3px 9px;border-radius:10px">NIS2 LAW — OCT 2024</span>
+              </div>
+              <p style="color:var(--grey);font-size:12px;margin:0">EU Directive 2022/2555 · Article 21 automated assessment for all your domains</p>
+            </div>
+            <button class="btn-sm" onclick="nis2Load()" style="font-size:11px">↻ Refresh All</button>
+          </div>
+
+          <!-- NIS2 Article reference strip -->
+          <div id="nis2-article-strip" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:24px">
+            <div style="font-family:'Space Mono',monospace;font-size:9px;color:var(--grey);letter-spacing:1px;text-transform:uppercase;width:100%;margin-bottom:4px">NIS2 Art. 21 Requirements Covered</div>
+            <span style="background:rgba(203,255,0,.06);border:1px solid rgba(203,255,0,.1);color:var(--lime);font-family:'Space Mono',monospace;font-size:9px;padding:3px 8px;border-radius:4px">21(2)(a) Security Policies</span>
+            <span style="background:rgba(203,255,0,.06);border:1px solid rgba(203,255,0,.1);color:var(--lime);font-family:'Space Mono',monospace;font-size:9px;padding:3px 8px;border-radius:4px">21(2)(b) Incident Handling</span>
+            <span style="background:rgba(203,255,0,.06);border:1px solid rgba(203,255,0,.1);color:var(--lime);font-family:'Space Mono',monospace;font-size:9px;padding:3px 8px;border-radius:4px">21(2)(c) Business Continuity</span>
+            <span style="background:rgba(203,255,0,.06);border:1px solid rgba(203,255,0,.1);color:var(--lime);font-family:'Space Mono',monospace;font-size:9px;padding:3px 8px;border-radius:4px">21(2)(d) Supply Chain</span>
+            <span style="background:rgba(203,255,0,.06);border:1px solid rgba(203,255,0,.1);color:var(--lime);font-family:'Space Mono',monospace;font-size:9px;padding:3px 8px;border-radius:4px">21(2)(e) Network Security</span>
+            <span style="background:rgba(203,255,0,.06);border:1px solid rgba(203,255,0,.1);color:var(--lime);font-family:'Space Mono',monospace;font-size:9px;padding:3px 8px;border-radius:4px">21(2)(f) Vulnerability Handling</span>
+            <span style="background:rgba(203,255,0,.06);border:1px solid rgba(203,255,0,.1);color:var(--lime);font-family:'Space Mono',monospace;font-size:9px;padding:3px 8px;border-radius:4px">21(2)(g) Cyber Hygiene</span>
+            <span style="background:rgba(203,255,0,.06);border:1px solid rgba(203,255,0,.1);color:var(--lime);font-family:'Space Mono',monospace;font-size:9px;padding:3px 8px;border-radius:4px">21(2)(h) Cryptography</span>
+            <span style="background:rgba(203,255,0,.06);border:1px solid rgba(203,255,0,.1);color:var(--lime);font-family:'Space Mono',monospace;font-size:9px;padding:3px 8px;border-radius:4px">21(2)(i) Access Control</span>
+            <span style="background:rgba(203,255,0,.06);border:1px solid rgba(203,255,0,.1);color:var(--lime);font-family:'Space Mono',monospace;font-size:9px;padding:3px 8px;border-radius:4px">Art.23 Incident Reporting</span>
+          </div>
+
+          <!-- Domain NIS2 cards grid -->
+          <div id="nis2-domains-grid" style="display:grid;gap:16px"></div>
+
+          <!-- Autopilot detail panel -->
+          <div id="nis2-autopilot-panel" style="display:none;margin-top:32px">
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
+              <button onclick="document.getElementById('nis2-autopilot-panel').style.display='none'" style="background:transparent;border:1px solid rgba(255,255,255,.1);color:var(--grey);font-family:'Space Mono',monospace;font-size:10px;padding:5px 12px;border-radius:4px;cursor:pointer">← Back</button>
+              <span id="nis2-ap-domain-title" style="font-family:'Space Mono',monospace;font-size:14px;color:var(--lime)"></span>
+            </div>
+            <div id="nis2-autopilot-body"></div>
+          </div>
+        </div>
+
       </div>
     </div>
 
@@ -2818,49 +2868,6 @@ function renderReportPage(data, domain, isSample) {
     </div>
 
 
-    <!-- ── TAB: NIS2 AUTOPILOT ───────────────────────────────── -->
-    <div class="db-page" id="db-nis2">
-      <div class="db-inner">
-        <div class="db-header">
-          <div>
-            <h2 class="db-title">🛡 NIS2 Compliance Autopilot</h2>
-            <p class="db-subtitle">EU Directive 2022/2555 · Article 21 automated assessment for all your domains</p>
-          </div>
-          <div style="display:flex;gap:10px;align-items:center">
-            <span style="background:rgba(203,255,0,.08);border:1px solid rgba(203,255,0,.2);color:var(--lime);font-family:'Space Mono',monospace;font-size:9px;letter-spacing:2px;padding:4px 10px;border-radius:10px">NIS2 LAW — OCT 2024</span>
-            <button class="btn-add" onclick="nis2Load()" style="padding:8px 16px;font-size:11px">↻ Refresh All</button>
-          </div>
-        </div>
-
-        <!-- NIS2 Article reference strip -->
-        <div id="nis2-article-strip" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:24px">
-          <div style="font-family:'Space Mono',monospace;font-size:9px;color:var(--grey);letter-spacing:1px;text-transform:uppercase;width:100%;margin-bottom:4px">NIS2 Art. 21 Requirements Covered</div>
-          <span style="background:rgba(203,255,0,.06);border:1px solid rgba(203,255,0,.1);color:var(--lime);font-family:'Space Mono',monospace;font-size:9px;padding:3px 8px;border-radius:4px">21(2)(a) Security Policies</span>
-          <span style="background:rgba(203,255,0,.06);border:1px solid rgba(203,255,0,.1);color:var(--lime);font-family:'Space Mono',monospace;font-size:9px;padding:3px 8px;border-radius:4px">21(2)(b) Incident Handling</span>
-          <span style="background:rgba(203,255,0,.06);border:1px solid rgba(203,255,0,.1);color:var(--lime);font-family:'Space Mono',monospace;font-size:9px;padding:3px 8px;border-radius:4px">21(2)(c) Business Continuity</span>
-          <span style="background:rgba(203,255,0,.06);border:1px solid rgba(203,255,0,.1);color:var(--lime);font-family:'Space Mono',monospace;font-size:9px;padding:3px 8px;border-radius:4px">21(2)(d) Supply Chain</span>
-          <span style="background:rgba(203,255,0,.06);border:1px solid rgba(203,255,0,.1);color:var(--lime);font-family:'Space Mono',monospace;font-size:9px;padding:3px 8px;border-radius:4px">21(2)(e) Network Security</span>
-          <span style="background:rgba(203,255,0,.06);border:1px solid rgba(203,255,0,.1);color:var(--lime);font-family:'Space Mono',monospace;font-size:9px;padding:3px 8px;border-radius:4px">21(2)(f) Vulnerability Handling</span>
-          <span style="background:rgba(203,255,0,.06);border:1px solid rgba(203,255,0,.1);color:var(--lime);font-family:'Space Mono',monospace;font-size:9px;padding:3px 8px;border-radius:4px">21(2)(g) Cyber Hygiene</span>
-          <span style="background:rgba(203,255,0,.06);border:1px solid rgba(203,255,0,.1);color:var(--lime);font-family:'Space Mono',monospace;font-size:9px;padding:3px 8px;border-radius:4px">21(2)(h) Cryptography</span>
-          <span style="background:rgba(203,255,0,.06);border:1px solid rgba(203,255,0,.1);color:var(--lime);font-family:'Space Mono',monospace;font-size:9px;padding:3px 8px;border-radius:4px">21(2)(i) Access Control</span>
-          <span style="background:rgba(203,255,0,.06);border:1px solid rgba(203,255,0,.1);color:var(--lime);font-family:'Space Mono',monospace;font-size:9px;padding:3px 8px;border-radius:4px">Art.23 Incident Reporting</span>
-        </div>
-
-        <!-- Domain NIS2 cards grid -->
-        <div id="nis2-domains-grid" style="display:grid;gap:16px"></div>
-
-        <!-- Autopilot detail panel -->
-        <div id="nis2-autopilot-panel" style="display:none;margin-top:32px">
-          <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
-            <button onclick="document.getElementById('nis2-autopilot-panel').style.display='none'" style="background:transparent;border:1px solid rgba(255,255,255,.1);color:var(--grey);font-family:'Space Mono',monospace;font-size:10px;padding:5px 12px;border-radius:4px;cursor:pointer">← Back</button>
-            <span id="nis2-ap-domain-title" style="font-family:'Space Mono',monospace;font-size:14px;color:var(--lime)"></span>
-          </div>
-          <div id="nis2-autopilot-body"></div>
-        </div>
-      </div>
-    </div>
-
     <div class="db-page" id="db-account">
       <div class="db-inner">
         <div class="db-header">
@@ -3009,11 +3016,11 @@ function dbShowTab(tab, btn) {
   }
   // legacy redirects
   if (tab === 'intel') tab = 'threats';
-  if (tab === 'competitors' || tab === 'supply-chain') tab = 'domains';
+  if (tab === 'competitors' || tab === 'supply-chain' || tab === 'nis2') tab = 'domains';
   if (tab === 'prospects' || tab === 'outreach') tab = 'marketing';
   document.getElementById('db-'+tab).classList.add('active');
   if (tab === 'threats' && !dbIntelLoaded) dbLoadIntel(false);
-  if (tab === 'domains') compLoad();
+  if (tab === 'domains') { compLoad(); nis2Load(); }
   if (tab === 'marketing') outreachLoad();
 }
 
