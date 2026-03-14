@@ -1749,7 +1749,9 @@ async function nis2Load() {
         }
       }
 
-      var cardHtml = '<div style="background:'+bg+';border:1px solid '+border+';border-radius:10px;padding:20px;display:flex;align-items:flex-start;gap:20px">'
+      var defaultEmail = (currentUser && currentUser.email) ? currentUser.email : '';
+      var cardHtml = '<div style="background:'+bg+';border:1px solid '+border+';border-radius:10px;padding:20px">'
+        +'<div style="display:flex;align-items:flex-start;gap:20px">'
         + (pct !== null ? nis2Gauge(pct, 72) : '<div style="width:72px;height:72px;border-radius:50%;background:rgba(255,255,255,.05);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">?</div>')
         +'<div style="flex:1;min-width:0">'
         +semaphore
@@ -1759,6 +1761,12 @@ async function nis2Load() {
         +fixHtml
         +'</div>'
         +'<button onclick="nis2RunAutopilot(\''+dom.id+'\',\''+dom.domain+'\')" style="background:rgba(203,255,0,.1);border:1px solid rgba(203,255,0,.25);color:var(--lime);font-family:Space Mono,monospace;font-size:10px;padding:8px 16px;border-radius:6px;cursor:pointer;letter-spacing:1px;white-space:nowrap;flex-shrink:0" id="nis2-ap-btn-'+dom.id+'">🛡 FULL REPORT →</button>'
+        +'</div>'
+        +'<div style="display:flex;align-items:center;gap:8px;margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,255,255,.06);flex-wrap:wrap">'
+        +'<span style="font-family:Space Mono,monospace;font-size:9px;color:var(--grey);letter-spacing:1px;white-space:nowrap">📧 SEND PDF</span>'
+        +'<input id="nis2-email-'+dom.id+'" type="email" value="'+defaultEmail+'" placeholder="recipient@company.com" style="flex:1;min-width:160px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:5px;color:var(--white);font-size:11px;font-family:Space Mono,monospace;padding:6px 10px;outline:none">'
+        +'<button id="nis2-pdf-btn-'+dom.id+'" onclick="nis2SendPdf(\''+dom.id+'\')" style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:var(--white);font-family:Space Mono,monospace;font-size:10px;padding:6px 14px;border-radius:5px;cursor:pointer;white-space:nowrap;letter-spacing:.5px">Send Report</button>'
+        +'</div>'
         +'</div>';
       var card = document.createElement('div');
       card.innerHTML = cardHtml;
@@ -1766,6 +1774,37 @@ async function nis2Load() {
     });
   } catch(e) {
     grid.innerHTML = '<div style="color:#C0392B;font-size:13px;padding:20px 0">Error loading domains: '+e.message+'</div>';
+  }
+}
+
+// ── NIS2: send PDF report by email ────────────────────────────────────────
+async function nis2SendPdf(domainId) {
+  var input = document.getElementById('nis2-email-' + domainId);
+  var btn   = document.getElementById('nis2-pdf-btn-' + domainId);
+  if (!input || !btn) return;
+  var email = input.value.trim();
+  if (!email || !email.includes('@')) { toast('Enter a valid email address', true); return; }
+  btn.disabled = true;
+  btn.textContent = 'Sending…';
+  try {
+    await api('/send-report', { method: 'POST', body: JSON.stringify({ domain_id: domainId, email: email }) });
+    toast('✓ Report sent to ' + email);
+    btn.textContent = '✓ Sent';
+    btn.style.color = '#2ECC71';
+    btn.style.borderColor = 'rgba(46,204,113,.3)';
+    setTimeout(function() {
+      btn.textContent = 'Send Report';
+      btn.style.color = '';
+      btn.style.borderColor = '';
+      btn.disabled = false;
+    }, 4000);
+  } catch(e) {
+    var msg = e.message.includes('503') ? 'Email service not configured'
+            : e.message.includes('400') ? 'No scan data yet — run a scan first'
+            : 'Failed: ' + e.message;
+    toast(msg, true);
+    btn.textContent = 'Send Report';
+    btn.disabled = false;
   }
 }
 
@@ -2575,7 +2614,6 @@ function renderReportPage(data, domain, isSample) {
               </div>
               <p style="color:var(--grey);font-size:12px;margin:0">EU Directive 2022/2555 · Article 21 automated assessment for all your domains</p>
             </div>
-            <button class="btn-sm" onclick="nis2Load()" style="font-size:11px">↻ Refresh All</button>
           </div>
 
           <!-- NIS2 Article reference strip -->
