@@ -491,9 +491,13 @@ h1 span{color:var(--lime)}
 .db-filter-row{display:flex;gap:6px}
 .db-filter{background:transparent;border:1px solid rgba(255,255,255,.08);color:var(--grey);font-family:'Space Mono',monospace;font-size:11px;padding:6px 14px;border-radius:4px;cursor:pointer;transition:all .2s}
 .db-filter.active{background:rgba(203,255,0,.08);border-color:rgba(203,255,0,.3);color:var(--lime)}
-.threats-priority{padding:16px 18px;display:flex;flex-direction:column;gap:10px}
+.threats-priority{padding:12px 16px;display:flex;flex-direction:column;gap:12px}
 .threat-fix-row{display:flex;align-items:flex-start;gap:12px;padding:12px 14px;background:rgba(203,255,0,.03);border:1px solid rgba(203,255,0,.08);border-radius:7px}
 .fix-num{font-family:'Space Mono',monospace;font-size:13px;color:var(--lime);font-weight:700;min-width:24px}
+.pa-domain-block{border:1px solid rgba(255,255,255,.08);border-radius:10px;overflow:hidden;background:rgba(255,255,255,.015)}
+.pa-domain-head{display:flex;align-items:center;justify-content:space-between;padding:13px 16px;cursor:pointer;gap:12px;background:rgba(255,255,255,.03);border-bottom:1px solid rgba(255,255,255,.06);transition:background .15s}
+.pa-domain-head:hover{background:rgba(255,255,255,.06)}
+.pa-domain-items{padding:12px 14px;display:flex;flex-direction:column;gap:0}
 .fix-content{flex:1}
 .fix-title{font-size:13px;color:var(--white);margin-bottom:3px}
 .fix-desc{font-size:12px;color:var(--grey);line-height:1.5}
@@ -3633,55 +3637,163 @@ async function dbLoadReportHistory(id, domain, el) {
 
 // ── THREATS ─────────────────────────────────────────────
 
+// ── Priority Actions: localStorage key for checked state ─────────────────
+function _paKey(domainId, checkKey) { return 'pa_done_' + domainId + '_' + checkKey; }
+function _paIsDone(domainId, checkKey) { try { return !!localStorage.getItem(_paKey(domainId, checkKey)); } catch(e){ return false; } }
+function paMark(domainId, checkKey, el) {
+  try {
+    if (_paIsDone(domainId, checkKey)) {
+      localStorage.removeItem(_paKey(domainId, checkKey));
+    } else {
+      localStorage.setItem(_paKey(domainId, checkKey), '1');
+    }
+  } catch(e){}
+  // Re-render so the row style updates
+  dbRenderThreats();
+}
+function paCopyFix(text, btn) {
+  navigator.clipboard.writeText(text).then(function(){
+    var orig = btn.textContent;
+    btn.textContent = '✓ Copied';
+    setTimeout(function(){ btn.textContent = orig; }, 1500);
+  }).catch(function(){});
+}
+
+// FIX_CHOICES maps each check key to an array of actionable fix steps
+var FIX_CHOICES = {
+  ssl:           ['Renew or reissue the TLS certificate via your hosting panel or Let\'s Encrypt', 'Enforce HTTPS redirect (301) from all HTTP URLs', 'Set HSTS header: Strict-Transport-Security: max-age=31536000'],
+  headers:       ['Add Content-Security-Policy header to restrict resource origins', 'Add X-Frame-Options: DENY to block clickjacking', 'Add Strict-Transport-Security: max-age=31536000; includeSubDomains'],
+  dns:           ['Remove dangling CNAME records pointing to deprovisioned services', 'Add CAA record to restrict which CAs can issue certificates', 'Disable zone transfer (AXFR) on authoritative name servers'],
+  http_redirect: ['Configure a 301 permanent redirect from http:// to https:// on your web server', 'Update all internal links to use HTTPS', 'Set HSTS preload to prevent future HTTP access'],
+  breach:        ['Force a password reset for all accounts matching the breach', 'Notify affected users by email per GDPR Art.34', 'Enable multi-factor authentication (MFA) site-wide'],
+  typosquat:     ['Register the top 3 typosquat variants (.com, .net, local TLD)', 'Set up brand monitoring alerts (Google Alerts / mention.com)', 'Redirect registered lookalike domains to your main site'],
+  email_security:['Add SPF record: v=spf1 include:_spf.yourmailprovider.com ~all', 'Generate and publish DKIM key pair via your email provider', 'Set DMARC policy: v=DMARC1; p=quarantine; rua=mailto:dmarc@yourdomain'],
+  whois:         ['Enable domain privacy / WHOIS redaction via your registrar', 'Verify that exposed registrant data is intentional and up to date', 'Lock the domain to prevent unauthorised transfers'],
+  urlhaus:       ['Submit removal request at urlhaus.abuse.ch/removal', 'Scan site with Sucuri SiteCheck or Wordfence for injected scripts', 'Review and clean recently modified files on the server'],
+  spamhaus:      ['Request delisting at spamhaus.org/lookup and follow their process', 'Check for open mail relay or compromised SMTP credentials', 'Review outgoing mail logs for spam patterns'],
+  safebrowsing:  ['Remove malicious content or scripts from the site', 'Submit the site for Google Safe Browsing review at search.google.com/search-console', 'Verify with Google Search Console that the issue is resolved'],
+  virustotal:    ['Investigate each VirusTotal detection and clean infected files', 'Request a rescan once clean via virustotal.com/gui/domain', 'Check server logs for signs of compromise'],
+  cve:           ['Identify the exact version of the affected software', 'Apply the vendor patch or update to the latest stable version', 'If patch is unavailable, apply a WAF rule to block exploit attempts'],
+  sast:          ['Remove .env, backup, and config files from the webroot immediately', 'Add .htaccess or nginx rules to block access to sensitive file extensions', 'Audit git history for any committed secrets and rotate them'],
+  sca:           ['Run `npm audit fix` or `pip install --upgrade` to patch vulnerable dependencies', 'Remove or replace packages with no maintained alternative', 'Add a dependency scanning step to your CI/CD pipeline (Snyk, Dependabot)'],
+  dast:          ['Password-protect or IP-whitelist admin panels and monitoring endpoints', 'Remove or hide API documentation (/swagger, /api-docs) from public access', 'Review open redirect endpoints and enforce URL validation'],
+  iac:           ['Remove Terraform state files, kubeconfig, and CI/CD secrets from public access', 'Rotate any secrets exposed in the leaked configuration files', 'Add pre-commit hooks to block accidental secret commits'],
+  ip_intel:      ['Submit a delisting request at abuseipdb.com for your IP', 'Investigate outgoing traffic for botnet or DDoS participation', 'Consider migrating to a clean IP or dedicated hosting provider'],
+  paranoidlab:   ['Immediately reset all passwords matching leaked credentials', 'Enable MFA for all accounts to limit credential stuffing risk', 'Notify affected users per GDPR Art.33 if personal data was exposed'],
+};
+
 function dbRenderThreats() {
+  // Build full list grouped by domain
+  var byDomain = {};
+  dbDomains.forEach(function(d) {
+    var checks = d.checks || d.latest_checks || [];
+    checks.forEach(function(c) {
+      if (c.status !== 'critical' && c.status !== 'warning') return;
+      if (!byDomain[d.id]) byDomain[d.id] = {domain: d.domain, id: d.id, risk_score: d.risk_score||0, items: []};
+      byDomain[d.id].items.push(c);
+    });
+  });
+
+  // Sort domains: highest risk first
+  var domainGroups = Object.values(byDomain).sort(function(a,b){ return b.risk_score - a.risk_score; });
+  // Within each domain: criticals first
+  domainGroups.forEach(function(g){
+    g.items.sort(function(a,b){
+      return (a.status==='critical'?0:1) - (b.status==='critical'?0:1);
+    });
+  });
+
+  var prEl = document.getElementById('threats-priority');
+  if (!domainGroups.length) {
+    prEl.innerHTML = '<div class="db-empty">No critical findings — looking good!</div>';
+  } else {
+    var html = '';
+    domainGroups.forEach(function(g) {
+      var critCount = g.items.filter(function(c){ return c.status==='critical'; }).length;
+      var warnCount = g.items.filter(function(c){ return c.status==='warning'; }).length;
+      var doneCount = g.items.filter(function(c){ return _paIsDone(g.id, c.check||c.title); }).length;
+      var allDone   = doneCount === g.items.length && g.items.length > 0;
+      var riskCol   = g.risk_score>=60 ? '#C0392B' : g.risk_score>=30 ? '#D4850A' : '#2ECC71';
+
+      html += '<div class="pa-domain-block" id="pa-block-'+g.id+'">';
+      // Domain header
+      html += '<div class="pa-domain-head" onclick="paDomainToggle(\''+g.id+'\')">'
+        +'<div style="display:flex;align-items:center;gap:10px;min-width:0">'
+        +'<span style="font-family:Space Mono,monospace;font-size:12px;color:var(--lime);font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">🌐 '+g.domain+'</span>'
+        +(critCount ? '<span style="background:rgba(192,57,43,.15);border:1px solid rgba(192,57,43,.3);color:#C0392B;font-family:Space Mono,monospace;font-size:9px;padding:2px 7px;border-radius:10px;white-space:nowrap">'+critCount+' CRITICAL</span>' : '')
+        +(warnCount ? '<span style="background:rgba(212,133,10,.12);border:1px solid rgba(212,133,10,.25);color:#D4850A;font-family:Space Mono,monospace;font-size:9px;padding:2px 7px;border-radius:10px;white-space:nowrap">'+warnCount+' WARNING</span>' : '')
+        +'</div>'
+        +'<div style="display:flex;align-items:center;gap:10px;flex-shrink:0">'
+        +(allDone ? '<span style="font-family:Space Mono,monospace;font-size:9px;color:#2ECC71;letter-spacing:1px">✓ ALL RESOLVED</span>' : '<span style="font-family:Space Mono,monospace;font-size:9px;color:#555">'+doneCount+'/'+g.items.length+' resolved</span>')
+        +'<span class="pa-chevron" id="pa-chev-'+g.id+'" style="color:var(--grey);font-size:12px;transition:transform .2s">▾</span>'
+        +'</div>'
+        +'</div>';
+
+      // Findings list
+      html += '<div class="pa-domain-items" id="pa-items-'+g.id+'">';
+      g.items.forEach(function(c, idx) {
+        var checkKey = c.check || c.title || '';
+        var done = _paIsDone(g.id, checkKey);
+        var isCrit = c.status === 'critical';
+        var statusCol = isCrit ? '#C0392B' : '#D4850A';
+        var choices = FIX_CHOICES[checkKey] || [CHECK_RECOMMENDATIONS[checkKey] || 'Review and remediate this finding.'];
+        var rowBg = done ? 'rgba(46,204,113,.03)' : isCrit ? 'rgba(192,57,43,.04)' : 'rgba(212,133,10,.03)';
+        var rowBorder = done ? 'rgba(46,204,113,.1)' : isCrit ? 'rgba(192,57,43,.12)' : 'rgba(212,133,10,.1)';
+
+        html += '<div style="background:'+rowBg+';border:1px solid '+rowBorder+';border-radius:8px;padding:14px 16px;margin-bottom:8px;'+(done?'opacity:.55':'')+'transition:opacity .2s">';
+
+        // Row header: checkbox + title + pill
+        html += '<div style="display:flex;align-items:flex-start;gap:12px">';
+        html += '<button onclick="paMark(\''+g.id+'\',\''+checkKey.replace(/'/g,"\\'")+'\')" title="'+(done?'Mark as not done':'Mark as resolved')+'" style="flex-shrink:0;width:20px;height:20px;border-radius:4px;border:1px solid '+(done?'#2ECC71':'rgba(255,255,255,.2)')+';background:'+(done?'rgba(46,204,113,.2)':'transparent')+';cursor:pointer;display:flex;align-items:center;justify-content:center;margin-top:1px;color:#2ECC71;font-size:12px">'+(done?'✓':'')+'</button>';
+        html += '<div style="flex:1;min-width:0">';
+        html += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;flex-wrap:wrap">';
+        html += '<span style="font-size:13px;font-weight:700;color:'+(done?'#555':'var(--white)')+';'+(done?'text-decoration:line-through':'')+'">'+c.title+'</span>';
+        html += '<span style="font-family:Space Mono,monospace;font-size:9px;font-weight:700;color:'+statusCol+';background:rgba('+( isCrit?'192,57,43':'212,133,10')+',.1);padding:2px 7px;border-radius:4px">'+c.status.toUpperCase()+'</span>';
+        html += '</div>';
+        if (c.detail) html += '<div style="font-size:11px;color:#777;margin-bottom:10px;line-height:1.5">'+(c.detail||'').substring(0,160)+(c.detail.length>160?'…':'')+'</div>';
+
+        // Fix choices
+        html += '<div style="border-top:1px solid rgba(255,255,255,.05);padding-top:10px">';
+        html += '<div style="font-family:Space Mono,monospace;font-size:9px;color:#555;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">Fix options</div>';
+        choices.forEach(function(step, si) {
+          var stepKey = checkKey + '_step_' + si;
+          var stepDone = _paIsDone(g.id, stepKey);
+          html += '<div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:6px">';
+          html += '<button onclick="paMark(\''+g.id+'\',\''+stepKey.replace(/'/g,"\\'")+'\')" style="flex-shrink:0;width:16px;height:16px;border-radius:3px;border:1px solid '+(stepDone?'#2ECC71':'rgba(255,255,255,.15)')+';background:'+(stepDone?'rgba(46,204,113,.15)':'transparent')+';cursor:pointer;display:flex;align-items:center;justify-content:center;margin-top:1px;color:#2ECC71;font-size:10px">'+(stepDone?'✓':'')+'</button>';
+          html += '<span style="font-size:11px;color:'+(stepDone?'#555':'#aaa')+';line-height:1.5;flex:1;'+(stepDone?'text-decoration:line-through':'')+'">'+step+'</span>';
+          html += '<button onclick="paCopyFix(\''+step.replace(/'/g,"\\'").replace(/"/g,'&quot;')+'\',this)" style="flex-shrink:0;background:transparent;border:1px solid rgba(255,255,255,.08);color:#555;font-family:Space Mono,monospace;font-size:9px;padding:2px 7px;border-radius:3px;cursor:pointer;white-space:nowrap">📋 Copy</button>';
+          html += '</div>';
+        });
+        html += '</div>'; // fix choices
+
+        html += '</div></div></div>'; // flex, inner div, row
+      });
+
+      html += '</div>'; // pa-domain-items
+      html += '</div>'; // pa-domain-block
+    });
+    prEl.innerHTML = html;
+  }
+
+  // Build flat list for the All Findings table
   var all = [];
   dbDomains.forEach(function(d) {
     var checks = d.checks || d.latest_checks || [];
     checks.forEach(function(c) {
-      if (c.status === 'critical' || c.status === 'warning') {
-        all.push({domain: d.domain, domainId: d.id, check: c});
-      }
+      if (c.status === 'critical' || c.status === 'warning') all.push({domain:d.domain, domainId:d.id, check:c});
     });
   });
-  all.sort(function(a,b){
-    var o = {critical:0, warning:1};
-    return (o[a.check.status]||9) - (o[b.check.status]||9);
-  });
-
-  // Priority actions — top 8 critical, fill with warnings if fewer
-  var criticals = all.filter(function(x){ return x.check.status === 'critical'; });
-  var warnings  = all.filter(function(x){ return x.check.status === 'warning'; });
-  var priority  = criticals.slice(0, 8);
-  if (priority.length < 8) priority = priority.concat(warnings.slice(0, 8 - priority.length));
-
-  var prEl = document.getElementById('threats-priority');
-  if (!priority.length) {
-    prEl.innerHTML = '<div class="db-empty">No critical findings — looking good!</div>';
-  } else {
-    prEl.innerHTML = priority.map(function(x, i) {
-      var isCrit = x.check.status === 'critical';
-      var pillClass = isCrit ? 'pill-critical' : 'pill-warning';
-      var checkKey = x.check.check || x.check.title || '';
-      var action = CHECK_RECOMMENDATIONS[checkKey] || (x.check.detail ? x.check.detail.substring(0,160) : 'Review and remediate this finding.');
-      return '<div class="threat-fix-row">'+
-        '<span class="fix-num">'+(i+1)+'</span>'+
-        '<div class="fix-content">'+
-          '<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">'+
-            '<span style="font-family:Space Mono,monospace;font-size:10px;color:var(--lime);background:rgba(203,255,0,.08);border:1px solid rgba(203,255,0,.15);padding:2px 8px;border-radius:10px">🌐 '+x.domain+'</span>'+
-          '</div>'+
-          '<div class="fix-title">'+x.check.title+'</div>'+
-          '<div class="fix-desc">'+(x.check.detail||'').substring(0,120)+(x.check.detail&&x.check.detail.length>120?'…':'')+'</div>'+
-          '<div style="display:flex;gap:6px;align-items:baseline;margin-top:6px;font-size:11px;color:#aaa;line-height:1.5">'+
-            '<span style="color:#D4850A;flex-shrink:0">→</span>'+
-            '<span>'+action+'</span>'+
-          '</div>'+
-        '</div>'+
-        '<span class="status-pill '+pillClass+' fix-pill">'+x.check.status.toUpperCase()+'</span>'+
-        '</div>';
-    }).join('');
-  }
-
+  all.sort(function(a,b){ return (a.check.status==='critical'?0:1)-(b.check.status==='critical'?0:1); });
   dbRenderThreatsTable(all, dbThreatFilter);
+}
+
+function paDomainToggle(domainId) {
+  var items = document.getElementById('pa-items-' + domainId);
+  var chev  = document.getElementById('pa-chev-'  + domainId);
+  if (!items) return;
+  var open = items.style.display !== 'none';
+  items.style.display = open ? 'none' : 'block';
+  if (chev) chev.style.transform = open ? 'rotate(-90deg)' : '';
 }
 
 function dbRenderThreatsTable(all, filter) {
