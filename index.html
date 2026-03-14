@@ -2570,13 +2570,23 @@ function renderReportPage(data, domain, isSample) {
           <div class="db-card">
             <div class="db-card-head">
               <span class="db-card-title">Recent Alerts</span>
-              <button class="db-card-link" onclick="dbShowTab('threats',null)">View all →</button>
+              <button class="db-card-link" onclick="dbShowTab('domains',null)">View all →</button>
             </div>
             <div id="overview-alerts" class="overview-alerts">
               <div class="db-empty">Loading alerts…</div>
             </div>
           </div>
         </div>
+
+        <!-- NIS2 domains needing attention -->
+        <div id="overview-nis2-section" style="margin-top:20px;display:none">
+          <div class="db-card-head" style="margin-bottom:12px">
+            <span class="db-card-title">🛡 NIS2 — Domains Needing Attention</span>
+            <button class="db-card-link" onclick="dbShowTab('domains',null)">Full report →</button>
+          </div>
+          <div id="overview-nis2-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px"></div>
+        </div>
+
       </div>
     </div>
 
@@ -3361,6 +3371,41 @@ function dbRenderOverview() {
         +' &nbsp;·&nbsp; <span style="color:#2ECC71">'+compliant+' compliant</span>'
         +' · <span style="color:#D4850A">'+partial+' partial</span>'
         +' · <span style="color:#C0392B">'+nonCompliant+' non-compliant</span>';
+    }
+
+    // Populate NIS2 needs-attention grid (domains < 80%)
+    var paired = results.map(function(r, i){ return {r:r, dom:scannedDomains[i]}; })
+      .filter(function(p){ return p.r && p.r.compliance_pct !== null && p.r.compliance_pct < 80; })
+      .sort(function(a,b){ return (a.r.compliance_pct||0)-(b.r.compliance_pct||0); });
+    var section = document.getElementById('overview-nis2-section');
+    var grid = document.getElementById('overview-nis2-grid');
+    if (section && grid && paired.length) {
+      section.style.display = 'block';
+      grid.innerHTML = paired.map(function(p) {
+        var r = p.r; var dom = p.dom;
+        var pct = r.compliance_pct || 0;
+        var col = nis2Color(pct);
+        var label = pct >= 50 ? '⚠ PARTIAL' : '✕ NON-COMPLIANT';
+        var labelCol = pct >= 50 ? '#D4850A' : '#C0392B';
+        var topGaps = (r.findings||[]).filter(function(f){ return !f.passed; })
+          .sort(function(a,b){ return b.weight-a.weight; }).slice(0,2);
+        var fixList = topGaps.map(function(f){
+          return '<div style="font-size:10px;color:#888;display:flex;gap:5px;margin-top:3px">'
+            +'<span style="color:'+labelCol+';flex-shrink:0">▸</span><span>'+(f.requirement||f.check)+'</span></div>';
+        }).join('');
+        return '<div style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:14px 16px;cursor:pointer" onclick="dbShowTab(\'domains\',null)">'
+          +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">'
+          +'<span style="font-family:Space Mono,monospace;font-size:12px;color:var(--white);font-weight:700">'+(dom.domain||'')+'</span>'
+          +'<span style="font-family:Space Mono,monospace;font-size:9px;color:'+labelCol+';background:rgba('+( pct>=50?'212,133,10':'192,57,43')+',.1);padding:2px 8px;border-radius:4px">'+label+'</span>'
+          +'</div>'
+          +'<div style="background:rgba(255,255,255,.06);border-radius:3px;height:4px;margin-bottom:8px">'
+          +'<div style="background:'+col+';height:4px;border-radius:3px;width:'+pct+'%"></div></div>'
+          +'<div style="font-family:Space Mono,monospace;font-size:11px;color:'+col+'">'+(pct)+'% compliant</div>'
+          +fixList
+          +'</div>';
+      }).join('');
+    } else if (section) {
+      section.style.display = 'none'; // all compliant — hide section
     }
   })();
 
