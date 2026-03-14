@@ -2478,8 +2478,8 @@ function renderReportPage(data, domain, isSample) {
       <button class="db-tab" id="admin-tab-btn" onclick="dbShowTabAdmin('admin',this)" style="display:none">⚙️ Admin</button>
     </div>
     <div class="db-nav-right">
-      <span id="db-user-name" style="font-size:13px;color:var(--grey)"></span>
-      <img id="db-avatar" class="user-avatar" src="" alt="" style="display:none">
+      <span id="db-user-name" onclick="dbShowTab('account',document.querySelector('.db-tab[onclick*=\"\'account\'\"]'));dbLoadAccount()" title="Go to Account settings" style="font-size:13px;color:var(--grey);cursor:pointer;transition:color .15s" onmouseover="this.style.color='var(--lime)'" onmouseout="this.style.color='var(--grey)'"></span>
+      <img id="db-avatar" class="user-avatar" onclick="dbShowTab('account',document.querySelector('.db-tab[onclick*=\"\'account\'\"]'));dbLoadAccount()" title="Go to Account settings" src="" alt="" style="display:none;cursor:pointer">
       <button class="btn-sm" onclick="closeDashboard()">← Back to site</button>
       <button class="btn-sm" onclick="dbLogout()">Logout</button>
     </div>
