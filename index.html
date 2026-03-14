@@ -1982,8 +1982,8 @@ function renderReport(data,domainId,domainName) {
   // 2. Recommendations
   html+=buildRecommendations(others);
   // 3. Dark-web intelligence card (ParanoidLab)
-  const dwCheck = others.find(c=>c.check==='darkweb');
-  if(dwCheck) html += renderDarkWeb(dwCheck);
+  const dwCheck = others.find(c=>c.check==='paranoidlab'||c.check==='darkweb');
+  if(dwCheck) html += renderDarkWeb(dwCheck, domainId);
   // 4. AI Intelligence Report
   if(ai&&ai.detail){html+=`<div class="ai-section"><div class="ai-label">🧠 Intelligence Report</div><div>${renderAI(ai.detail)}</div></div>`;}
   if(data.locked_count>0){html+=`<div class="locked-banner"><h3>🔒 ${data.locked_count} checks locked</h3><p>Unlock the full report for <strong>$10 one-time</strong> or get annual monitoring for <strong>$50/year</strong>.</p><button class="btn-unlock" onclick="closeModal();checkout('${domainId}','${domainName}')">View Plans & Unlock →</button></div>`;}
@@ -1994,50 +1994,14 @@ function renderReport(data,domainId,domainName) {
 
 
 // ── Dark-web / ParanoidLab card ───────────────────────────────────────────
-function renderDarkWeb(c) {
-  var dd = c.darkweb_data || {};
-
-  // Skipped — no API key
-  if (dd.skipped) {
-    return '<div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:10px;padding:16px 20px;margin:16px 0;display:flex;align-items:center;gap:14px">'
-      +'<span style="font-size:22px">🕸</span>'
-      +'<div><div style="font-family:Space Mono,monospace;font-size:11px;color:var(--grey);margin-bottom:3px">DARK-WEB MONITORING</div>'
-      +'<div style="font-size:12px;color:#555">'+c.detail+'</div></div>'
-      +'</div>';
-  }
-
-  // Error state
-  if (c.status === 'error') {
-    return '<div style="background:rgba(192,57,43,.05);border:1px solid rgba(192,57,43,.15);border-radius:10px;padding:14px 18px;margin:16px 0">'
-      +'<div style="font-family:Space Mono,monospace;font-size:10px;color:#C0392B;letter-spacing:1px;margin-bottom:4px">🕸 DARK-WEB CHECK ERROR</div>'
-      +'<div style="font-size:12px;color:#888">'+c.title+'</div>'
-      +'</div>';
-  }
-
-  var total  = dd.total || 0;
-  var counts = dd.counts || {};
-  var isClean = total === 0 && !counts.forum_hits;
-  var headerBg     = isClean ? 'rgba(46,204,113,.05)'  : c.status==='critical' ? 'rgba(192,57,43,.07)'  : 'rgba(212,133,10,.07)';
-  var headerBorder = isClean ? 'rgba(46,204,113,.2)'   : c.status==='critical' ? 'rgba(192,57,43,.25)'  : 'rgba(212,133,10,.25)';
-  var headerColor  = isClean ? '#2ECC71'               : c.status==='critical' ? '#C0392B'               : '#D4850A';
-
-  // Summary chips
-  var chips = [
-    { icon:'💧', label:'Breach',      count: counts.credentials  || 0, color:'#4285F4' },
-    { icon:'🕷',  label:'Infostealer', count: counts.infostealers || 0, color:'#D4850A' },
-    { icon:'🕸',  label:'Dark Web',   count: counts.forum_hits   || 0, color:'#9B59B6' },
-    { icon:'💀',  label:'Ransomware', count: counts.ransomware   || 0, color:'#C0392B' },
-  ];
-  var chipsHtml = chips.map(function(ch){
-    var active = ch.count > 0;
-    return '<div style="display:flex;align-items:center;gap:6px;background:'+(active?'rgba(255,255,255,.06)':'rgba(255,255,255,.02)')+';border:1px solid rgba(255,255,255,'+(active?'.12':'.05')+');border-radius:20px;padding:5px 12px">'
-      +'<span>'+ch.icon+'</span>'
-      +'<span style="font-size:11px;color:'+(active?ch.color:'#444')+';font-family:Space Mono,monospace">'+ch.count+' '+ch.label+'</span>'
-      +'</div>';
-  }).join('');
+function renderDarkWeb(c, domainId) {
+  var isClean  = c.status === 'ok';
+  var isError  = c.status === 'error';
+  var headerBg     = isClean ? 'rgba(46,204,113,.05)'  : isError ? 'rgba(100,100,100,.05)' : c.status==='critical' ? 'rgba(192,57,43,.07)'  : 'rgba(212,133,10,.07)';
+  var headerBorder = isClean ? 'rgba(46,204,113,.2)'   : isError ? 'rgba(100,100,100,.15)' : c.status==='critical' ? 'rgba(192,57,43,.25)'  : 'rgba(212,133,10,.25)';
+  var headerColor  = isClean ? '#2ECC71'               : isError ? '#666'                  : c.status==='critical' ? '#C0392B'               : '#D4850A';
 
   var html = '<div style="background:'+headerBg+';border:1px solid '+headerBorder+';border-radius:10px;overflow:hidden;margin:16px 0">'
-    // header row
     +'<div style="display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid rgba(255,255,255,.06);flex-wrap:wrap;gap:10px">'
     +'<div style="display:flex;align-items:center;gap:10px">'
     +'<span style="font-size:20px">🕸</span>'
@@ -2045,41 +2009,88 @@ function renderDarkWeb(c) {
     +'<div style="font-family:Space Mono,monospace;font-size:10px;color:'+headerColor+';letter-spacing:2px;text-transform:uppercase">Dark-Web Intelligence · ParanoidLab</div>'
     +'<div style="font-size:14px;font-weight:700;color:'+headerColor+';margin-top:2px">'+c.title+'</div>'
     +'</div></div>'
-    +'<div style="font-family:Space Mono,monospace;font-size:22px;font-weight:800;color:'+headerColor+'">'+total+'</div>'
+    +'<span style="font-family:Space Mono,monospace;font-size:9px;color:'+headerColor+';background:rgba(0,0,0,.2);padding:3px 9px;border-radius:10px;letter-spacing:1px">'+c.status.toUpperCase()+'</span>'
+    +'</div>';
+
+  // Detail line from scan
+  if (c.detail) {
+    html += '<div style="padding:10px 18px;font-size:12px;color:#aaa;border-bottom:1px solid rgba(255,255,255,.04)">'
+      + c.detail.replace(/\n/g,'<br>') + '</div>';
+  }
+
+  // Structured detail panel — loaded on demand from /paranoidlab endpoint
+  html += '<div id="pl-detail-'+domainId+'" style="padding:0">'
+    +'<div style="padding:10px 18px">'
+    +'<button onclick="paranoidlabLoadDetail(\''+domainId+'\')" style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:var(--grey);font-family:Space Mono,monospace;font-size:10px;padding:5px 14px;border-radius:4px;cursor:pointer">↓ Load full breakdown</button>'
     +'</div>'
-    // chips
-    +'<div style="display:flex;flex-wrap:wrap;gap:8px;padding:14px 18px;border-bottom:1px solid rgba(255,255,255,.04)">'+chipsHtml+'</div>';
+    +'</div>';
 
-  // Category rows helper
-  function leakRows(items, catLabel, catColor) {
-    if (!items || !items.length) return '';
-    return '<div style="padding:12px 18px;border-bottom:1px solid rgba(255,255,255,.04)">'
-      +'<div style="font-family:Space Mono,monospace;font-size:9px;color:'+catColor+';letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">'+catLabel+'</div>'
-      +'<table style="width:100%;border-collapse:collapse">'
-      + items.slice(0,5).map(function(item){
-          var sev = item.severity === 'high' ? '#C0392B' : item.severity === 'low' ? '#2ECC71' : '#D4850A';
-          return '<tr style="border-bottom:1px solid rgba(255,255,255,.03)">'
-            +'<td style="padding:5px 8px 5px 0;font-size:11px;color:#aaa">'+(item.source||'—')+'</td>'
-            +'<td style="padding:5px 8px;font-size:11px;color:#666">'+(item.date||'—')+'</td>'
-            +'<td style="padding:5px 8px;font-size:11px;color:#888">'+(item.email||item.preview||'')+'</td>'
-            +'<td style="padding:5px 0;text-align:right"><span style="font-family:Space Mono,monospace;font-size:9px;font-weight:700;color:'+sev+';background:rgba(0,0,0,.3);padding:2px 6px;border-radius:4px">'+((item.severity||'medium').toUpperCase())+'</span></td>'
-            +'</tr>';
-        }).join('')
-      +'</table></div>';
-  }
-
-  if (!isClean) {
-    html += leakRows(dd.ransomware,   '💀 Ransomware Leaks',      '#C0392B');
-    html += leakRows(dd.infostealers, '🕷 Infostealer Credentials','#D4850A');
-    html += leakRows(dd.credentials,  '💧 Breach / Combo Records', '#4285F4');
-    html += leakRows(dd.forum_hits,   '🕸 Dark-web Mentions',      '#9B59B6');
-  } else {
-    html += '<div style="padding:14px 18px;font-size:12px;color:#2ECC71">✓ '+c.detail+'</div>';
-  }
-
-  html += '<div style="padding:8px 18px;font-size:10px;color:#333">Powered by paranoidlab.com · Data from dark-web sources, credential dumps, and Telegram channels</div>';
+  html += '<div style="padding:8px 18px;font-size:10px;color:#444">Powered by paranoidlab.com · credential dumps · dark-web sources · Telegram channels</div>';
   html += '</div>';
   return html;
+}
+
+async function paranoidlabLoadDetail(domainId) {
+  var el = document.getElementById('pl-detail-' + domainId);
+  if (!el) return;
+  el.innerHTML = '<div style="padding:14px 18px;color:var(--grey);font-size:12px"><div class="spinner" style="width:16px;height:16px;border-width:2px;display:inline-block;vertical-align:middle;margin-right:8px"></div>Loading from ParanoidLab…</div>';
+  try {
+    var d = await api('/domains/' + domainId + '/paranoidlab');
+
+    function leakRows(items, catLabel, catColor) {
+      if (!items || !items.length) return '';
+      return '<div style="padding:10px 18px;border-top:1px solid rgba(255,255,255,.04)">'
+        +'<div style="font-family:Space Mono,monospace;font-size:9px;color:'+catColor+';letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">'+catLabel+'</div>'
+        +'<table style="width:100%;border-collapse:collapse">'
+        + items.slice(0,5).map(function(item){
+            var sev = item.severity === 'high' ? '#C0392B' : item.severity === 'low' ? '#2ECC71' : '#D4850A';
+            return '<tr style="border-bottom:1px solid rgba(255,255,255,.03)">'
+              +'<td style="padding:5px 8px 5px 0;font-size:11px;color:#aaa">'+(item.source||'—')+'</td>'
+              +'<td style="padding:5px 8px;font-size:11px;color:#666">'+(item.date||'—')+'</td>'
+              +'<td style="padding:5px 8px;font-size:11px;color:#888">'+(item.email||item.preview||'')+'</td>'
+              +'<td style="padding:5px 0;text-align:right"><span style="font-family:Space Mono,monospace;font-size:9px;font-weight:700;color:'+sev+';background:rgba(0,0,0,.3);padding:2px 6px;border-radius:4px">'+((item.severity||'medium').toUpperCase())+'</span></td>'
+              +'</tr>';
+          }).join('')
+        +'</table></div>';
+    }
+
+    var total  = d.total_leaks || 0;
+    var types  = d.leak_types || {};
+    var tgTotal = (d.telegram || {}).total || 0;
+    var tgPosts = (d.telegram || {}).posts || [];
+
+    // Type chips
+    var typeKeys = Object.keys(types);
+    var chipsHtml = typeKeys.length
+      ? '<div style="display:flex;flex-wrap:wrap;gap:8px;padding:10px 18px;border-top:1px solid rgba(255,255,255,.04)">'
+        + typeKeys.map(function(k){
+            return '<div style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:4px 11px;font-family:Space Mono,monospace;font-size:10px;color:#ccc">'
+              +types[k]+' '+k+'</div>';
+          }).join('')
+        +'</div>'
+      : '';
+
+    var inner = chipsHtml;
+    inner += leakRows(d.leak_items, '💧 Leaked Records (sample)', '#4285F4');
+
+    if (tgTotal > 0) {
+      inner += '<div style="padding:10px 18px;border-top:1px solid rgba(255,255,255,.04)">'
+        +'<div style="font-family:Space Mono,monospace;font-size:9px;color:#9B59B6;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">📡 Telegram Mentions ('+tgTotal+')</div>';
+      tgPosts.slice(0,3).forEach(function(p){
+        inner += '<div style="font-size:11px;color:#888;margin-bottom:6px;padding-bottom:6px;border-bottom:1px solid rgba(255,255,255,.03)">'
+          +'<span style="color:#666;margin-right:8px">'+(p.date||'')+'</span>'+(p.text||p.message||p.preview||'').slice(0,120)+'</div>';
+      });
+      inner += '</div>';
+    }
+
+    if (!inner) {
+      inner = '<div style="padding:12px 18px;font-size:12px;color:#2ECC71">✓ No leaked records found in dark-web sources</div>';
+    }
+
+    el.innerHTML = inner;
+  } catch(e) {
+    el.innerHTML = '<div style="padding:10px 18px;font-size:11px;color:#888">Could not load breakdown: ' + e.message + '</div>';
+  }
 }
 
 
