@@ -417,6 +417,8 @@ h1 span{color:var(--lime)}
 
 /* Stat row */
 .db-stat-row{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:24px}
+.tpl-var-chip{font-family:'Space Mono',monospace;font-size:10px;background:rgba(203,255,0,.07);border:1px solid rgba(203,255,0,.2);color:var(--lime);padding:3px 9px;border-radius:4px;cursor:pointer;user-select:none;transition:background .15s}
+.tpl-var-chip:hover{background:rgba(203,255,0,.15)}
 .db-stat-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px;display:flex;align-items:center;gap:14px;cursor:pointer;transition:border-color .18s,background .18s;text-decoration:none;color:inherit}
 .db-stat-card:hover{border-color:rgba(203,255,0,.35);background:rgba(203,255,0,.03)}
 .db-stat-card.active-filter{border-color:var(--lime);background:rgba(203,255,0,.06)}
@@ -3010,6 +3012,58 @@ function renderReportPage(data, domain, isSample) {
           <div id="llm-stats-body">
             <div class="db-empty">Click ↻ Refresh to load LLM stats from Portkey</div>
           </div>
+        </div>
+
+        <!-- PDF Report Email Template Editor -->
+        <div class="admin-section" id="admin-report-email-section">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px">
+            <div>
+              <div class="admin-section-title" style="margin-bottom:2px">📧 PDF Report Email Template</div>
+              <div style="font-size:12px;color:var(--grey)">Customise the subject and message sent when users email their PDF report</div>
+            </div>
+            <div style="display:flex;gap:8px">
+              <button class="btn-scan-all" onclick="adminSaveReportEmailTemplate()">💾 Save</button>
+              <button onclick="adminResetReportEmailTemplate()" style="background:transparent;border:1px solid rgba(192,57,43,.3);color:#C0392B;font-family:'Space Mono',monospace;font-size:11px;padding:7px 14px;border-radius:6px;cursor:pointer">↩ Reset</button>
+            </div>
+          </div>
+
+          <!-- Variable reference chips -->
+          <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:18px;align-items:center">
+            <span style="font-family:'Space Mono',monospace;font-size:9px;color:var(--grey);letter-spacing:1px;text-transform:uppercase;margin-right:4px">Available variables:</span>
+            <span onclick="adminInsertVar('{domain}')"        class="tpl-var-chip">{domain}</span>
+            <span onclick="adminInsertVar('{risk_score}')"    class="tpl-var-chip">{risk_score}</span>
+            <span onclick="adminInsertVar('{score_label}')"   class="tpl-var-chip">{score_label}</span>
+            <span onclick="adminInsertVar('{criticals}')"     class="tpl-var-chip">{criticals}</span>
+            <span onclick="adminInsertVar('{warnings}')"      class="tpl-var-chip">{warnings}</span>
+            <span onclick="adminInsertVar('{checks_count}')"  class="tpl-var-chip">{checks_count}</span>
+            <span onclick="adminInsertVar('{scanned_at}')"    class="tpl-var-chip">{scanned_at}</span>
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:14px">
+            <!-- Subject -->
+            <div>
+              <label style="font-family:'Space Mono',monospace;font-size:10px;color:var(--grey);letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:5px">Email Subject</label>
+              <input id="ret-subject" type="text" placeholder="Security Report: {domain} — {score_label} ({risk_score}/100)"
+                style="width:100%;box-sizing:border-box;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:6px;color:var(--white);font-size:13px;padding:10px 14px;font-family:'Space Mono',monospace;outline:none"
+                onfocus="adminSetLastFocus(this)">
+            </div>
+            <!-- Body message -->
+            <div>
+              <label style="font-family:'Space Mono',monospace;font-size:10px;color:var(--grey);letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:5px">Message Body <span style="font-weight:400;text-transform:none;letter-spacing:0;color:#555">(HTML allowed)</span></label>
+              <textarea id="ret-body" rows="4" placeholder="Your full security report for &lt;strong&gt;{domain}&lt;/strong&gt; is attached…"
+                style="width:100%;box-sizing:border-box;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:8px;color:var(--white);font-size:12px;font-family:'Space Mono',monospace;padding:12px 14px;resize:vertical;line-height:1.6;outline:none"
+                onfocus="adminSetLastFocus(this)"></textarea>
+            </div>
+            <!-- Footer -->
+            <div>
+              <label style="font-family:'Space Mono',monospace;font-size:10px;color:var(--grey);letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:5px">Footer Text <span style="font-weight:400;text-transform:none;letter-spacing:0;color:#555">(small grey text at bottom)</span></label>
+              <input id="ret-footer" type="text" placeholder="SwarmHawk · CEE Cybersecurity Intelligence"
+                style="width:100%;box-sizing:border-box;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:6px;color:var(--white);font-size:13px;padding:10px 14px;font-family:'Space Mono',monospace;outline:none"
+                onfocus="adminSetLastFocus(this)">
+            </div>
+          </div>
+
+          <div id="ret-save-status" style="display:none;margin-top:10px;font-family:'Space Mono',monospace;font-size:11px;color:#2ECC71">✓ Template saved</div>
         </div>
 
       </div>
@@ -5626,6 +5680,68 @@ async function adminLoad() {
   adminLoadProspects();
   adminLoadLLMStats();
   adminLoadEmailTemplates();
+  adminLoadReportEmailTemplate();
+}
+
+// ── PDF Report Email Template ─────────────────────────────────────────────────
+
+var _lastFocusedField = null;
+
+function adminSetLastFocus(el) { _lastFocusedField = el; }
+
+function adminInsertVar(variable) {
+  var el = _lastFocusedField;
+  if (!el) { toast('Click into a field first, then pick a variable', true); return; }
+  var start = el.selectionStart != null ? el.selectionStart : el.value.length;
+  var end   = el.selectionEnd   != null ? el.selectionEnd   : el.value.length;
+  el.value = el.value.substring(0, start) + variable + el.value.substring(end);
+  var pos = start + variable.length;
+  el.focus();
+  el.setSelectionRange(pos, pos);
+}
+
+async function adminLoadReportEmailTemplate() {
+  try {
+    var d = await api('/admin/report-email-template');
+    var tpl = d.template || {};
+    var s = document.getElementById('ret-subject');
+    var b = document.getElementById('ret-body');
+    var f = document.getElementById('ret-footer');
+    if (s) s.value = tpl.subject || '';
+    if (b) b.value = tpl.body    || '';
+    if (f) f.value = tpl.footer  || '';
+  } catch(e) { console.warn('adminLoadReportEmailTemplate:', e.message); }
+}
+
+async function adminSaveReportEmailTemplate() {
+  var subject = (document.getElementById('ret-subject') || {}).value || '';
+  var body    = (document.getElementById('ret-body')    || {}).value || '';
+  var footer  = (document.getElementById('ret-footer')  || {}).value || '';
+  if (!subject.trim()) { toast('Subject cannot be empty', true); return; }
+  try {
+    await api('/admin/report-email-template', {
+      method: 'PUT',
+      body: JSON.stringify({ subject, body, footer }),
+    });
+    var status = document.getElementById('ret-save-status');
+    if (status) { status.style.display = 'block'; setTimeout(function(){ status.style.display='none'; }, 2500); }
+    toast('✓ Report email template saved');
+  } catch(e) { toast('Save failed: ' + e.message, true); }
+}
+
+async function adminResetReportEmailTemplate() {
+  if (!confirm('Reset to default email template?')) return;
+  try {
+    var d = await api('/admin/report-email-template', { method: 'DELETE' });
+    var tpl = d.template || {};
+    var s = document.getElementById('ret-subject');
+    var b = document.getElementById('ret-body');
+    var f = document.getElementById('ret-footer');
+    if (s) s.value = tpl.subject || '';
+    if (b) b.value = tpl.body    || '';
+    if (f) f.value = tpl.footer  || '';
+    toast('✓ Reset to default template');
+  } catch(e) { toast('Reset failed: ' + e.message, true); }
 }
 
 // ── AI Email Template Editor ──────────────────────────────────────────────────
