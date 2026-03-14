@@ -3005,9 +3005,16 @@ function renderReportPage(data, domain, isSample) {
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px">
             <div>
               <div class="admin-section-title" style="margin-bottom:2px">🧠 LLM Intelligence Costs</div>
-              <div style="font-size:12px;color:var(--grey)">Powered by Portkey AI observability · current month</div>
+              <div style="font-size:12px;color:var(--grey)">Powered by Portkey AI observability</div>
             </div>
-            <button class="btn-scan-all" onclick="adminLoadLLMStats()">↻ Refresh</button>
+            <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+              <div style="display:flex;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:6px;overflow:hidden">
+                <button id="llm-period-day"   onclick="adminLoadLLMStats('day')"   style="background:transparent;border:none;color:var(--grey);font-family:'Space Mono',monospace;font-size:10px;padding:6px 12px;cursor:pointer;letter-spacing:.5px">TODAY</button>
+                <button id="llm-period-month" onclick="adminLoadLLMStats('month')" style="background:rgba(203,255,0,.1);border:none;color:var(--lime);font-family:'Space Mono',monospace;font-size:10px;padding:6px 12px;cursor:pointer;letter-spacing:.5px;border-left:1px solid rgba(255,255,255,.1);border-right:1px solid rgba(255,255,255,.1)">MONTH</button>
+                <button id="llm-period-year"  onclick="adminLoadLLMStats('year')"  style="background:transparent;border:none;color:var(--grey);font-family:'Space Mono',monospace;font-size:10px;padding:6px 12px;cursor:pointer;letter-spacing:.5px">YEAR</button>
+              </div>
+              <button class="btn-scan-all" onclick="adminLoadLLMStats(adminLLMPeriod)">↻ Refresh</button>
+            </div>
           </div>
           <div id="llm-stats-body">
             <div class="db-empty">Click ↻ Refresh to load LLM stats from Portkey</div>
@@ -5678,7 +5685,7 @@ async function adminLoad() {
   adminLoadUsers(1);
   adminLoadDomains(1);
   adminLoadProspects();
-  adminLoadLLMStats();
+  adminLoadLLMStats('month');
   adminLoadEmailTemplates();
   adminLoadReportEmailTemplate();
 }
@@ -5820,14 +5827,30 @@ async function adminTestEmailTemplate() {
   if (btn) { btn.disabled = false; btn.textContent = '⚡ Generate Test Email'; }
 }
 
-async function adminLoadLLMStats() {
-  if (!currentUser || !currentUser.is_admin) return;  // guard: admin only
+var adminLLMPeriod = 'month';
+
+function adminSetLLMPeriodUI(p) {
+  adminLLMPeriod = p;
+  ['day','month','year'].forEach(function(k) {
+    var btn = document.getElementById('llm-period-' + k);
+    if (!btn) return;
+    var active = k === p;
+    btn.style.background = active ? 'rgba(203,255,0,.1)' : 'transparent';
+    btn.style.color       = active ? 'var(--lime)' : 'var(--grey)';
+    btn.style.borderLeft  = (k === 'month') ? '1px solid rgba(255,255,255,.1)' : 'none';
+    btn.style.borderRight = (k === 'month') ? '1px solid rgba(255,255,255,.1)' : 'none';
+  });
+}
+
+async function adminLoadLLMStats(period) {
+  if (!currentUser || !currentUser.is_admin) return;
+  if (period) adminSetLLMPeriodUI(period);
   var el = document.getElementById('llm-stats-body');
   if (!el) return;
   el.innerHTML = '<div class="db-empty"><div class="spinner" style="width:20px;height:20px;border-width:2px;margin:0 auto 8px"></div>Loading from Portkey…</div>';
 
   try {
-    var d = await api('/admin/llm-stats');
+    var d = await api('/admin/llm-stats?period=' + adminLLMPeriod);
 
     if (!d.configured) {
       el.innerHTML = '<div style="background:rgba(212,133,10,.07);border:1px solid rgba(212,133,10,.2);border-radius:8px;padding:16px 20px;font-size:12px;color:#f0c070">'
@@ -5839,19 +5862,19 @@ async function adminLoadLLMStats() {
     var costFmt = function(v){ return '$' + (v || 0).toFixed(4); };
     var numFmt  = function(v){ return (v || 0).toLocaleString(); };
 
-    // KPI bar
+    // ── KPI bar ──────────────────────────────────────────────────────────────
     var html = '<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:20px">';
-    html += '<div class="admin-stat"><span class="admin-stat-val" style="color:var(--lime)">' + costFmt(t.cost) + '</span><span class="admin-stat-lbl">Total Cost</span><span class="admin-stat-sub">this month</span></div>';
-    html += '<div class="admin-stat"><span class="admin-stat-val">' + numFmt(t.requests) + '</span><span class="admin-stat-lbl">LLM Requests</span><span class="admin-stat-sub">this month</span></div>';
+    html += '<div class="admin-stat"><span class="admin-stat-val" style="color:var(--lime)">' + costFmt(t.cost) + '</span><span class="admin-stat-lbl">Total Cost</span><span class="admin-stat-sub">' + (d.period || '') + '</span></div>';
+    html += '<div class="admin-stat"><span class="admin-stat-val">' + numFmt(t.requests) + '</span><span class="admin-stat-lbl">LLM Requests</span><span class="admin-stat-sub">' + (d.period || '') + '</span></div>';
     html += '<div class="admin-stat"><span class="admin-stat-val">' + numFmt(t.tokens) + '</span><span class="admin-stat-lbl">Total Tokens</span><span class="admin-stat-sub">prompt + completion</span></div>';
     html += '<div class="admin-stat"><span class="admin-stat-val" style="color:var(--grey)">' + numFmt(t.prompt_tokens) + '</span><span class="admin-stat-lbl">Prompt Tokens</span></div>';
     html += '<div class="admin-stat"><span class="admin-stat-val" style="color:var(--grey)">' + numFmt(t.completion_tokens) + '</span><span class="admin-stat-lbl">Output Tokens</span><span class="admin-stat-sub">avg/req: ' + costFmt(t.avg_cost_per_req) + '</span></div>';
     html += '</div>';
 
-    // By report type
+    // ── By report type ────────────────────────────────────────────────────────
     if (d.by_report_type && d.by_report_type.length) {
       html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px;margin-bottom:20px">';
-      var typeIcons = {domain_scan:'🔍', intel_briefing:'🧠', outreach_email:'✉', unknown:'❓'};
+      var typeIcons = {domain_scan:'🔍', intel_briefing:'🧠', outreach_email:'✉', nis2_report:'📋', unknown:'❓'};
       d.by_report_type.forEach(function(r) {
         var icon = typeIcons[r.report_type] || '📋';
         html += '<div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:8px;padding:12px 16px">'
@@ -5862,7 +5885,45 @@ async function adminLoadLLMStats() {
       html += '</div>';
     }
 
-    // Per-user breakdown table
+    // ── Per-domain cost table ─────────────────────────────────────────────────
+    html += '<div class="admin-section-title" style="margin-bottom:10px">Cost per Domain Scan</div>';
+    if (!d.by_domain || !d.by_domain.length) {
+      html += '<div class="db-empty" style="margin-bottom:20px">No per-domain data yet — domain metadata not yet available in logs (check PORTKEY_API_KEY and that calls include domain in metadata)</div>';
+    } else {
+      html += '<div class="admin-table-wrap" style="margin-bottom:20px"><table class="admin-table">';
+      html += '<thead><tr><th>#</th><th>Domain</th><th>Scans (LLM calls)</th><th>Tokens</th><th>Cost</th></tr></thead><tbody>';
+      d.by_domain.forEach(function(r, i) {
+        html += '<tr>'
+          + '<td>' + (i+1) + '</td>'
+          + '<td style="font-family:Space Mono,monospace;font-size:11px;color:var(--lime)">' + r.domain + '</td>'
+          + '<td>' + r.requests + '</td>'
+          + '<td>' + numFmt(r.tokens) + '</td>'
+          + '<td style="color:var(--lime);font-family:Space Mono,monospace">' + costFmt(r.cost) + '</td>'
+          + '</tr>';
+      });
+      html += '</tbody></table></div>';
+    }
+
+    // ── Time series bar chart ─────────────────────────────────────────────────
+    if (d.time_series && d.time_series.length) {
+      html += '<div class="admin-section-title" style="margin-bottom:10px">Cost Over Time</div>';
+      var maxCost = Math.max.apply(null, d.time_series.map(function(r){ return r.cost; })) || 0.001;
+      html += '<div style="display:flex;align-items:flex-end;gap:4px;height:80px;margin-bottom:4px;overflow-x:auto;padding-bottom:2px">';
+      d.time_series.forEach(function(r) {
+        var barH = Math.max(4, Math.round((r.cost / maxCost) * 72));
+        html += '<div style="display:flex;flex-direction:column;align-items:center;flex-shrink:0;min-width:28px">'
+          + '<div title="' + r.date + ': ' + costFmt(r.cost) + ' (' + r.requests + ' req)" style="width:20px;height:' + barH + 'px;background:var(--lime);border-radius:3px 3px 0 0;opacity:.8;cursor:default"></div>'
+          + '</div>';
+      });
+      html += '</div>';
+      html += '<div style="display:flex;gap:4px;overflow-x:auto;margin-bottom:20px">';
+      d.time_series.forEach(function(r) {
+        html += '<div style="font-family:Space Mono,monospace;font-size:8px;color:var(--grey);flex-shrink:0;min-width:28px;text-align:center;overflow:hidden;text-overflow:ellipsis">' + r.date.slice(-5) + '</div>';
+      });
+      html += '</div>';
+    }
+
+    // ── Per-user breakdown table ──────────────────────────────────────────────
     html += '<div class="admin-section-title" style="margin-bottom:10px">Cost per User</div>';
     if (!d.by_user || !d.by_user.length) {
       html += '<div class="db-empty">No per-user data yet — requests not tagged with user metadata</div>';
