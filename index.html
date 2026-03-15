@@ -2476,8 +2476,8 @@ function renderReportPage(data, domain, isSample) {
       <button class="db-tab" id="admin-tab-btn" onclick="dbShowTabAdmin('admin',this)" style="display:none">⚙️ Admin</button>
     </div>
     <div class="db-nav-right">
-      <span id="db-user-name" onclick="dbShowTab('account',null);dbLoadAccount()" title="Go to Account settings" style="font-size:13px;color:var(--grey);cursor:pointer;transition:color .15s" onmouseover="this.style.color='var(--lime)'" onmouseout="this.style.color='var(--grey)'"></span>
-      <img id="db-avatar" class="user-avatar" onclick="dbShowTab('account',null);dbLoadAccount()" title="Go to Account settings" src="" alt="" style="display:none;cursor:pointer">
+      <span id="db-user-name" onclick="dbNavToUserPanel()" title="Go to Admin panel" style="font-size:13px;color:var(--grey);cursor:pointer;transition:color .15s" onmouseover="this.style.color='var(--lime)'" onmouseout="this.style.color='var(--grey)'"></span>
+      <img id="db-avatar" class="user-avatar" onclick="dbNavToUserPanel()" title="Go to Admin panel" src="" alt="" style="display:none;cursor:pointer">
       <button class="btn-sm" onclick="dbLogout()">Logout</button>
     </div>
   </div>
@@ -6222,6 +6222,15 @@ var adminDomainsCurrentPage = 1;
 var adminUsersTotal  = 0;
 var adminDomainsTotal = 0;
 var ADMIN_PER_PAGE = 50;
+
+function dbNavToUserPanel() {
+  if (currentUser && currentUser.is_admin) {
+    dbShowTabAdmin('admin', null);
+  } else {
+    dbShowTab('account', null);
+    dbLoadAccount();
+  }
+}
 
 function dbShowTabAdmin(tab, btn) {
   dbShowTab(tab, btn);
