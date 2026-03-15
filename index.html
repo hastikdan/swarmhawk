@@ -833,8 +833,8 @@ python3 swarmhawk_mcp.py --http</pre></div>
       <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:20px">
         <div style="display:inline-flex;align-items:center;gap:10px;background:rgba(212,133,10,.08);border:1px solid rgba(212,133,10,.25);border-radius:8px;padding:9px 16px">
           <span style="font-size:16px">🧩</span>
-          <span style="font-size:12px;color:#D4850A;font-family:'Space Mono',monospace;letter-spacing:.5px">Chrome Extension — </span>
-          <a href="https://chrome.google.com/webstore/detail/swarmhawk" target="_blank" style="font-family:'Space Mono',monospace;font-size:11px;color:#D4850A;text-decoration:underline">Install →</a>
+          <span style="font-size:12px;color:#D4850A;font-family:'Space Mono',monospace;letter-spacing:.5px">Chrome Extension</span>
+          <span style="font-family:'Space Mono',monospace;font-size:10px;color:rgba(212,133,10,.6);padding:2px 6px;border:1px solid rgba(212,133,10,.3);border-radius:4px">COMING SOON</span>
         </div>
         <div style="display:inline-flex;align-items:center;gap:10px;background:rgba(212,133,10,.08);border:1px solid rgba(212,133,10,.25);border-radius:8px;padding:9px 16px">
           <span style="font-size:16px">📡</span>
@@ -1249,7 +1249,7 @@ python3 swarmhawk_mcp.py --http</pre></div>
           <a href="/kb.html" target="_blank">Knowledge Base</a>
           <a href="/docs.html" target="_blank">API Documentation</a>
           <a href="/mcp.html" target="_blank">MCP Setup Guide</a>
-          <a href="https://chrome.google.com/webstore/detail/swarmhawk" target="_blank" rel="noopener">Chrome Extension</a>
+          <a href="mailto:hello@swarmhawk.com?subject=Chrome Extension early access" title="Chrome extension coming soon — email for early access">Chrome Extension <span style="font-size:9px;opacity:.6">(soon)</span></a>
           <a href="https://github.com/hastikdan/swarmhawk" target="_blank" rel="noopener">GitHub</a>
         </div>
       </div>
@@ -1293,7 +1293,7 @@ python3 swarmhawk_mcp.py --http</pre></div>
 
 <script>
 const API = 'https://swarmhawk-backend.onrender.com';
-const MCP_URL = 'https://swarmhawk.com/mcp';
+const MCP_URL = 'https://swarmhawk-backend.onrender.com/mcp';
 let sessionToken = localStorage.getItem('sw_token') || '';
 let currentUser = JSON.parse(localStorage.getItem('sw_user') || 'null');
 let domains = []; let pollTimer = null;
