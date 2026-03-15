@@ -746,10 +746,6 @@ h1 span{color:var(--lime)}
             <span class="pill">7 MCP tools</span>
             <span class="pill">72 countries</span>
           </div>
-          <ul style="margin:16px 0 20px;padding-left:0;list-style:none;display:flex;flex-direction:column;gap:10px">
-            <li style="display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--grey);line-height:1.5"><span style="color:var(--lime);font-size:16px;flex-shrink:0;margin-top:1px">→</span><span>Ask your AI to scan any domain for CVEs, open ports, and breaches — get a full risk score in one prompt</span></li>
-<li style="display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--grey);line-height:1.5"><span style="color:var(--lime);font-size:16px;flex-shrink:0;margin-top:1px">→</span><span>Run batch risk scoring across your entire domain portfolio from a single natural-language command</span></li>
-          </ul>
           <div class="split-actions">
           </div>
         </div>
@@ -814,42 +810,36 @@ python3 swarmhawk_mcp.py --http</pre></div>
         <div class="tool-chip">get_quota() <span>instant</span></div>
       </div>
 
-      <!-- Chrome Extension bubble -->
-      <div style="display:inline-flex;align-items:center;gap:10px;background:rgba(212,133,10,.08);border:1px solid rgba(212,133,10,.25);border-radius:8px;padding:9px 16px;margin:16px 0">
-        <span style="font-size:16px">🧩</span>
-        <span style="font-size:12px;color:#D4850A;font-family:'Space Mono',monospace;letter-spacing:.5px">Chrome Extension available — </span>
-        <a href="https://chrome.google.com/webstore/detail/swarmhawk" target="_blank" style="font-family:'Space Mono',monospace;font-size:11px;color:#D4850A;text-decoration:underline">Install →</a>
-      </div>
-
-      <!-- REST API quick reference -->
-      <!-- REST API bubble -->
-      <div style="display:inline-flex;align-items:center;gap:10px;background:rgba(212,133,10,.08);border:1px solid rgba(212,133,10,.25);border-radius:8px;padding:9px 16px;margin:8px 0 16px">
-        <span style="font-size:16px">📡</span>
-        <span style="font-size:12px;color:#D4850A;font-family:'Space Mono',monospace;letter-spacing:.5px">REST API available — </span>
-        <a href="/docs.html" target="_blank" style="font-family:'Space Mono',monospace;font-size:11px;color:#D4850A;text-decoration:underline">Full API Docs →</a>
-      </div>
-
-      <!-- Dev use cases -->
-      <div class="use-cases-grid">
+      <!-- Dev use cases — 3 bold statements -->
+      <div class="use-cases-grid" style="grid-template-columns:repeat(3,1fr)">
         <div class="uc-card">
-          <div class="uc-icon">🔍</div>
-          <h4>Security Due Diligence</h4>
-          <p>Ask Claude to scan vendor domains before signing contracts. Risk assessment without leaving your conversation.</p>
+          <div class="uc-icon">🔎</div>
+          <h4>Instant Domain Intelligence</h4>
+          <p>Ask your AI to scan any domain for CVEs, open ports, and breaches — get a full risk score in one prompt, no setup required.</p>
         </div>
         <div class="uc-card">
-          <div class="uc-icon">💼</div>
-          <h4>M&A Security Review</h4>
-          <p>Batch scan acquisition targets. Claude ranks domains by risk and flags deal-breaker findings automatically.</p>
-        </div>
-        <div class="uc-card">
-          <div class="uc-icon">🚀</div>
-          <h4>Pre-deployment Checks</h4>
-          <p>Wire into your CI/CD pipeline. Catch SSL expiry and misconfigs before they hit production.</p>
+          <div class="uc-icon">📊</div>
+          <h4>Batch Risk Scoring</h4>
+          <p>Run risk scoring across your entire domain portfolio from a single natural-language command. Ranked results in seconds.</p>
         </div>
         <div class="uc-card">
           <div class="uc-icon">⚙️</div>
           <h4>Security Automation</h4>
-          <p>Build internal security agents that monitor your entire domain portfolio on autopilot.</p>
+          <p>Build internal agents that continuously monitor your domains, alert on new threats, and enforce security policies on autopilot.</p>
+        </div>
+      </div>
+
+      <!-- Access points -->
+      <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:20px">
+        <div style="display:inline-flex;align-items:center;gap:10px;background:rgba(212,133,10,.08);border:1px solid rgba(212,133,10,.25);border-radius:8px;padding:9px 16px">
+          <span style="font-size:16px">🧩</span>
+          <span style="font-size:12px;color:#D4850A;font-family:'Space Mono',monospace;letter-spacing:.5px">Chrome Extension — </span>
+          <a href="https://chrome.google.com/webstore/detail/swarmhawk" target="_blank" style="font-family:'Space Mono',monospace;font-size:11px;color:#D4850A;text-decoration:underline">Install →</a>
+        </div>
+        <div style="display:inline-flex;align-items:center;gap:10px;background:rgba(212,133,10,.08);border:1px solid rgba(212,133,10,.25);border-radius:8px;padding:9px 16px">
+          <span style="font-size:16px">📡</span>
+          <span style="font-size:12px;color:#D4850A;font-family:'Space Mono',monospace;letter-spacing:.5px">REST API — </span>
+          <a href="/docs.html" target="_blank" style="font-family:'Space Mono',monospace;font-size:11px;color:#D4850A;text-decoration:underline">Full API Docs →</a>
         </div>
       </div>
     </div>
@@ -877,7 +867,7 @@ python3 swarmhawk_mcp.py --http</pre></div>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:start">
         <div class="split-text">
-          <h2>Swarmhawk Dashboard<br><span>AI Threat Analysis</span></h2>
+          <h2>Swarmhawk<br><span>Security That Never Sleeps</span></h2>
           <p>23 automated security checks — SSL, DNS, CVEs, breaches, typosquats and AI threat analysis — with monthly PDF reports. No technical knowledge required.</p>
 
           <!-- Pricing cards -->
