@@ -2600,14 +2600,12 @@ function renderReportPage(data, domain, isSample) {
               <button class="db-filter"        id="drf-clean"    onclick="dbSetDomainRiskFilter('clean',this)"    style="color:#1A7A4A">✓ Clean</button>
             </div>
             <input class="db-search" id="domain-search" type="text" placeholder="Search domains…" oninput="dbFilterDomains(this.value)">
-            <button class="btn-scan-all" id="db-add-domain-btn" onclick="dbAddDomainPrompt()">+ Add Domain</button>
           </div>
         </div>
-        <div id="db-add-bar" style="display:none;margin-bottom:20px">
+        <div id="db-add-bar" style="margin-bottom:20px">
           <div style="display:flex;gap:10px;align-items:center">
             <input class="domain-input" id="db-domain-input" type="text" placeholder="yourdomain.com" style="max-width:320px" onkeydown="if(event.key==='Enter')dbAddDomain()">
-            <button class="btn-scan-all" id="db-add-btn" onclick="dbAddDomain()">Add →</button>
-            <button class="btn-sm" onclick="dbAddDomainCancel()">Cancel</button>
+            <button class="btn-scan-all" id="db-add-btn" onclick="dbAddDomain()">+ Add Domain</button>
           </div>
         </div>
         <div id="db-domains-table" class="db-domains-table">
@@ -3746,15 +3744,7 @@ function paMarkInline(domainId, checkKey) {
   if (body) dbRenderSingleDomainThreats(domainId, body);
 }
 
-function dbAddDomainPrompt() {
-  document.getElementById('db-add-bar').style.display = 'block';
-  document.getElementById('db-add-domain-btn').style.display = 'none';
-  document.getElementById('db-domain-input').focus();
-}
-
 function dbAddDomainCancel() {
-  document.getElementById('db-add-bar').style.display = 'none';
-  document.getElementById('db-add-domain-btn').style.display = '';
   document.getElementById('db-domain-input').value = '';
 }
 
@@ -3766,8 +3756,6 @@ async function dbAddDomain() {
 
   // Show progress immediately on button click — before API call
   input.value = '';
-  document.getElementById('db-add-bar').style.display = 'none';
-  document.getElementById('db-add-domain-btn').style.display = '';
   btn.disabled = true; btn.textContent = 'Scanning…';
   showScanProgress(domain);
 
@@ -3795,7 +3783,7 @@ async function dbAddDomain() {
     }
     console.error('dbAddDomain error:', e);
   }
-  finally { btn.disabled = false; btn.textContent = 'Add →'; }
+  finally { btn.disabled = false; btn.textContent = '+ Add Domain'; }
 }
 
 async function dbRescanDomain(id, domain) {
