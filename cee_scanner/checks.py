@@ -839,6 +839,591 @@ def _patched_to_dict(self):
 CheckResult.to_dict = _patched_to_dict
 
 
+# ── New OSINT checks ──────────────────────────────────────────────────────────
+
+def check_whois(domain: str) -> CheckResult:
+    """Check domain registration info via RDAP (free, no key)."""
+    result = CheckResult("whois", domain)
+    try:
+        r = requests.get(
+            f"https://rdap.org/domain/{domain}",
+            headers=HEADERS, timeout=TIMEOUT
+        )
+        if r.status_code != 200:
+            return result.error(f"RDAP returned {r.status_code}")
+        data = r.json()
+
+        events = {e.get("eventAction"): e.get("eventDate", "") for e in data.get("events", [])}
+        registered = events.get("registration", "")
+        expiration = events.get("expiration", "")
+        now = datetime.now(timezone.utc)
+
+        if registered:
+            try:
+                reg_date = datetime.fromisoformat(registered.replace("Z", "+00:00"))
+                age_days = (now - reg_date).days
+                if age_days < 30:
+                    return result.critical(
+                        f"Very new domain — registered {age_days} days ago",
+                        f"Registered: {registered[:10]}. Newly registered domains are high phishing risk.",
+                        impact=15
+                    )
+            except (ValueError, TypeError):
+                pass
+
+        if expiration:
+            try:
+                exp_date = datetime.fromisoformat(expiration.replace("Z", "+00:00"))
+                days_left = (exp_date - now).days
+                if days_left <= 30:
+                    return result.warn(
+                        f"Domain expires in {days_left} days",
+                        f"Expiry: {expiration[:10]}. Risk of domain hijacking if not renewed.",
+                        impact=8
+                    )
+            except (ValueError, TypeError):
+                pass
+
+        entities = data.get("entities", [])
+        combined = " ".join(
+            str(e.get("vcardArray", "")) + " ".join(
+                r2.get("description", [""])[0] for r2 in e.get("remarks", [])
+            )
+            for e in entities
+        ).lower()
+        if any(kw in combined for kw in ["privacy", "proxy", "redacted", "withheld"]):
+            return result.warn(
+                "Privacy/proxy registration detected",
+                "Registrant identity hidden — common in phishing infrastructure",
+                impact=5
+            )
+
+        return result.ok(
+            "Domain registration looks normal",
+            f"Registered: {registered[:10] if registered else 'unknown'} | "
+            f"Expires: {expiration[:10] if expiration else 'unknown'}"
+        )
+    except Exception as e:
+        return result.error("WHOIS lookup failed", str(e)[:80])
+
+
+def check_email_security(domain: str) -> CheckResult:
+    """Check SPF, DMARC, and DKIM email security records via dig."""
+    result = CheckResult("email_security", domain)
+    try:
+        import subprocess
+
+        spf_found = False
+        dmarc_found = False
+        dmarc_policy = ""
+
+        try:
+            spf_out = subprocess.run(
+                ["dig", "+short", "TXT", domain],
+                capture_output=True, text=True, timeout=5
+            )
+            if spf_out.returncode == 0 and "v=spf1" in spf_out.stdout:
+                spf_found = True
+        except (FileNotFoundError, subprocess.TimeoutExpired):
+            pass
+
+        try:
+            dmarc_out = subprocess.run(
+                ["dig", "+short", "TXT", f"_dmarc.{domain}"],
+                capture_output=True, text=True, timeout=5
+            )
+            if dmarc_out.returncode == 0 and "v=DMARC1" in dmarc_out.stdout:
+                dmarc_found = True
+                for part in dmarc_out.stdout.split(";"):
+                    part = part.strip().strip('"')
+                    if part.startswith("p="):
+                        dmarc_policy = part[2:].strip().lower()
+                        break
+        except (FileNotFoundError, subprocess.TimeoutExpired):
+            pass
+
+        if not spf_found:
+            return result.critical(
+                "No SPF record — email spoofing possible",
+                f"Domain {domain} has no SPF record. Anyone can send email as @{domain}.",
+                impact=12
+            )
+        if not dmarc_found:
+            return result.warn(
+                "SPF exists but no DMARC policy",
+                "Without DMARC, SPF failures are not enforced. Spoofed emails may still be delivered.",
+                impact=8
+            )
+        if dmarc_policy == "none":
+            return result.warn(
+                "DMARC policy is p=none (monitoring only)",
+                "DMARC is configured but not enforcing. Upgrade to p=quarantine or p=reject.",
+                impact=6
+            )
+
+        return result.ok(
+            f"Email security configured — SPF + DMARC p={dmarc_policy}",
+            "SPF record present and DMARC policy enforces spoofing protection"
+        )
+    except Exception as e:
+        return result.error("Email security check failed", str(e)[:80])
+
+
+def check_ip_intel(domain: str) -> CheckResult:
+    """Check IP reputation, ASN, TOR/proxy detection via ip-api.com (free, no key)."""
+    result = CheckResult("ip_intel", domain)
+    try:
+        ip = socket.gethostbyname(domain)
+        r = requests.get(
+            f"http://ip-api.com/json/{ip}?fields=status,isp,org,as,hosting,proxy,tor",
+            headers=HEADERS, timeout=TIMEOUT
+        )
+        if r.status_code != 200:
+            return result.error(f"ip-api returned {r.status_code}")
+
+        data = r.json()
+        if data.get("status") != "success":
+            return result.error("IP lookup failed", data.get("message", "")[:80])
+
+        is_tor = data.get("tor", False)
+        is_proxy = data.get("proxy", False)
+        is_hosting = data.get("hosting", False)
+        isp = data.get("isp", "Unknown")
+        org = data.get("org", "")
+        asn = data.get("as", "")
+
+        BULLETPROOF_KEYWORDS = [
+            "M247", "FranTech", "Leaseweb", "B2 Net", "Webzilla",
+            "Quasi", "CyberBunker", "Combahton", "Selectel", "Serverius"
+        ]
+
+        if is_tor:
+            return result.critical(
+                f"TOR exit node detected — {ip}",
+                f"ISP: {isp} | AS: {asn}. TOR routing indicates anonymization.",
+                impact=20
+            )
+        if is_proxy:
+            return result.critical(
+                f"Known proxy/anonymizer — {ip}",
+                f"ISP: {isp} | AS: {asn}. IP flagged as proxy/VPN/anonymizer.",
+                impact=20
+            )
+        if any(kw.lower() in (isp + org).lower() for kw in BULLETPROOF_KEYWORDS):
+            return result.warn(
+                "Bulletproof/suspicious hosting detected",
+                f"ISP: {isp} | AS: {asn}. Associated with high-abuse hosting provider.",
+                impact=8
+            )
+
+        net_type = "datacenter/hosting" if is_hosting else "regular network"
+        return result.ok(
+            f"IP intelligence clean — {ip}",
+            f"ISP: {isp} | AS: {asn} | Type: {net_type}"
+        )
+    except socket.gaierror:
+        return result.error("IP lookup failed", "Domain does not resolve")
+    except Exception as e:
+        return result.error("IP intel check failed", str(e)[:80])
+
+
+def check_shodan(domain: str) -> CheckResult:
+    """
+    Shodan host intelligence — uses paid API when SHODAN_API_KEY is set,
+    falls back to free InternetDB otherwise.
+    Paid API adds: service banners, software versions, CPE, hostnames, org/ISP/country.
+    """
+    import os
+    result = CheckResult("shodan", domain)
+    api_key = os.getenv("SHODAN_API_KEY", "")
+
+    DANGEROUS_PORTS = {21: "FTP", 23: "Telnet", 3389: "RDP", 5900: "VNC"}
+
+    def _score(ports, cves, tags, vulns, services, ip, org="", isp=""):
+        """Shared scoring logic for both API paths."""
+        open_dangerous = [f"{p}({DANGEROUS_PORTS[p]})" for p in ports if p in DANGEROUS_PORTS]
+
+        # Paid API vulns dict takes priority over InternetDB cves list
+        all_cves = list(vulns.keys()) if vulns else cves
+
+        if all_cves:
+            cve_list = ", ".join(all_cves[:5])
+            extra = f" | Services: {services[:3]}" if services else ""
+            return result.critical(
+                f"CVEs detected — {len(all_cves)} vulnerabilities on {ip}",
+                f"CVEs: {cve_list}{' +more' if len(all_cves) > 5 else ''} | Ports: {ports[:10]}{extra}",
+                impact=20
+            )
+        if open_dangerous:
+            return result.critical(
+                f"Dangerous ports open: {', '.join(open_dangerous)}",
+                f"IP: {ip} | All open ports: {ports[:15]} | Tags: {tags}",
+                impact=20
+            )
+        if len(ports) > 10:
+            svc_str = f" | Services: {', '.join(services[:4])}" if services else ""
+            return result.warn(
+                f"Large attack surface — {len(ports)} open ports",
+                f"IP: {ip} | Org: {org or isp}{svc_str}",
+                impact=8
+            )
+
+        svc_str = f" | Services: {', '.join(services[:4])}" if services else ""
+        return result.ok(
+            f"Shodan: clean — {len(ports)} port(s) indexed",
+            f"IP: {ip} | Org: {org or isp} | Tags: {tags}{svc_str}"
+        )
+
+    try:
+        ip = socket.gethostbyname(domain)
+
+        if api_key:
+            # ── Paid Shodan Host API ──────────────────────────────────────────
+            r = requests.get(
+                f"https://api.shodan.io/shodan/host/{ip}",
+                params={"key": api_key},
+                headers=HEADERS, timeout=TIMEOUT
+            )
+            if r.status_code == 404:
+                return result.ok(f"Shodan: no data for {ip} — not indexed")
+            if r.status_code == 401:
+                return result.error("Shodan: invalid API key")
+            if r.status_code != 200:
+                return result.error(f"Shodan API returned {r.status_code}")
+
+            data = r.json()
+            ports = data.get("ports", [])
+            vulns = data.get("vulns", {})   # dict: {"CVE-XXXX": {...}}
+            tags = data.get("tags", [])
+            org = data.get("org", "")
+            isp = data.get("isp", "")
+
+            # Extract product/version strings from service banners
+            services = []
+            for item in data.get("data", []):
+                product = item.get("product", "")
+                version = item.get("version", "")
+                if product:
+                    services.append(f"{product} {version}".strip())
+            services = list(dict.fromkeys(services))  # deduplicate, preserve order
+
+            return _score(ports, [], tags, vulns, services, ip, org, isp)
+
+        else:
+            # ── Free Shodan InternetDB fallback ──────────────────────────────
+            r = requests.get(
+                f"https://internetdb.shodan.io/{ip}",
+                headers=HEADERS, timeout=TIMEOUT
+            )
+            if r.status_code == 404:
+                return result.ok(f"Shodan: no data for {ip} — minimal attack surface")
+            if r.status_code != 200:
+                return result.error(f"Shodan InternetDB returned {r.status_code}")
+
+            data = r.json()
+            return _score(
+                data.get("ports", []),
+                data.get("cves", []),
+                data.get("tags", []),
+                {}, [], ip
+            )
+
+    except socket.gaierror:
+        return result.error("Shodan check failed", "Domain does not resolve")
+    except Exception as e:
+        return result.error("Shodan check failed", str(e)[:80])
+
+
+def check_open_ports(domain: str) -> CheckResult:
+    """Active port scan of high-risk ports via socket connect (2s timeout)."""
+    result = CheckResult("open_ports", domain)
+    try:
+        ip = socket.gethostbyname(domain)
+
+        HIGH_RISK_PORTS = {
+            21: "FTP", 22: "SSH", 23: "Telnet", 25: "SMTP",
+            3306: "MySQL", 5432: "Postgres", 6379: "Redis", 27017: "MongoDB",
+            3389: "RDP", 5900: "VNC", 8080: "HTTP-alt", 8443: "HTTPS-alt"
+        }
+        DB_PORTS = {3306, 5432, 6379, 27017}
+        CRITICAL_PORTS = {23, 3389, 5900}
+
+        open_ports = []
+        for port, name in HIGH_RISK_PORTS.items():
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            sock.settimeout(2)
+            if sock.connect_ex((ip, port)) == 0:
+                open_ports.append((port, name))
+            sock.close()
+
+        critical_open = [(p, n) for p, n in open_ports if p in DB_PORTS or p in CRITICAL_PORTS]
+        warning_open = [(p, n) for p, n in open_ports if p not in DB_PORTS and p not in CRITICAL_PORTS]
+
+        if critical_open:
+            labels = ", ".join(f"{p}/{n}" for p, n in critical_open)
+            return result.critical(
+                f"Critical ports exposed: {labels}",
+                f"Directly accessible from internet. High exploitation risk.",
+                impact=20
+            )
+        if warning_open:
+            labels = ", ".join(f"{p}/{n}" for p, n in warning_open)
+            return result.warn(
+                f"Risky ports open: {labels}",
+                f"Services exposed to internet: {labels}",
+                impact=8
+            )
+
+        return result.ok(
+            "No high-risk ports open",
+            f"Scanned {len(HIGH_RISK_PORTS)} common high-risk ports — none accessible"
+        )
+    except socket.gaierror:
+        return result.error("Port scan failed", "Domain does not resolve")
+    except Exception as e:
+        return result.error("Port scan failed", str(e)[:80])
+
+
+def check_sast(domain: str) -> CheckResult:
+    """Check for exposed source code, git repos, and debug endpoints."""
+    result = CheckResult("sast", domain)
+    try:
+        base = f"https://{domain}"
+        PROBES = [
+            ("/.git/HEAD", "git_head"),
+            ("/.git/config", "git_config"),
+            ("/composer.json", "composer"),
+            ("/package.json", "package_json"),
+            ("/.env.example", "env_example"),
+            ("/phpinfo.php", "phpinfo"),
+            ("/server-status", "server_status"),
+            ("/?XDEBUG_SESSION_START=1", "xdebug"),
+        ]
+
+        findings = []
+        for path, label in PROBES:
+            try:
+                r = requests.get(
+                    f"{base}{path}", headers=HEADERS, timeout=TIMEOUT,
+                    allow_redirects=False, verify=False
+                )
+                if r.status_code != 200:
+                    continue
+                content = r.text[:300]
+                if label == "git_head" and "ref:" in content:
+                    return result.critical(
+                        "Git repository exposed — /.git/HEAD accessible",
+                        f"Source code repository directly downloadable from {domain}/.git/",
+                        impact=25
+                    )
+                if label == "phpinfo" and "phpinfo" in content.lower():
+                    return result.critical(
+                        "phpinfo() page exposed",
+                        "Server configuration, PHP version, and environment variables visible",
+                        impact=20
+                    )
+                if label == "xdebug" and "xdebug" in content.lower():
+                    return result.critical(
+                        "Xdebug active on production",
+                        "Remote PHP debugging enabled — full code execution risk",
+                        impact=20
+                    )
+                if label in ("composer", "package_json", "git_config", "env_example", "server_status"):
+                    findings.append(path)
+            except requests.exceptions.RequestException:
+                continue
+
+        if findings:
+            return result.warn(
+                f"Source/config files exposed: {len(findings)} path(s)",
+                f"Accessible: {', '.join(findings)}",
+                impact=10
+            )
+
+        return result.ok("No source code or debug endpoints exposed")
+    except Exception as e:
+        return result.error("SAST check failed", str(e)[:80])
+
+
+def check_sca(domain: str) -> CheckResult:
+    """Check for exposed dependency manifests and known-vulnerable versions."""
+    result = CheckResult("sca", domain)
+    KNOWN_VULNERABLE = [
+        "log4j-core", "struts2", "log4j",
+        "lodash\":\"4.17.20", "axios\":\"0.21.0",
+        "prototype.js", "\"jquery\":\"1.", "\"jquery\":\"2.",
+        "\"angular\":\"1.",
+    ]
+    try:
+        base = f"https://{domain}"
+        MANIFEST_PATHS = [
+            "/package.json",
+            "/composer.json",
+            "/requirements.txt",
+            "/Gemfile.lock",
+        ]
+
+        exposed = []
+        vulnerable = []
+
+        for path in MANIFEST_PATHS:
+            try:
+                r = requests.get(
+                    f"{base}{path}", headers=HEADERS, timeout=TIMEOUT,
+                    allow_redirects=False, verify=False
+                )
+                if r.status_code == 200 and len(r.text) > 20:
+                    exposed.append(path)
+                    content_lower = r.text.lower()
+                    for vuln in KNOWN_VULNERABLE:
+                        if vuln.lower() in content_lower:
+                            vulnerable.append(f"{path}: {vuln.split(':')[0]}")
+            except requests.exceptions.RequestException:
+                continue
+
+        if vulnerable:
+            return result.critical(
+                "Exposed dependencies with known vulnerabilities",
+                f"Files: {', '.join(exposed)} | Flagged: {', '.join(vulnerable[:3])}",
+                impact=15
+            )
+        if exposed:
+            return result.warn(
+                f"Dependency manifests publicly accessible: {len(exposed)} file(s)",
+                f"Files exposed: {', '.join(exposed)}. Reveals tech stack and versions.",
+                impact=8
+            )
+
+        return result.ok("No dependency manifests exposed")
+    except Exception as e:
+        return result.error("SCA check failed", str(e)[:80])
+
+
+def check_dast(domain: str) -> CheckResult:
+    """Check for exposed admin panels, credential files, and sensitive paths."""
+    result = CheckResult("dast", domain)
+    try:
+        base = f"https://{domain}"
+        SENSITIVE_PATHS = [
+            ("/admin", "admin_panel"),
+            ("/wp-admin", "wp_admin"),
+            ("/phpmyadmin", "phpmyadmin"),
+            ("/.well-known/security.txt", "security_txt"),
+            ("/api/v1", "api"),
+            ("/.env", "env_file"),
+            ("/backup.zip", "backup"),
+            ("/debug", "debug"),
+            ("/console", "console"),
+        ]
+
+        critical_findings = []
+        warning_findings = []
+
+        for path, label in SENSITIVE_PATHS:
+            try:
+                r = requests.get(
+                    f"{base}{path}", headers=HEADERS, timeout=TIMEOUT,
+                    allow_redirects=False, verify=False
+                )
+                if r.status_code != 200:
+                    continue
+                content = r.text[:300].lower()
+
+                if label == "env_file":
+                    if any(kw in content for kw in ["db_password", "secret", "api_key", "database_url", "="]):
+                        critical_findings.append("/.env (credentials exposed)")
+                elif label in ("admin_panel", "wp_admin", "phpmyadmin"):
+                    if any(kw in content for kw in ["login", "password", "username", "sign in"]):
+                        warning_findings.append(f"{path} (login form)")
+                    else:
+                        critical_findings.append(f"{path} (no auth detected)")
+                elif label in ("debug", "console"):
+                    critical_findings.append(f"{path} (debug active)")
+                elif label == "backup":
+                    critical_findings.append(f"{path} (backup file exposed)")
+            except requests.exceptions.RequestException:
+                continue
+
+        if critical_findings:
+            return result.critical(
+                f"Critical exposure: {critical_findings[0]}",
+                f"Found: {', '.join(critical_findings[:3])}",
+                impact=20
+            )
+        if warning_findings:
+            return result.warn(
+                f"Admin panels exposed: {', '.join(warning_findings[:2])}",
+                f"Login panels accessible: {', '.join(warning_findings)}",
+                impact=10
+            )
+
+        return result.ok("No sensitive paths exposed")
+    except Exception as e:
+        return result.error("DAST check failed", str(e)[:80])
+
+
+def check_iac(domain: str) -> CheckResult:
+    """Check for exposed infrastructure-as-code and configuration files."""
+    result = CheckResult("iac", domain)
+    try:
+        base = f"https://{domain}"
+        IAC_PATHS = [
+            ("/.env", "env"),
+            ("/docker-compose.yml", "docker_compose"),
+            ("/docker-compose.yaml", "docker_compose"),
+            ("/Dockerfile", "dockerfile"),
+            ("/terraform.tfstate", "tfstate"),
+            ("/k8s.yaml", "k8s"),
+            ("/kubernetes.yaml", "k8s"),
+            ("/.terraform/", "terraform_dir"),
+            ("/ansible.cfg", "ansible"),
+            ("/deploy.sh", "deploy_script"),
+        ]
+
+        critical_findings = []
+        warning_findings = []
+
+        for path, label in IAC_PATHS:
+            try:
+                r = requests.get(
+                    f"{base}{path}", headers=HEADERS, timeout=TIMEOUT,
+                    allow_redirects=False, verify=False
+                )
+                if r.status_code != 200 or len(r.text) <= 10:
+                    continue
+                content = r.text[:500].lower()
+                if label in ("env", "tfstate"):
+                    if label == "tfstate" or any(
+                        kw in content for kw in ["password", "secret", "key", "token", "="]
+                    ):
+                        critical_findings.append(path)
+                    else:
+                        warning_findings.append(path)
+                elif label in ("docker_compose", "dockerfile"):
+                    warning_findings.append(path)
+                else:
+                    warning_findings.append(path)
+            except requests.exceptions.RequestException:
+                continue
+
+        if critical_findings:
+            return result.critical(
+                f"IaC secrets exposed: {critical_findings[0]}",
+                f"Critical files accessible: {', '.join(critical_findings)}. May contain credentials.",
+                impact=25
+            )
+        if warning_findings:
+            return result.warn(
+                f"IaC files exposed: {len(warning_findings)} file(s)",
+                f"Accessible: {', '.join(warning_findings[:4])}. Reveals infrastructure details.",
+                impact=12
+            )
+
+        return result.ok("No IaC or infrastructure files exposed")
+    except Exception as e:
+        return result.error("IaC check failed", str(e)[:80])
+
+
 ALL_CHECKS = [
     check_ssl,
     check_headers,
@@ -856,6 +1441,16 @@ ALL_CHECKS = [
     check_cve,                  # free (NVD API); set NVD_API_KEY for higher rate limits
     # ── Dark-web credential intelligence ──
     check_darkweb,              # paranoidlab.com — set PARANOIDLAB_API_KEY
+    # ── OSINT & Attack Surface ──
+    check_whois,                # free (RDAP)
+    check_email_security,       # free (DNS/dig)
+    check_ip_intel,             # free (ip-api.com, 45 req/min)
+    check_shodan,               # free (Shodan InternetDB, no key)
+    check_open_ports,           # active socket scan
+    check_sast,                 # passive HTTP probes
+    check_sca,                  # dependency manifest check
+    check_dast,                 # sensitive path probes
+    check_iac,                  # IaC file exposure check
 ]
 
 
