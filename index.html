@@ -2874,6 +2874,56 @@ function renderReportPage(data, domain, isSample) {
           <div class="admin-stat" style="flex:1"><span class="admin-stat-val" id="astat-paid">—</span><span class="admin-stat-lbl">Paid Sales</span></div>
         </div>
 
+        <!-- Live Scans & AI Cost Monitor -->
+        <div class="admin-section" id="admin-scans-section" style="margin-bottom:20px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+            <div class="admin-section-title" style="margin-bottom:0">🔄 Live Scans & AI Cost</div>
+            <button class="admin-btn-sm" onclick="adminScansLoad()">↻ Refresh</button>
+          </div>
+
+          <!-- Active scans -->
+          <div style="margin-bottom:16px">
+            <div style="font-family:'Space Mono',monospace;font-size:9px;color:var(--lime);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px">Currently Running</div>
+            <div id="admin-active-scans">
+              <div style="color:var(--grey);font-size:12px;padding:10px 0">Loading…</div>
+            </div>
+          </div>
+
+          <!-- Portkey AI cost -->
+          <div style="display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap">
+            <div class="admin-stat" style="flex:1"><span class="admin-stat-val" id="astat-ai-requests" style="color:var(--lime)">—</span><span class="admin-stat-lbl">AI Requests</span><span class="admin-stat-sub">via Portkey</span></div>
+            <div class="admin-stat" style="flex:1"><span class="admin-stat-val" id="astat-ai-tokens">—</span><span class="admin-stat-lbl">Total Tokens</span></div>
+            <div class="admin-stat" style="flex:1"><span class="admin-stat-val" id="astat-ai-cost" style="color:#2ECC71">—</span><span class="admin-stat-lbl">AI Cost (USD)</span><span class="admin-stat-sub">Portkey analytics</span></div>
+          </div>
+
+          <!-- Recent AI calls -->
+          <div style="font-family:'Space Mono',monospace;font-size:9px;color:var(--lime);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px">Recent AI Calls</div>
+          <div class="admin-table-wrap">
+            <table class="admin-table">
+              <thead><tr><th>Time</th><th>Type</th><th>Domain</th><th>User</th><th>Tokens</th><th>Cost</th></tr></thead>
+              <tbody id="admin-portkey-body"><tr><td colspan="6" style="text-align:center;padding:16px;color:var(--grey)">Loading…</td></tr></tbody>
+            </table>
+          </div>
+
+          <!-- Scan history -->
+          <div style="font-family:'Space Mono',monospace;font-size:9px;color:var(--lime);letter-spacing:2px;text-transform:uppercase;margin:16px 0 8px">Scan History (last 100)</div>
+          <div class="admin-table-wrap">
+            <table class="admin-table">
+              <thead><tr><th>Domain</th><th>Risk</th><th>Critical</th><th>Warnings</th><th>Scanned At</th></tr></thead>
+              <tbody id="admin-scan-history-body"><tr><td colspan="5" style="text-align:center;padding:16px;color:var(--grey)">Loading…</td></tr></tbody>
+            </table>
+          </div>
+
+          <!-- Marketing scan log -->
+          <div style="font-family:'Space Mono',monospace;font-size:9px;color:var(--lime);letter-spacing:2px;text-transform:uppercase;margin:16px 0 8px">Marketing Scan Log</div>
+          <div class="admin-table-wrap">
+            <table class="admin-table">
+              <thead><tr><th>Ran At</th><th>Prospects Found</th><th>Status</th></tr></thead>
+              <tbody id="admin-marketing-log-body"><tr><td colspan="3" style="text-align:center;padding:16px;color:var(--grey)">Loading…</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+
         <!-- Developer API Stats -->
         <div class="admin-section" style="margin-bottom:20px">
           <div class="admin-section-title">🔑 Developer API Usage</div>
@@ -5055,6 +5105,16 @@ var outreachFilter    = 'pending';
 var _outreachTemplates = null;
 
 async function outreachLoad() {
+  // Auto re-attach to running scan if we navigated away
+  if (!prospectScanning) {
+    try {
+      var prog = await api('/outreach/scan-progress');
+      if (prog.status === 'running' || prog.status === 'fetching') {
+        prospectScanning = true;
+        _prospectAttachProgress();
+      }
+    } catch(e) {}
+  }
   // Also populate Section 1 (Threat Discovery) from backend on every load
   prospectLoadFromBackend();
   // Pre-fetch country templates for re-draft feature
@@ -6460,6 +6520,137 @@ async function adminLoad() {
   adminLoadLLMStats('month');
   adminLoadEmailTemplates();
   adminLoadReportEmailTemplate();
+  adminScansLoad();
+}
+
+async function adminScansLoad() {
+  // ── Active scans ──────────────────────────────────────────────────────────
+  var activeEl = document.getElementById('admin-active-scans');
+  try {
+    var act = await api('/admin/scans/active');
+    var domScans = act.domain_scans || [];
+    var mkt = act.marketing_scan || {};
+    var html = '';
+
+    // Domain scans
+    if (domScans.length) {
+      html += domScans.map(function(s) {
+        return '<div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:rgba(203,255,0,.04);border:1px solid rgba(203,255,0,.12);border-radius:6px;margin-bottom:6px">'
+          + '<div class="spinner" style="width:12px;height:12px;border-width:2px;flex-shrink:0"></div>'
+          + '<span style="font-family:Space Mono,monospace;font-size:11px;color:var(--white)">' + (s.domain||s.domain_id) + '</span>'
+          + '<span style="font-family:Space Mono,monospace;font-size:9px;color:var(--grey);margin-left:auto">'
+            + (s.started_at ? 'started ' + new Date(s.started_at).toLocaleTimeString() : '') + '</span>'
+          + '</div>';
+      }).join('');
+    }
+
+    // Marketing scan
+    if (mkt.status === 'running' || mkt.status === 'fetching') {
+      var pct = mkt.total ? Math.round(mkt.scanned / mkt.total * 100) : 0;
+      html += '<div style="padding:10px 12px;background:rgba(203,255,0,.04);border:1px solid rgba(203,255,0,.12);border-radius:6px;margin-bottom:6px">'
+        + '<div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">'
+        + '<div class="spinner" style="width:12px;height:12px;border-width:2px;flex-shrink:0"></div>'
+        + '<span style="font-family:Space Mono,monospace;font-size:11px;color:var(--lime)">📣 MARKETING SCAN</span>'
+        + '<span style="font-family:Space Mono,monospace;font-size:9px;color:var(--grey);margin-left:auto">'
+          + (mkt.scanned||0) + ' / ' + (mkt.total||'?') + ' domains — ' + pct + '%</span>'
+        + '</div>'
+        + '<div style="background:rgba(255,255,255,.06);border-radius:3px;height:3px">'
+          + '<div style="background:var(--lime);height:3px;border-radius:3px;width:' + pct + '%;transition:width .4s"></div>'
+        + '</div>'
+        + '</div>';
+    }
+
+    if (!html) {
+      html = '<div style="color:var(--grey);font-size:12px;padding:8px 0">No scans currently running.</div>';
+    }
+    if (activeEl) activeEl.innerHTML = html;
+  } catch(e) {
+    if (activeEl) activeEl.innerHTML = '<div style="color:var(--grey);font-size:12px">Failed to load: ' + e.message + '</div>';
+  }
+
+  // ── Portkey usage ──────────────────────────────────────────────────────────
+  try {
+    var pk = await api('/admin/portkey/usage');
+    var setEl = function(id, v){ var e = document.getElementById(id); if(e) e.textContent = v; };
+    setEl('astat-ai-requests', pk.error ? '—' : (pk.total_requests || 0));
+    setEl('astat-ai-tokens',   pk.error ? '—' : ((pk.total_tokens || 0).toLocaleString()));
+    setEl('astat-ai-cost',     pk.error ? '—' : ('$' + (pk.total_cost || 0).toFixed(4)));
+
+    var pkBody = document.getElementById('admin-portkey-body');
+    if (pkBody) {
+      var logs = pk.logs || [];
+      if (pk.error) {
+        pkBody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:14px;color:#888">' + pk.error + '</td></tr>';
+      } else if (!logs.length) {
+        pkBody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:14px;color:var(--grey)">No recent AI calls found</td></tr>';
+      } else {
+        pkBody.innerHTML = logs.map(function(l) {
+          var meta = l.metadata || l.request_metadata || {};
+          var usage = l.usage || {};
+          var cost = parseFloat(l.cost || 0).toFixed(5);
+          var ts = l.created_at || l.timestamp || '';
+          var dt = ts ? new Date(ts).toLocaleString('en-GB', {day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}) : '—';
+          return '<tr>'
+            + '<td>' + dt + '</td>'
+            + '<td><span style="font-family:Space Mono,monospace;font-size:9px;color:var(--lime)">' + (meta.report_type || l.model || '—') + '</span></td>'
+            + '<td>' + (meta.domain || '—') + '</td>'
+            + '<td style="font-size:10px;color:#666">' + (meta._user || '—') + '</td>'
+            + '<td>' + ((usage.total_tokens || 0)).toLocaleString() + '</td>'
+            + '<td style="color:#2ECC71;font-family:Space Mono,monospace;font-size:10px">$' + cost + '</td>'
+            + '</tr>';
+        }).join('');
+      }
+    }
+  } catch(e) {
+    var el = document.getElementById('admin-portkey-body');
+    if (el) el.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:14px;color:#888">Failed: ' + e.message + '</td></tr>';
+  }
+
+  // ── Scan history ───────────────────────────────────────────────────────────
+  try {
+    var hist = await api('/admin/scans/history');
+    var domScansHist = hist.domain_scans || [];
+    var histBody = document.getElementById('admin-scan-history-body');
+    if (histBody) {
+      if (!domScansHist.length) {
+        histBody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:14px;color:var(--grey)">No scans yet</td></tr>';
+      } else {
+        histBody.innerHTML = domScansHist.map(function(s) {
+          var domain = (s.domains && s.domains.domain) ? s.domains.domain : '—';
+          var risk = s.risk_score || 0;
+          var rc = risk >= 60 ? '#C0392B' : risk >= 30 ? '#D4850A' : '#2ECC71';
+          var dt = s.scanned_at ? new Date(s.scanned_at).toLocaleString('en-GB',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}) : '—';
+          return '<tr>'
+            + '<td style="font-family:Space Mono,monospace;font-size:11px">' + domain + '</td>'
+            + '<td><span style="color:' + rc + ';font-weight:700">' + risk + '</span></td>'
+            + '<td style="color:#C0392B">' + (s.critical || 0) + '</td>'
+            + '<td style="color:#D4850A">' + (s.warnings || 0) + '</td>'
+            + '<td style="color:var(--grey);font-size:11px">' + dt + '</td>'
+            + '</tr>';
+        }).join('');
+      }
+    }
+    // Marketing scan log
+    var mktLogs = hist.marketing_scans || [];
+    var mktLogBody = document.getElementById('admin-marketing-log-body');
+    if (mktLogBody) {
+      if (!mktLogs.length) {
+        mktLogBody.innerHTML = '<tr><td colspan="3" style="text-align:center;padding:14px;color:var(--grey)">No marketing scans run yet</td></tr>';
+      } else {
+        mktLogBody.innerHTML = mktLogs.map(function(l) {
+          var dt = l.ran_at ? new Date(l.ran_at).toLocaleString('en-GB',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}) : '—';
+          return '<tr>'
+            + '<td style="color:var(--grey);font-size:11px">' + dt + '</td>'
+            + '<td style="color:var(--lime);font-family:Space Mono,monospace">' + (l.prospects || 0) + '</td>'
+            + '<td><span style="font-family:Space Mono,monospace;font-size:9px;color:#2ECC71">COMPLETE</span></td>'
+            + '</tr>';
+        }).join('');
+      }
+    }
+  } catch(e) {
+    var el2 = document.getElementById('admin-scan-history-body');
+    if (el2) el2.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:14px;color:#888">Failed: ' + e.message + '</td></tr>';
+  }
 }
 
 // ── PDF Report Email Template ─────────────────────────────────────────────────
