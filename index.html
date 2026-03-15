@@ -3037,7 +3037,7 @@ function renderReportPage(data, domain, isSample) {
           <div style="display:flex;gap:12px;align-items:flex-end;margin-bottom:16px;flex-wrap:wrap">
             <div style="flex:1;min-width:160px">
               <label style="font-family:'Space Mono',monospace;font-size:10px;color:var(--grey);letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:5px">Country</label>
-              <select id="tpl-country" class="prospect-select" style="width:100%" onchange="adminLoadCountryTemplate()">
+              <select id="tpl-country" class="prospect-select" style="width:100%" onchange="adminLoadCountryTemplate(true)">
                 <option value="CZ">🇨🇿 Czech Republic (cs)</option>
                 <option value="PL">🇵🇱 Poland (pl)</option>
                 <option value="SK">🇸🇰 Slovakia (sk)</option>
@@ -3060,10 +3060,13 @@ function renderReportPage(data, domain, isSample) {
               <input id="tpl-language" type="text" placeholder="e.g. Czech" style="width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:6px;color:var(--white);font-size:13px;padding:9px 12px;box-sizing:border-box;font-family:inherit">
             </div>
             <div style="display:flex;gap:8px;flex-shrink:0;padding-bottom:1px">
+              <button id="tpl-translate-btn" onclick="adminTranslateTemplate()" style="background:rgba(203,255,0,.08);border:1px solid rgba(203,255,0,.2);color:var(--lime);font-family:'Space Mono',monospace;font-size:11px;padding:7px 14px;border-radius:6px;cursor:pointer;white-space:nowrap">🌐 Translate</button>
               <button class="btn-scan-all" onclick="adminSaveEmailTemplate()">💾 Save</button>
-              <button onclick="adminResetEmailTemplate()" style="background:transparent;border:1px solid rgba(192,57,43,.3);color:#C0392B;font-family:'Space Mono',monospace;font-size:11px;padding:7px 14px;border-radius:6px;cursor:pointer">↩ Reset to Default</button>
+              <button onclick="adminResetEmailTemplate()" style="background:transparent;border:1px solid rgba(192,57,43,.3);color:#C0392B;font-family:'Space Mono',monospace;font-size:11px;padding:7px 14px;border-radius:6px;cursor:pointer">↩ Reset</button>
             </div>
           </div>
+          <!-- Translation status banner -->
+          <div id="tpl-translate-banner" style="display:none;font-family:'Space Mono',monospace;font-size:11px;background:rgba(203,255,0,.06);border:1px solid rgba(203,255,0,.15);border-radius:6px;padding:8px 14px;margin-bottom:12px"></div>
 
           <!-- Template suggestions -->
           <div style="margin-bottom:14px">
@@ -6677,15 +6680,114 @@ async function adminLoadEmailTemplates() {
   }
 }
 
-function adminLoadCountryTemplate() {
-  var country = (document.getElementById('tpl-country') || {}).value || 'CZ';
-  var tpl = _emailTemplates[country];
+var COUNTRY_LANGUAGES = {
+  CZ:'Czech', PL:'Polish', SK:'Slovak', HU:'Hungarian', RO:'Romanian',
+  AT:'German', DE:'German', CH:'German', LU:'German',
+  FR:'French', IT:'Italian', ES:'Spanish', PT:'Portuguese',
+  NL:'Dutch', BE:'Dutch', SE:'Swedish', NO:'Norwegian', FI:'Finnish', DK:'Danish',
+  IS:'Icelandic', IE:'English', GB:'English', MT:'Maltese',
+  UA:'Ukrainian', RU:'Russian', BY:'Belarusian', MD:'Romanian',
+  LT:'Lithuanian', LV:'Latvian', EE:'Estonian',
+  BG:'Bulgarian', HR:'Croatian', SI:'Slovenian', RS:'Serbian',
+  BA:'Bosnian', AL:'Albanian', MK:'Macedonian', ME:'Montenegrin', XK:'Albanian',
+  GR:'Greek', TR:'Turkish', IL:'Hebrew', AE:'Arabic', SA:'Arabic', EG:'Arabic',
+  ZA:'English', NG:'English', BR:'Portuguese', AR:'Spanish', MX:'Spanish', CL:'Spanish',
+  JP:'Japanese', KR:'Korean', CN:'Chinese', IN:'Hindi',
+  AU:'English', NZ:'English', SG:'English', CA:'English', US:'English',
+  ID:'Indonesian', MY:'Malay', TH:'Thai', VN:'Vietnamese', PH:'Filipino',
+};
+
+function adminLoadCountryTemplate(autoTranslate) {
+  var country  = (document.getElementById('tpl-country') || {}).value || 'CZ';
+  var lang     = COUNTRY_LANGUAGES[country] || 'English';
+  var tpl      = _emailTemplates[country];
   var promptEl = document.getElementById('tpl-prompt');
   var langEl   = document.getElementById('tpl-language');
+  var btn      = document.getElementById('tpl-translate-btn');
+  var banner   = document.getElementById('tpl-translate-banner');
+  var result   = document.getElementById('tpl-test-result');
+
   if (promptEl) promptEl.value = tpl ? tpl.prompt  : '';
-  if (langEl)   langEl.value   = tpl ? tpl.language : '';
-  var result = document.getElementById('tpl-test-result');
-  if (result) result.style.display = 'none';
+  if (langEl)   langEl.value   = tpl ? tpl.language : lang;
+  if (result)   result.style.display = 'none';
+  if (banner)   banner.style.display = 'none';
+
+  if (btn) {
+    if (lang === 'English') {
+      btn.textContent = '🌐 English (no translation needed)';
+      btn.disabled    = true;
+    } else {
+      btn.textContent = '🌐 Translate to ' + lang;
+      btn.disabled    = false;
+    }
+  }
+
+  // Auto-translate when country changes and no saved translation exists
+  if (autoTranslate && lang !== 'English' && !tpl) {
+    setTimeout(adminTranslateTemplate, 200);
+  }
+}
+
+async function adminTranslateTemplate() {
+  var country  = (document.getElementById('tpl-country') || {}).value || '';
+  var lang     = COUNTRY_LANGUAGES[country] || 'English';
+  var promptEl = document.getElementById('tpl-prompt');
+  var langEl   = document.getElementById('tpl-language');
+  var btn      = document.getElementById('tpl-translate-btn');
+  var banner   = document.getElementById('tpl-translate-banner');
+
+  if (lang === 'English') { toast('Template is already in English'); return; }
+
+  // Use source template: current textarea content OR fetch English default
+  var sourceText = (promptEl || {}).value || '';
+  if (!sourceText.trim()) {
+    // Fetch the default English template (GB has no custom template = returns default)
+    try {
+      var def = await api('/outreach/templates');
+      var defTpl = (def.templates || {})['GB'] || (def.templates || {})[Object.keys(def.templates||{})[0]];
+      sourceText = defTpl ? defTpl.prompt : '';
+    } catch(e) {}
+  }
+  if (!sourceText.trim()) { toast('No template text to translate', true); return; }
+
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Translating to ' + lang + '…'; }
+  if (banner) banner.style.display = 'none';
+
+  var translationPrompt =
+    'Translate the following outreach email prompt template to ' + lang + '.\n' +
+    'CRITICAL RULES:\n' +
+    '1. Keep ALL {variable} placeholders EXACTLY as-is: {domain}, {sw_list}, {cve_list}, {top_cve_id}, {top_cvss}\n' +
+    '2. Maintain the same professional tone and structure\n' +
+    '3. Return ONLY the translated template — no commentary, no explanation, no extra text\n\n' +
+    '--- TEMPLATE TO TRANSLATE ---\n' + sourceText;
+
+  try {
+    var d = await api('/intel', {
+      method: 'POST',
+      body: JSON.stringify({ prompt: translationPrompt, max_tokens: 900, domain: country })
+    });
+    var translated = (d.text || d.briefing || '').trim();
+    if (!translated) { toast('Translation returned empty response', true); return; }
+
+    if (promptEl) promptEl.value = translated;
+    if (langEl)   langEl.value   = lang;
+    if (banner) {
+      banner.innerHTML = '✓ Auto-translated to <strong style="color:var(--lime)">' + lang + '</strong>'
+        + ' — review the template above, then click <strong>💾 Save</strong> to keep it';
+      banner.style.display = 'block';
+    }
+    toast('✓ Translated to ' + lang + ' — review and save');
+  } catch(e) {
+    toast('Translation failed: ' + e.message, true);
+    if (banner) {
+      banner.innerHTML = '<span style="color:#C0392B">✗ Translation failed: ' + e.message + '</span>';
+      banner.style.display = 'block';
+    }
+  }
+  if (btn) {
+    btn.textContent = '🌐 Translate to ' + lang;
+    btn.disabled    = false;
+  }
 }
 
 async function adminSaveEmailTemplate() {
